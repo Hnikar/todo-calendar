@@ -1,0 +1,106 @@
+@import url(reset.css);
+
+:root {
+    --primary-dark: #e3eff2;
+    --secondary-dark: #444;
+    --primary-light: #0b0913;
+    --secondary-light: #141023;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    padding: 2rem;
+}
+
+button {
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color:   inherit;
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+}
+
+i {
+    margin-right: 10px;
+}
+
+.main {
+    display: flex;
+    height: 100%;
+    gap: 2rem;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 300px;
+    min-width: 250px;
+    padding: 20px;
+    border: 0px solid var(--primary-light);
+    border-radius: 1rem;
+    background-color: var(--secondary-light);
+}
+
+.menu{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;  
+    /* to align with main */
+    font-weight: bold;
+}
+
+.button-menu{ 
+    background-color: var(--secondary-light);
+    width: max-content;
+    margin: 0;
+    padding: 0;
+}
+
+.button-default-project {
+    background-color: var(--secondary-light);
+    text-align: left;
+}
+
+.button-default-project:hover {
+    background-color: var(--primary-light);
+}
+
+.fa-angles-right {
+    margin-right: 6px;
+}
+
+.project-preview {
+    width: 900px;
+    padding: 20px 40px;
+    margin: 0 auto;
+}
+
+@media (max-width: 650px) {
+    .main {
+        flex-direction: column;
+    }
+
+    .nav {
+        width: 100%;
+        display: none;
+    }
+
+    .project-preview {
+        width: 100%;
+    }
+}

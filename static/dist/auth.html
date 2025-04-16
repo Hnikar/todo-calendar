@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentication</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+
+<body>
+  <div class="main" style="justify-content: center; align-items: center;">
+    <div class="auth-form"
+      style="background-color: var(--secondary-light); padding: 2rem; border-radius: 1rem; width: 100%; max-width: 400px;">
+      <h2 id="formTitle" style="text-align: center; margin-bottom: 1rem;">Authentication</h2>
+      <form id="authForm">
+        <input type="email" id="email" placeholder="Email" required
+          style="display: block; width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 5px; border: none; font-size: 1rem;">
+        <input type="password" id="password" placeholder="Password" required
+          style="display: block; width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 5px; border: none; font-size: 1rem;">
+        <button type="submit" id="submitButton"
+          style="background-color: var(--primary-dark); color: var(--primary-light); font-weight: bold;">Continue</button>
+      </form>
+      <p id="toggleAuth" style="margin-top: 1rem; text-align: center;">Loading auth options...</p>
+    </div>
+  </div>
+</body>
+<script src="../src/auth.js"></script>
+
+</html>

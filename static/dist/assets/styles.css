@@ -63,15 +63,21 @@ i {
     /* to align with main */
     font-weight: bold;
 }
+
 .button-menu{ 
     background-color: var(--secondary-light);
     width: max-content;
     margin: 0;
     padding: 0;
 }
+
 .button-default-project {
     background-color: var(--secondary-light);
     text-align: left;
+}
+
+.button-default-project:hover {
+    background-color: var(--primary-light);
 }
 
 .fa-angles-right {

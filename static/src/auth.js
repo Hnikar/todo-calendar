@@ -3,126 +3,104 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeAuthForm();
 });
 
-// Initialize form based on URL parameters
 function initializeAuthForm() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const mode = urlParams.get("mode") || "login";
-
-  // Set initial form state
-  if (mode === "register") {
-    setupRegistrationForm();
-  } else {
-    setupLoginForm();
-  }
-
-  // Form submission handler
-  document.getElementById("authForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const isRegister = window.location.search.includes("mode=register");
-
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    if (isRegister) {
-      await handleRegistration(email, password);
-    } else {
-      await handleLogin(email, password);
-    }
-  });
-}
-
-function setupRegistrationForm() {
-  document.getElementById("formTitle").textContent = "Sign Up";
-  document.getElementById("submitButton").textContent = "Create Account";
-  document.getElementById("toggleAuth").innerHTML =
-    'Already have an account? <a href="#" onclick="switchMode(\'login\')">Log In</a>';
-}
-
-function setupLoginForm() {
-  document.getElementById("formTitle").textContent = "Log In";
-  document.getElementById("submitButton").textContent = "Sign In";
-  document.getElementById("toggleAuth").innerHTML =
-    'Don\'t have an account? <a href="#" onclick="switchMode(\'register\')">Sign Up</a>';
+  document.getElementById("authForm").addEventListener("submit", handleAuthSubmit);
+  switchMode('login'); // Set default mode
 }
 
 function switchMode(mode) {
-  window.history.replaceState({}, "", `?mode=${mode}`);
-  if (mode === "register") {
-    setupRegistrationForm();
-  } else {
-    setupLoginForm();
-  }
+  const nameField = document.getElementById('nameField');
+  const loginTab = document.querySelector('[data-mode="login"]');
+  const registerTab = document.querySelector('[data-mode="register"]');
+
+  nameField.classList.toggle('hidden', mode === 'login');
+  loginTab.classList.toggle('active', mode === 'login');
+  registerTab.classList.toggle('active', mode === 'register');
 }
 
-async function handleRegistration(email, password) {
-  try {
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+async function handleAuthSubmit(e) {
+  e.preventDefault();
 
-    const data = await response.json();
+  const isLoginMode = document.getElementById('nameField').classList.contains('hidden');
+  const url = isLoginMode ? "/api/login" : "/api/register";
 
-    if (response.ok) {
-      alert("Registration successful! Please log in.");
-      window.location.href = "/login";
-    } else {
-      showError(data.error || "Registration failed");
+  const data = {
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
+  };
+
+  if (!isLoginMode) {
+    data.name = document.getElementById("name").value;
+
+    if (!data.name.trim()) {
+      showError("Name is required");
+      return;
     }
-  } catch (error) {
-    showError("Network error. Please try again.");
   }
-}
 
-async function handleLogin(email, password) {
   try {
-    const response = await fetch("/api/login", {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(data)
     });
 
-    const data = await response.json();
+    const result = await response.json();
 
     if (response.ok) {
-      localStorage.setItem("jwtToken", data.token);
-      window.location.href = "/calendar";
+      if (isLoginMode) {
+        localStorage.setItem("jwtToken", result.token);
+        localStorage.setItem("user", JSON.stringify(result.user));
+        window.location.href = "/calendar";
+      } else {
+        showSuccess("Registration successful! Please log in.");
+        document.getElementById('authForm').reset();
+        switchMode('login');
+      }
     } else {
-      showError(data.error || "Invalid credentials");
+      throw new Error(result.error || "Authentication failed");
     }
   } catch (error) {
-    showError("Network error. Please try again.");
+    showError(error.message);
   }
 }
 
 function checkAuthStatus() {
   const token = localStorage.getItem("jwtToken");
-  const currentPath = window.location.pathname;
+  const authPages = ["/login", "/register"];
 
-  // Redirect authenticated users away from auth pages
-  if (token && (currentPath === "/login" || currentPath === "/register")) {
+  if (token && authPages.includes(window.location.pathname)) {
     window.location.href = "/calendar";
   }
-  // Redirect unauthenticated users from protected pages
-  else if (!token && !["/login", "/register"].includes(currentPath)) {
+  if (!token && !authPages.includes(window.location.pathname)) {
     window.location.href = "/login";
   }
 }
 
 function showError(message) {
-  const errorElement = document.createElement("div");
-  errorElement.className = "error-message";
+  const errorElement = document.createElement('div');
+  errorElement.className = 'error-message';
   errorElement.textContent = message;
 
-  const authForm = document.querySelector(".auth-form");
+  const authForm = document.querySelector('.auth-form');
   authForm.prepend(errorElement);
 
   setTimeout(() => errorElement.remove(), 5000);
 }
 
-// For use in other pages
+function showSuccess(message) {
+  const successElement = document.createElement('div');
+  successElement.className = 'success-message';
+  successElement.textContent = message;
+
+  const authForm = document.querySelector('.auth-form');
+  authForm.prepend(successElement);
+
+  setTimeout(() => successElement.remove(), 3000);
+}
+
 function logout() {
   localStorage.removeItem("jwtToken");
+  localStorage.removeItem("user");
   window.location.href = "/login";
 }

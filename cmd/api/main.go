@@ -38,13 +38,14 @@ func main() {
 	router.Use(corsMiddleware())
 
 	// Static files
-	router.Static("/static", "./static")
-	router.LoadHTMLGlob("static/*.html")
+	router.Static("/assets", "./static/dist/assets")
+	router.LoadHTMLGlob("static/dist/*.html")
 
 	// Routes
 	router.GET("/", homeHandler)
-	router.GET("/login", loginPageHandler)
-	router.GET("/register", registerPageHandler)
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "auth.html", nil) // Теперь auth.html вместо login.html
+	})
 
 	api := router.Group("/api")
 	{
@@ -160,7 +161,13 @@ func loginHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{
+		"token": tokenString,
+		"user": gin.H{
+			"id":    user.ID,
+			"email": user.Email,
+		},
+	})
 }
 
 // ==============================
@@ -210,6 +217,7 @@ func corsMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // Для Webpack Dev Server
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)

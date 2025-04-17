@@ -104,3 +104,35 @@ i {
         width: 100%;
     }
 }
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+.tab.active {
+    border-bottom: 2px solid var(--accent);
+    opacity: 1;
+}
+
+.hidden {
+    display: none;
+}
+
+.success-message {
+    color: #4CAF50;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+}

@@ -383,3 +383,9 @@ input[type="password"]:focus {
         margin-bottom: 1rem;
     }
 }
+
+.api-error-message {
+    color: var(--error-color); /* Здесь переменная будет работать корректно */
+    font-weight: bold; /* Можно добавить и другие стили */
+    padding: 5px 0;  /* Небольшой отступ для наглядности */
+}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"os"
@@ -10,89 +9,90 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"todo-calendar/internal/models" // Путь к вашим моделям
+	"todo-calendar/internal/models"
 )
 
 var db *gorm.DB
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func main() {
-	// Initialize DB
+	initDatabase()
+
+	// Создание роутера Gin
+	router := gin.Default()
+
+	// Middleware
+	router.Use(corsMiddleware()) // Обновлённый CORS
+
+	// Статические файлы
+	router.Static("/assets", "./static/dist/assets")
+	router.LoadHTMLGlob("static/dist/*.html")
+
+	// Маршруты
+	setupRoutes(router)
+
+	// Запуск сервера
+	startServer(router)
+}
+
+func initDatabase() {
 	var err error
 	db, err = gorm.Open(sqlite.Open("calendar.db"), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect database")
 	}
 
-	// Auto-migrate models
-	if err := db.AutoMigrate(&models.User{}, &models.Event{}, &models.Category{}); err != nil {
+	// Автомиграции с проверкой ошибок
+	err = db.AutoMigrate(&models.User{}, &models.Event{}, &models.Category{})
+	if err != nil {
 		panic("Database migration failed: " + err.Error())
 	}
+}
 
-	// Initialize router
-	router := gin.Default()
-
-	// CORS middleware
-	router.Use(corsMiddleware())
-
-	// Static files
-	router.Static("/assets", "./static/dist/assets")
-	router.LoadHTMLGlob("static/dist/*.html")
-
-	// Routes
+func setupRoutes(router *gin.Engine) {
+	// Перенаправление с корня
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/login")
 	})
+
+	// Страница аутентификации
 	router.GET("/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "auth.html", nil) // Теперь auth.html вместо login.html
+		c.HTML(http.StatusOK, "auth.html", nil)
 	})
 
-	api := router.Group("/api")
+	// Группа публичных API endpoints
+	publicAPI := router.Group("/api")
 	{
-		api.POST("/register", registerHandler)
-		api.POST("/login", loginHandler)
+		publicAPI.POST("/register", registerHandler)
+		publicAPI.POST("/login", loginHandler)
 	}
 
-	// Protected routes
-	auth := router.Group("/api")
-	auth.Use(authMiddleware())
+	// Группа защищенных API endpoints
+	protectedAPI := router.Group("/api")
+	protectedAPI.Use(authMiddleware())
 	{
-		auth.GET("/events", getEventsHandler)
-		auth.POST("/events", createEventHandler)
+		protectedAPI.GET("/events", getEventsHandler)
+		protectedAPI.POST("/events", createEventHandler)
 	}
+}
 
-	// Start server
-	if err := router.Run(":8080"); err != nil {
+func startServer(router *gin.Engine) {
+	port := ":8080"
+	fmt.Printf("Server running on port %s\n", port)
+	if err := router.Run(port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
 
-// ==============================
-// Handlers
-// ==============================
-
-func homeHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
-}
-
-func loginPageHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", nil)
-}
-
-func registerPageHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "register.html", nil)
-}
-
-// ==============================
-// Auth Handlers
-// ==============================
-
+// Обработчики аутентификации
 func registerHandler(c *gin.Context) {
 	type RegisterRequest struct {
 		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required,min=6"`
+		Password string `json:"password" binding:"required,min=8,max=72"`
+		Name     string `json:"name" binding:"required,min=2,max=50"`
 	}
 
 	var req RegisterRequest
@@ -101,20 +101,25 @@ func registerHandler(c *gin.Context) {
 		return
 	}
 
-	// Check if user exists
+	// Проверка существующего пользователя
 	var existingUser models.User
 	if result := db.Where("email = ?", req.Email).First(&existingUser); result.Error == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Email already exists"})
 		return
 	}
 
-	// Hash password
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	// Хеширование пароля
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
 
-	// Create user
+	// Создание пользователя
 	user := models.User{
 		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
+		Name:         req.Name,
 		CreatedAt:    time.Now(),
 	}
 
@@ -123,13 +128,20 @@ func registerHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"id": user.ID})
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User created successfully",
+		"user": gin.H{
+			"id":    user.ID,
+			"email": user.Email,
+			"name":  user.Name,
+		},
+	})
 }
 
 func loginHandler(c *gin.Context) {
 	type LoginRequest struct {
 		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required"`
+		Password string `json:"password" binding:"required,min=8,max=72"`
 	}
 
 	var req LoginRequest
@@ -138,23 +150,23 @@ func loginHandler(c *gin.Context) {
 		return
 	}
 
-	// Find user
+	// Поиск пользователя
 	var user models.User
 	if result := db.Where("email = ?", req.Email).First(&user); result.Error != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
-	// Check password
+	// Проверка пароля
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
-	// Generate JWT
+	// Генерация JWT токена
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 дней
 	})
 
 	tokenString, err := token.SignedString(jwtSecret)
@@ -168,14 +180,12 @@ func loginHandler(c *gin.Context) {
 		"user": gin.H{
 			"id":    user.ID,
 			"email": user.Email,
+			"name":  user.Name,
 		},
 	})
 }
 
-// ==============================
 // Middleware
-// ==============================
-
 func authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
@@ -192,10 +202,7 @@ func authMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error":   "Invalid token",
-				"details": err.Error(),
-			})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 
@@ -207,9 +214,7 @@ func authMiddleware() gin.HandlerFunc {
 			}
 		}
 
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "Malformed token claims",
-		})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
 	}
 }
 
@@ -219,7 +224,7 @@ func corsMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // Для Webpack Dev Server
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
@@ -230,10 +235,7 @@ func corsMiddleware() gin.HandlerFunc {
 	}
 }
 
-// ==============================
-// Event Handlers (пример)
-// ==============================
-
+// Обработчики событий
 func getEventsHandler(c *gin.Context) {
 	userID := c.MustGet("user_id").(uint)
 
@@ -262,7 +264,7 @@ func createEventHandler(c *gin.Context) {
 		return
 	}
 
-	// Validate time
+	// Валидация времени
 	if req.StartTime.After(req.EndTime) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "End time must be after start time"})
 		return

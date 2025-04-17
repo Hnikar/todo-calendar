@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Authentication</title>
   <link rel="stylesheet" href="./assets/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
 <div class="auth-form">
   <div class="tabs">
-    <button data-mode="login" class="tab active" onclick="switchMode('login')">Login</button>
-    <button data-mode="register" class="tab" onclick="switchMode('register')">Sign Up</button>
+    <button data-mode="login" class="tab active">Login</button>
+    <button data-mode="register" class="tab">Sign Up</button>
   </div>
 
   <form id="authForm">
@@ -26,14 +25,6 @@
   </form>
 </div>
 
-<script>
-  function switchMode(mode) {
-    document.getElementById('nameField').classList.toggle('hidden', mode === 'login');
-    document.querySelectorAll('.tab').forEach(tab =>
-            tab.classList.toggle('active', tab.textContent.toLowerCase().includes(mode)))
-  }
-</script>
+<script src="./../src/auth.js"></script>
 </body>
-<script src="../src/auth.js"></script>
-
 </html>

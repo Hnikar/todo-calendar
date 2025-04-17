@@ -10,12 +10,13 @@ function initializeAuthForm() {
 
 function switchMode(mode) {
   const nameField = document.getElementById('nameField');
-  const loginTab = document.querySelector('[data-mode="login"]');
-  const registerTab = document.querySelector('[data-mode="register"]');
+  if (!nameField) return;
 
-  nameField.classList.toggle('hidden', mode === 'login');
-  loginTab.classList.toggle('active', mode === 'login');
-  registerTab.classList.toggle('active', mode === 'register');
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => tab.classList.remove('active'));
+
+  const activeTab = document.querySelector(`[data-mode="${mode}"]`);
+  if (activeTab) activeTab.classList.add('active');
 }
 
 async function handleAuthSubmit(e) {
@@ -51,7 +52,10 @@ async function handleAuthSubmit(e) {
       if (isLoginMode) {
         localStorage.setItem("jwtToken", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
-        window.location.href = "/calendar";
+        const allowedPaths = ["/", "/login", "/register"];
+        if (!allowedPaths.includes(window.location.pathname)) {
+          window.location.href = "/";
+        }
       } else {
         showSuccess("Registration successful! Please log in.");
         document.getElementById('authForm').reset();
@@ -70,7 +74,10 @@ function checkAuthStatus() {
   const authPages = ["/login", "/register"];
 
   if (token && authPages.includes(window.location.pathname)) {
-    window.location.href = "/calendar";
+    const allowedPaths = ["/", "/login", "/register"];
+    if (!allowedPaths.includes(window.location.pathname)) {
+      window.location.href = "/";
+    }
   }
   if (!token && !authPages.includes(window.location.pathname)) {
     window.location.href = "/login";
@@ -78,14 +85,18 @@ function checkAuthStatus() {
 }
 
 function showError(message) {
+  document.querySelectorAll('.error-message').forEach(el => el.remove());
+
   const errorElement = document.createElement('div');
   errorElement.className = 'error-message';
+  errorElement.style.color = '#FF6B6B';
   errorElement.textContent = message;
 
-  const authForm = document.querySelector('.auth-form');
-  authForm.prepend(errorElement);
-
-  setTimeout(() => errorElement.remove(), 5000);
+  const authForm = document.querySelector('.auth-form') || document.getElementById('authForm');
+  if (authForm) {
+    authForm.prepend(errorElement);
+    setTimeout(() => errorElement.remove(), 5000);
+  }
 }
 
 function showSuccess(message) {
@@ -93,7 +104,7 @@ function showSuccess(message) {
   successElement.className = 'success-message';
   successElement.textContent = message;
 
-  const authForm = document.querySelector('.auth-form');
+  const authForm = document.querySelector('.auth-form') || document.getElementById('authForm');
   authForm.prepend(successElement);
 
   setTimeout(() => successElement.remove(), 3000);

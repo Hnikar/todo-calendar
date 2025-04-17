@@ -59,12 +59,12 @@ i {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    font-size: 1.5rem;  
+    font-size: 1.5rem;
     /* to align with main */
     font-weight: bold;
 }
 
-.button-menu{ 
+.button-menu{
     background-color: var(--secondary-light);
     width: max-content;
     margin: 0;
@@ -121,8 +121,8 @@ i {
 }
 
 .tab.active {
-    border-bottom: 2px solid var(--accent);
-    opacity: 1;
+    border-bottom: 2px solid #8A2BE2;
+    color: #E6E6FA;
 }
 
 .hidden {
@@ -135,4 +135,42 @@ i {
     margin-bottom: 15px;
     border: 1px solid #4CAF50;
     border-radius: 5px;
+}
+
+.auth-form {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--secondary-light);
+    border-radius: 8px;
+}
+
+#nameField {
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.error-message {
+    background: #4b0082; /* Индиго */
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #2A2140; /* Темно-фиолетовый */
+    border: 1px solid #4b0082;
+    color: #E6E6FA;
+    border-radius: 4px;
 }

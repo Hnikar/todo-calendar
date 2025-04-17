@@ -42,7 +42,9 @@ func main() {
 	router.LoadHTMLGlob("static/dist/*.html")
 
 	// Routes
-	router.GET("/", homeHandler)
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/login")
+	})
 	router.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "auth.html", nil) // Теперь auth.html вместо login.html
 	})

@@ -6,25 +6,24 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
-	"todo-calendar/internal/models" // Убедись, что путь к модулю верный
+	"todo-calendar/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv" // Для загрузки .env
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger" // Для настройки логирования GORM
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
 var jwtSecret []byte
 
-// Инициализация перед main
-func init() {
-	// Загрузка переменных окружения из .env файла
+func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Warning: Could not load .env file. Using environment variables directly.")
@@ -36,52 +35,39 @@ func init() {
 	}
 	jwtSecret = []byte(secret)
 
-	// Инициализация базы данных
 	initDatabase()
-}
 
-func main() {
-	// Настройка режима Gin (ReleaseMode для продакшена, DebugMode для разработки)
-	gin.SetMode(gin.DebugMode) // Или gin.ReleaseMode
+	gin.SetMode(gin.DebugMode)
 
 	router := gin.Default()
 
 	// Middleware
-	router.Use(corsMiddleware()) // CORS - важно для взаимодействия фронтенда и бэкенда
+	router.Use(corsMiddleware())
 
-	// Статические файлы
 	router.Static("/assets", "./static/dist/assets")
-	router.Static("/src", "./static/src")
-	// Маршруты
-	setupRoutes(router)
 
-	// Запуск сервера
+	setupRoutes(router, ".")
+
 	startServer(router)
 }
 
 func initDatabase() {
 	var err error
-	// Настройка логгера GORM
 	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
-			SlowThreshold: time.Second, // Порог медленного SQL запроса
-			LogLevel:      logger.Info, // Уровень логирования (Silent, Error, Warn, Info)
-			Colorful:      true,        // Цветной вывод
+			SlowThreshold: time.Second,
+			LogLevel:      logger.Info,
+			Colorful:      true,
 		},
 	)
-
 	db, err = gorm.Open(sqlite.Open("calendar.db"), &gorm.Config{
-		Logger: newLogger, // Используем настроенный логгер
+		Logger: newLogger,
 	})
-
 	if err != nil {
 		log.Fatalf("Failed to connect database: %v", err)
 	}
-
 	log.Println("Database connection successful.")
-
-	// Автомиграции
 	err = db.AutoMigrate(&models.User{}, &models.Event{}, &models.Category{})
 	if err != nil {
 		log.Fatalf("Database migration failed: %v", err)
@@ -89,99 +75,101 @@ func initDatabase() {
 	log.Println("Database migrations successful.")
 }
 
-func setupRoutes(router *gin.Engine) {
-	// Загрузка HTML шаблонов
+func setupRoutes(router *gin.Engine, basePath string) {
+	// Формируем путь к папке с шаблонами
+	templateBaseDir := filepath.Join(basePath, "static", "dist")
+
+	// Загрузка HTML шаблонов с использованием basePath
 	router.LoadHTMLFiles(
-		"static/dist/auth.html",
-		"static/dist/index.html",
-		"static/dist/landing-page.html",
-		"static/dist/404.html",
+		filepath.Join(templateBaseDir, "auth.html"),
+		filepath.Join(templateBaseDir, "index.html"),
+		filepath.Join(templateBaseDir, "landing-page.html"),
+		filepath.Join(templateBaseDir, "404.html"), // <-- Убедись, что он здесь есть
 	)
 
 	// --- Маршруты для страниц ---
+
+	// Новый маршрут для landing page
+	router.GET("/landing", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "landing-page.html", nil)
+	})
+
 	router.GET("/login", func(c *gin.Context) {
-		// Если пользователь уже залогинен (есть валидная кука), редирект на /app
-		_, err := getTokenFromHeaderOrCookie(c)
+		// Проверяем, если уже залогинен - редирект в приложение
+		tokenString, err := getTokenFromHeaderOrCookie(c)
 		if err == nil {
-			_, err = validateToken(getTokenString(c)) // Проверим валидность
+			_, err = validateToken(tokenString)
 			if err == nil {
 				c.Redirect(http.StatusFound, "/app")
 				return
 			}
-			// Если токен есть, но невалиден, удалим куку
 			c.SetCookie("jwtToken", "", -1, "/", getCookieDomain(c), isSecureCookie(c), true)
 		}
-		// Отдаем страницу логина
+		// Иначе отдаем страницу логина
 		c.HTML(http.StatusOK, "auth.html", nil)
 	})
 
+	// Корень теперь редиректит на /landing или /app
 	router.GET("/", func(c *gin.Context) {
 		tokenString, err := getTokenFromHeaderOrCookie(c)
-		if err == nil { // Токен найден (в cookie или header)
-			_, err = validateToken(tokenString) // Проверяем валидность токена
+		if err == nil {
+			_, err = validateToken(tokenString)
 			if err == nil {
-				// Токен валиден -> редирект в приложение
-				c.Redirect(http.StatusFound, "/app")
+				c.Redirect(http.StatusFound, "/app") // В приложение
 				return
 			}
-			// Токен есть, но невалиден -> удаляем cookie (если он был)
 			c.SetCookie("jwtToken", "", -1, "/", getCookieDomain(c), isSecureCookie(c), true)
 		}
-		// Нет токена или он невалиден -> показываем landing page
-		c.HTML(http.StatusOK, "landing-page.html", nil) // <--- ИЗМЕНЕНО
+		// Не аутентифицирован -> на лендинг
+		c.Redirect(http.StatusFound, "/landing")
 	})
 
-	// Группа для основного приложения ("/app")
+	// Группа для основного приложения "/app"
 	appGroup := router.Group("/app")
-	appGroup.Use(AuthPageMiddleware()) // Защищаем middleware'м
+	appGroup.Use(AuthPageMiddleware()) // Защищено
 	{
 		handler := func(c *gin.Context) {
-			userName := c.GetString("user_name") // Получаем имя из контекста (установили в middleware)
-			c.HTML(http.StatusOK, "index.html", gin.H{
-				"userName": userName, // Передаем в шаблон
-			})
+			userName := c.GetString("user_name")
+			c.HTML(http.StatusOK, "index.html", gin.H{"userName": userName})
 		}
 		appGroup.GET("", handler)
-		appGroup.GET("/*any", handler) // Обслуживаем все подпути для SPA-роутинга
+		appGroup.GET("/*any", handler) // Для SPA
 	}
 
 	// --- API эндпоинты ---
 	api := router.Group("/api")
 	{
-		// Публичные API
+		// Публичные
 		api.POST("/register", registerHandler)
 		api.POST("/login", loginHandler)
-		api.POST("/logout", logoutHandler) // Добавили эндпоинт выхода
+		api.POST("/logout", logoutHandler)
 
-		// Защищенные API
-		protectedApi := api.Group("") // Можно создать подгруппу или оставить так
+		// Защищенные
+		protectedApi := api.Group("")
 		protectedApi.Use(AuthApiMiddleware())
 		{
-			// Пример защищенных эндпоинтов (пока только для событий)
 			protectedApi.GET("/events", getEventsHandler)
 			protectedApi.POST("/events", createEventHandler)
-			// protectedApi.GET("/user/me", getCurrentUserHandler) // Пример эндпоинта для получения данных текущего юзера
-			// ... другие защищенные эндпоинты для событий, категорий и т.д.
+			// ... другие ...
 		}
 	}
 
+	// --- Обработчик 404 ---
 	router.NoRoute(func(c *gin.Context) {
-		// Проверяем, что клиент ожидает (HTML или JSON)
 		acceptHeader := c.Request.Header.Get("Accept")
 		if strings.Contains(acceptHeader, "application/json") {
-			// Если запрос к API (ожидается JSON)
 			c.JSON(http.StatusNotFound, gin.H{"error": "Resource not found"})
 		} else {
-			// Иначе отдаем HTML страницу 404
+			// Шаблон "404.html" уже должен быть загружен через LoadHTMLFiles
 			c.HTML(http.StatusNotFound, "404.html", nil)
 		}
 	})
 }
 
 func startServer(router *gin.Engine) {
-	port := os.Getenv("PORT") // Попробуем взять порт из окружения (для Heroku/облаков)
+	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Дефолтный порт
+		port = "8080"
 	}
 	addr := ":" + port
 	fmt.Printf("Server starting on http://localhost%s\n", addr)
@@ -190,16 +178,13 @@ func startServer(router *gin.Engine) {
 	}
 }
 
-// --- Обработчики аутентификации ---
-
+// --- Обработчики аутентификации (registerHandler, loginHandler, logoutHandler) ---
 func registerHandler(c *gin.Context) {
-	// ... (Код из предыдущего ответа, без изменений) ...
 	type RegisterRequest struct {
 		Email    string `json:"email" binding:"required,email"`
 		Password string `json:"password" binding:"required,min=8,max=72"`
 		Name     string `json:"name" binding:"required,min=2,max=50"`
 	}
-
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input data: " + err.Error()})
@@ -245,7 +230,6 @@ func registerHandler(c *gin.Context) {
 }
 
 func loginHandler(c *gin.Context) {
-	// ... (Код из предыдущего ответа, с установкой cookie) ...
 	type LoginRequest struct {
 		Email    string `json:"email" binding:"required,email"`
 		Password string `json:"password" binding:"required"`
@@ -278,10 +262,8 @@ func loginHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
-	// Установка cookie
 	maxAge := int(time.Until(expirationTime).Seconds())
-	c.SetCookie("jwtToken", tokenString, maxAge, "/", getCookieDomain(c), isSecureCookie(c), true) // HttpOnly=true
-
+	c.SetCookie("jwtToken", tokenString, maxAge, "/", getCookieDomain(c), isSecureCookie(c), true)
 	log.Printf("User logged in successfully: %s", user.Email)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
@@ -294,16 +276,13 @@ func loginHandler(c *gin.Context) {
 }
 
 func logoutHandler(c *gin.Context) {
-	// ... (Код из предыдущего ответа) ...
 	c.SetCookie("jwtToken", "", -1, "/", getCookieDomain(c), isSecureCookie(c), true)
 	log.Println("User logged out")
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
-// --- Middleware ---
-
+// --- Middleware (AuthApiMiddleware, AuthPageMiddleware, corsMiddleware) ---
 func AuthApiMiddleware() gin.HandlerFunc {
-	// ... (Код из предыдущего ответа) ...
 	return func(c *gin.Context) {
 		tokenString, err := getTokenFromHeaderOrCookie(c)
 		if err != nil {
@@ -334,7 +313,6 @@ func AuthApiMiddleware() gin.HandlerFunc {
 }
 
 func AuthPageMiddleware() gin.HandlerFunc {
-	// ... (Код из предыдущего ответа) ...
 	return func(c *gin.Context) {
 		tokenString, err := getTokenFromHeaderOrCookie(c)
 		if err != nil {
@@ -371,19 +349,11 @@ func AuthPageMiddleware() gin.HandlerFunc {
 }
 
 func corsMiddleware() gin.HandlerFunc {
-	// ... (Код из предыдущего ответа, убедись что Allow-Origin подходит) ...
 	return func(c *gin.Context) {
-		// Важно: Этот Origin должен совпадать с тем, откуда приходят запросы JS
-		// Если фронтенд и бэкенд на одном домене/порту, можно быть строже
-		// Для разработки с разными портами, нужно указать порт фронтенда
-		// origin := c.Request.Header.Get("Origin") // Можно сделать динамическим
-		// if origin == "" { origin = "http://localhost:8080" }
-
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080") // ИЛИ порт фронтенда
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080") // Или твой порт фронтенда
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH") // Добавил PATCH на всякий случай
-
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
@@ -392,10 +362,8 @@ func corsMiddleware() gin.HandlerFunc {
 	}
 }
 
-// --- Хелперы ---
-
+// --- Хелперы (getTokenFromHeaderOrCookie, getTokenString, validateToken, getCookieDomain, isSecureCookie) ---
 func getTokenFromHeaderOrCookie(c *gin.Context) (string, error) {
-	// ... (Код из предыдущего ответа) ...
 	tokenString, err := c.Cookie("jwtToken")
 	if err == nil && tokenString != "" {
 		return tokenString, nil
@@ -411,14 +379,12 @@ func getTokenFromHeaderOrCookie(c *gin.Context) (string, error) {
 	return "", fmt.Errorf("authorization token not found in cookie or header")
 }
 
-// Получает строку токена (упрощенный вариант, без Header)
 func getTokenString(c *gin.Context) string {
 	tokenString, _ := c.Cookie("jwtToken")
 	return tokenString
 }
 
 func validateToken(tokenString string) (jwt.MapClaims, error) {
-	// ... (Исправленная версия из предыдущего ответа с errors.Is) ...
 	if len(jwtSecret) == 0 {
 		log.Fatal("CRITICAL: JWT_SECRET environment variable is not set!")
 	}
@@ -434,8 +400,10 @@ func validateToken(tokenString string) (jwt.MapClaims, error) {
 			return nil, fmt.Errorf("malformed token")
 		} else if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
 			return nil, fmt.Errorf("token expired or not active yet")
+		} else if errors.Is(err, jwt.ErrSignatureInvalid) {
+			return nil, fmt.Errorf("invalid token signature")
 		} else {
-			return nil, fmt.Errorf("invalid token: %v", err)
+			return nil, fmt.Errorf("invalid token processing error: %v", err)
 		}
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -447,30 +415,21 @@ func validateToken(tokenString string) (jwt.MapClaims, error) {
 	return nil, fmt.Errorf("invalid token")
 }
 
-// Хелперы для определения параметров cookie
 func getCookieDomain(c *gin.Context) string {
-	// Для localhost можно оставить "" или "localhost"
-	// Для продакшена нужно будет установить правильный домен
 	if strings.HasPrefix(c.Request.Host, "localhost") {
 		return "localhost"
 	}
-	// В продакшене: return "yourdomain.com"
-	return "" // Пустая строка обычно означает "только для текущего хоста"
+	return ""
 }
 
 func isSecureCookie(c *gin.Context) bool {
-	// Secure=true ТОЛЬКО для HTTPS
-	// В разработке на localhost обычно false
-	// В проде за Nginx/Caddy/etc., которые терминируют TLS, можно проверять заголовки X-Forwarded-Proto
 	if c.Request.Header.Get("X-Forwarded-Proto") == "https" {
 		return true
 	}
-	// Простая проверка для localhost
 	return strings.HasPrefix(c.Request.Host, "localhost") == false
 }
 
-// --- Обработчики событий (Заглушки) ---
-
+// --- Обработчики событий (Заглушки - getEventsHandler, createEventHandler) ---
 func getEventsHandler(c *gin.Context) {
 	userID := c.MustGet("user_id").(uint)
 	log.Printf("Fetching events for user %d", userID)

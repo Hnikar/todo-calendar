@@ -1,5 +1,6 @@
 @import url(reset.css);
 @import url(auth.css);
+@import url(404.css);
 :root {
     --primary-dark: #e3eff2;
     --secondary-dark: #444;

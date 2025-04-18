@@ -95,6 +95,7 @@ func setupRoutes(router *gin.Engine) {
 		"static/dist/auth.html",
 		"static/dist/index.html",
 		"static/dist/landing-page.html",
+		"static/dist/404.html",
 	)
 
 	// --- Маршруты для страниц ---

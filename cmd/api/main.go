@@ -91,7 +91,11 @@ func initDatabase() {
 
 func setupRoutes(router *gin.Engine) {
 	// Загрузка HTML шаблонов
-	router.LoadHTMLFiles("static/dist/auth.html", "static/dist/index.html")
+	router.LoadHTMLFiles(
+		"static/dist/auth.html",
+		"static/dist/index.html",
+		"static/dist/landing-page.html",
+	)
 
 	// --- Маршруты для страниц ---
 	router.GET("/login", func(c *gin.Context) {
@@ -112,17 +116,18 @@ func setupRoutes(router *gin.Engine) {
 
 	router.GET("/", func(c *gin.Context) {
 		tokenString, err := getTokenFromHeaderOrCookie(c)
-		if err == nil {
+		if err == nil { // Токен найден (в cookie или header)
 			_, err = validateToken(tokenString) // Проверяем валидность токена
 			if err == nil {
-				c.Redirect(http.StatusFound, "/app") // Валидный токен -> в приложение
+				// Токен валиден -> редирект в приложение
+				c.Redirect(http.StatusFound, "/app")
 				return
 			}
-			// Невалидный токен -> удаляем куку и редирект на логин
+			// Токен есть, но невалиден -> удаляем cookie (если он был)
 			c.SetCookie("jwtToken", "", -1, "/", getCookieDomain(c), isSecureCookie(c), true)
 		}
-		// Нет токена или он невалиден -> на страницу логина
-		c.Redirect(http.StatusFound, "/login")
+		// Нет токена или он невалиден -> показываем landing page
+		c.HTML(http.StatusOK, "landing-page.html", nil) // <--- ИЗМЕНЕНО
 	})
 
 	// Группа для основного приложения ("/app")
@@ -158,6 +163,18 @@ func setupRoutes(router *gin.Engine) {
 			// ... другие защищенные эндпоинты для событий, категорий и т.д.
 		}
 	}
+
+	router.NoRoute(func(c *gin.Context) {
+		// Проверяем, что клиент ожидает (HTML или JSON)
+		acceptHeader := c.Request.Header.Get("Accept")
+		if strings.Contains(acceptHeader, "application/json") {
+			// Если запрос к API (ожидается JSON)
+			c.JSON(http.StatusNotFound, gin.H{"error": "Resource not found"})
+		} else {
+			// Иначе отдаем HTML страницу 404
+			c.HTML(http.StatusNotFound, "404.html", nil)
+		}
+	})
 }
 
 func startServer(router *gin.Engine) {

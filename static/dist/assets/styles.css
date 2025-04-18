@@ -1,17 +1,21 @@
 @import url(reset.css);
 
+@import url(auth.css);
+@import url(404.css);
+@import url(landing-page.css);
+
 :root {
     --primary-dark: #e3eff2;
     --secondary-dark: #444;
-    --primary-light: #0b0913;    /* Основной фон - очень темный фиолетово-синий */
-    --secondary-light: #141023; /* Фон для панелей/форм - темнее */
-    --accent-color: #8A2BE2;    /* Фиолетовый акцент (BlueViolet) */
-    --error-color: #ff6b6b;     /* Красный для ошибок */
-    --success-color: #4CAF50;   /* Зеленый для успеха */
-    --input-bg: #2A2140;       /* Фон инпутов - темно-фиолетовый */
-    --text-light: #E6E6FA;      /* Основной цвет текста - лаванда (светлый) */
-    --text-dark: #333;         /* Темный текст (если нужен) */
-    --border-color: #4a3f6b;     /* Цвет границ/разделителей */
+    --primary-light: black;
+    --secondary-light: #141023;
+    --accent-color: #8A2BE2;
+    --error-color: #ff6b6b;
+    --success-color: #4CAF50;
+    --input-bg: #2A2140;
+    --text-light: #E6E6FA;
+    --text-dark: #333;
+    --border-color: #4a3f6b;
 }
 
 html {
@@ -19,183 +23,43 @@ html {
     box-sizing: border-box;
 }
 
-*, *:before, *:after {
+*, *::before, *::after {
     box-sizing: inherit;
 }
 
 body {
     min-height: 100vh;
     margin: 0;
-    /* Убрал padding: 2rem, чтобы auth-container мог центрироваться */
     background-color: var(--primary-light);
-    color: var(--text-light); /* Изменен на светлый текст по умолчанию */
-    font-family: 'Roboto', sans-serif; /* Убедись, что шрифт подключен, или используй стандартный */
-    /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
-    line-height: 1.6;
-    display: flex; /* Для центрирования auth-container и основного layout */
-    flex-direction: column;
-}
-
-/* --- Стили для страницы аутентификации --- */
-
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1; /* Занимает все доступное пространство */
-    padding: 2rem; /* Добавил паддинг здесь */
-}
-
-.auth-form {
-    width: 100%;
-    max-width: 400px;
-    padding: 2rem 2.5rem; /* Немного увеличил паддинг */
-    background-color: var(--secondary-light);
-    border-radius: 12px; /* Сделал скругление больше */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Добавил тень */
-}
-
-.auth-form h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: var(--primary-dark);
-    font-size: 1.8rem;
-}
-
-.tabs {
-    display: flex;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.tab {
-    background: none;
-    border: none;
-    padding: 0.8rem 1rem; /* Увеличил паддинг */
-    cursor: pointer;
-    color: var(--text-light); /* Используем светлый текст */
-    opacity: 0.7;
-    transition: all 0.3s ease;
-    flex-grow: 1; /* Чтобы занимали всю ширину */
-    text-align: center;
-    font-size: 1rem;
-    border-bottom: 3px solid transparent; /* Основа для активной вкладки */
-    margin-bottom: -1px; /* Компенсируем border-bottom контейнера */
-}
-
-.tab.active {
-    opacity: 1;
-    color: var(--accent-color);
-    border-bottom-color: var(--accent-color); /* Активная граница */
-}
-
-.tab:hover {
-    opacity: 1;
-}
-
-.form-group {
-    margin-bottom: 1.5rem; /* Увеличил отступ */
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--primary-dark);
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    width: 100%;
-    padding: 12px 15px; /* Увеличил паддинг */
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color); /* Изменил цвет рамки */
     color: var(--text-light);
-    border-radius: 6px; /* Увеличил скругление */
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    font-size: 1rem;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.3); /* Тень при фокусе */
-}
-
-.button-submit {
-    width: 100%;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background-color: var(--accent-color);
-    color: white; /* Белый текст на кнопке */
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-top: 1rem; /* Добавил отступ сверху */
-}
-
-.button-submit:hover {
-    opacity: 0.9;
-    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
-}
-
-.hidden {
-    display: none;
-}
-
-/* --- Стили для сообщений --- */
-#messageContainer {
-    margin-bottom: 1rem;
-}
-
-.error-message, .success-message {
-    padding: 12px 15px;
-    margin-bottom: 1rem; /* Используем margin вместо container margin */
-    border-radius: 6px;
-    font-size: 0.95rem;
-    animation: slideIn 0.3s ease-out;
-}
-
-.error-message {
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
-    background: rgba(255, 107, 107, 0.1);
-}
-.error-message p { margin-bottom: 0.3rem; }
-.error-message p:last-child { margin-bottom: 0; }
-
-
-.success-message {
-    color: var(--success-color);
-    border: 1px solid var(--success-color);
-    background: rgba(76, 175, 80, 0.1);
-}
-
-@keyframes slideIn {
-    from { transform: translateY(-10px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
 }
 
 /* --- Стили для основной страницы приложения --- */
 
+#calendar{
+    height: 70vh;
+}
+
+
 .main {
     display: flex;
-    flex-grow: 1; /* Занимает доступную высоту */
-    gap: 1rem; /* Отступ между nav и content */
-    padding: 1rem; /* Отступы для основной страницы */
-    /* max-width: 1400px; */ /* Ограничение ширины для больших экранов (опционально) */
-    /* margin: 0 auto; */ /* Центрирование при max-width */
+    flex-grow: 1;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.content-header, .nav-header {
+    font-size: 2.5rem;
 }
 
 .nav {
-    flex: 0 0 280px; /* Фиксированная ширина навбара, не растягивается, не сжимается */
+    flex: 0 0 280px;
     min-width: 250px;
-    padding: 20px;
+    padding: 1.25rem 2rem;
     background-color: var(--secondary-light);
     border-radius: 1rem;
     display: flex;
@@ -218,18 +82,19 @@ input[type="password"]:focus {
     color: var(--primary-dark);
     font-size: 1.3rem;
     cursor: pointer;
-    display: none; /* Скрываем на десктопе */
+    display: none;
 }
+
 .nav .button-menu:hover {
     color: var(--accent-color);
 }
 
 .nav .button-default-project {
-    display: flex; /* Используем flex для иконки и текста */
+    display: flex;
     align-items: center;
     width: 100%;
     text-align: left;
-    background-color: transparent; /* По умолчанию прозрачный */
+    background: transparent;
     color: var(--text-light);
     padding: 10px 15px;
     margin-bottom: 0.5rem;
@@ -240,18 +105,18 @@ input[type="password"]:focus {
 }
 
 .nav .button-default-project i {
-    margin-right: 12px; /* Отступ для иконки */
-    width: 20px; /* Фиксируем ширину иконки для выравнивания */
+    margin-right: 12px;
+    width: 20px;
     text-align: center;
-    color: var(--primary-dark); /* Цвет иконок */
+    color: var(--primary-dark);
     transition: color 0.2s ease;
 }
 
-
 .nav .button-default-project:hover {
-    background-color: var(--input-bg); /* Подсветка при наведении */
+    background-color: var(--input-bg);
     color: var(--accent-color);
 }
+
 .nav .button-default-project:hover i {
     color: var(--accent-color);
 }
@@ -262,22 +127,31 @@ input[type="password"]:focus {
     padding: 10px 15px;
     margin-top: 1rem;
     color: var(--primary-dark);
-    font-size: 0.9rem;
-}
-.nav .user-info i {
-    margin-right: 10px;
+    font-size: 1rem;
 }
 
+.nav .user-info i {
+    margin-right: 12px;
+}
+
+#user-name-display {
+    font-size: 16px;
+}
+
+.fa-user {
+    width: 1.25rem;
+    padding-left: 1.5%;
+}
 
 .content {
-    flex: 1; /* Занимает оставшееся пространство */
-    padding: 20px 30px;
-    background-color: var(--secondary-light); /* Можно сделать свой фон или оставить темным */
+    flex: 1;
+    padding: 1.25rem 2rem;
+    background-color: var(--secondary-light);
     border-radius: 1rem;
-    overflow-y: auto; /* Добавляем скролл, если контент не влезает */
+    overflow-y: auto;
 }
 
-.content h1 {
+.content .content-header {
     margin-bottom: 1.5rem;
     color: var(--primary-dark);
     border-bottom: 1px solid var(--border-color);
@@ -285,7 +159,6 @@ input[type="password"]:focus {
 }
 
 .project-preview {
-    /* Стили для области контента */
     line-height: 1.7;
 }
 
@@ -299,56 +172,51 @@ input[type="password"]:focus {
     font-size: 0.9rem;
 }
 
-
 /* --- Стили для лоадера --- */
+
 .loader {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон */
-    display: flex; /* Используем flex для центрирования спиннера */
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    /* display: none; По умолчанию скрыт через inline-style в JS */
 }
 
 .spinner {
-    width: 50px; /* Увеличил размер */
+    width: 50px;
     height: 50px;
-    border: 5px solid rgba(255, 255, 255, 0.3); /* Светлый полупрозрачный бордер */
-    border-top-color: var(--accent-color); /* Акцентный цвет для вращающейся части */
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--accent-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
-
 /* --- Адаптивность --- */
-@media (max-width: 768px) { /* Точка для планшетов/маленьких десктопов */
+
+@media (max-width: 768px) {
     .main {
-        flex-direction: column; /* Ставим навбар над контентом */
+        flex-direction: column;
         padding: 0.5rem;
         gap: 0.5rem;
     }
 
     .nav {
-        flex: 0 0 auto; /* Убираем фикс. ширину */
+        flex: 0 0 auto;
         width: 100%;
         min-width: auto;
-        /* Показываем/скрываем кнопку меню */
-        /* .nav .menu span { display: none; } Прячем текст "Menu" */
-        .nav .button-menu { display: block; }
-        /* По умолчанию можно скрыть элементы меню, кроме кнопки */
-        /* .nav > div:first-of-type > *:not(.menu) { display: none; } */
-        /* .nav > div:last-of-type > * { display: none; } */
-        /* Логику показа/скрытия меню лучше делать через JS, добавляя класс */
+    }
+
+    .nav .button-menu {
+        display: block;
     }
 
     .content {
@@ -360,32 +228,34 @@ input[type="password"]:focus {
     }
 }
 
-@media (max-width: 480px) { /* Точка для мобильных */
+@media (max-width: 480px) {
     .auth-form {
-        padding: 1.5rem 1rem; /* Уменьшаем боковые паддинги */
+        padding: 1.5rem 1rem;
     }
+
     .auth-form h2 {
         font-size: 1.5rem;
     }
+
     .tab {
         padding: 0.6rem 0.5rem;
         font-size: 0.9rem;
     }
+
     .button-submit {
         font-size: 1rem;
         padding: 10px 15px;
     }
+
     .content {
         padding: 10px;
-    }
-    .content h1 {
         font-size: 1.4rem;
         margin-bottom: 1rem;
     }
 }
 
 .api-error-message {
-    color: var(--error-color); /* Здесь переменная будет работать корректно */
-    font-weight: bold; /* Можно добавить и другие стили */
-    padding: 5px 0;  /* Небольшой отступ для наглядности */
+    color: var(--error-color);
+    font-weight: bold;
+    padding: 5px 0;
 }

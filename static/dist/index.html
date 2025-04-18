@@ -4,14 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Todo Calendar</title>
-  <link rel="stylesheet" href="/assets/reset.css" /> <link rel="stylesheet" href="/assets/styles.css" /> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="./assets/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth'
+      });
+      calendar.render();
+    });
+
+  </script>
 </head>
 <body>
 <main class="main">
   <nav class="nav" id="nav">
     <div>
       <div class="menu">
-        <span>Menu</span> <button class="button-menu" id="mobileMenu" aria-label="Toggle menu"> <i class="fa-solid fa-bars"></i>
+        <div class="nav-header">Menu</div> <button class="button-menu" id="mobileMenu" aria-label="Toggle menu"> <i
+            class="fa-solid fa-bars"></i>
       </button>
       </div>
       <button class="button-default-project" id="btn-upcoming">
@@ -43,7 +57,8 @@
   </nav>
 
   <div class="content">
-    <h1>Main Calendar Area</h1>
+    <div class="content-header">Calendar</div>
+    <div id='calendar'></div>
     <div class="project-preview">
       <p>Your calendar events will appear here.</p>
       <p>Try fetching events:</p>

@@ -3,7 +3,9 @@ import { Events } from "./modules/events.js";
 import { Auth } from "./modules/auth.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  User.displayUserData();
+  if (window.location.pathname === "/app") {
+    User.displayUserData();
+  }
   const logoutBtn = document.getElementById("btn-logout");
   if (logoutBtn) logoutBtn.addEventListener("click", User.logout);
 

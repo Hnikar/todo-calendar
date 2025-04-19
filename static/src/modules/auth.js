@@ -3,8 +3,10 @@ import { DomUtils } from "./domUtils.js";
 
 export const Auth = (() => {
   document.addEventListener("DOMContentLoaded", () => {
-    init();
-    checkRedirectReason();
+    if (window.location.pathname === "/login") {
+      init();
+      checkRedirectReason();
+    }
   });
 
   function init() {

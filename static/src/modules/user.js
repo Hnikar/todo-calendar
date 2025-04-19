@@ -30,17 +30,17 @@ export const User = (() => {
   }
 
   function displayUserData() {
-    // const userDataString = localStorage.getItem("user");
-    // if (!userDataString) return logout();
-    // try {
-    //   const userData = JSON.parse(userDataString);
-    //   const userName = userData.name || "User";
-    //   const userNameDisplay = document.getElementById("user-name-display");
-    //   if (userNameDisplay) userNameDisplay.textContent = userName;
-    // } catch (e) {
-    //   console.error("Invalid user data in localStorage.");
-    //   logout();
-    // }
+    const userDataString = localStorage.getItem("user");
+    if (!userDataString) return logout();
+    try {
+      const userData = JSON.parse(userDataString);
+      const userName = userData.name || "User";
+      const userNameDisplay = document.getElementById("user-name-display");
+      if (userNameDisplay) userNameDisplay.textContent = userName;
+    } catch (e) {
+      console.error("Invalid user data in localStorage.");
+      logout();
+    }
   }
 
   return { logout, displayUserData };

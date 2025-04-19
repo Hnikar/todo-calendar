@@ -46,6 +46,10 @@ func main() {
 
 	router.Static("/assets", "./static/dist/assets")
 
+	router.GET("/main.js", func(c *gin.Context) {
+		c.File("./static/dist/main.js")
+	})
+
 	setupRoutes(router, ".")
 
 	startServer(router)

@@ -1,6 +1,7 @@
 import { User } from "./modules/user.js";
 import { Events } from "./modules/events.js";
 import { Auth } from "./modules/auth.js";
+import { Todo } from "./modules/calendar.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.pathname === "/app") {
@@ -11,10 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const eventsBtn = document.getElementById("fetchEventsBtn");
   if (eventsBtn)
-    eventsBtn.addEventListener("click", () => {
-      e.preventDefault();
-      Events.fetchAndDisplay;
-    });
+    eventsBtn.addEventListener("click", () => Events.fetchAndDisplay);
 
   console.log("Main app initialized.");
 });

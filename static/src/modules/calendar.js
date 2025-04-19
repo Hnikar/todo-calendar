@@ -1,4 +1,5 @@
 import { ApiService } from "./api-service.js";
+import { DomUtils } from "./domUtils.js";
 
 export const Todo = (() => {
   let calendar;
@@ -6,12 +7,12 @@ export const Todo = (() => {
 
   async function initializeCalendar() {
     try {
-      // const data = await ApiService.fetchTasks();
-      // tasks = data.tasks || [];
+      const data = await ApiService.fetchTasks();
+      if (!data) {
+        throw new Error("Failed to load tasks");
+      }
+      tasks = data.tasks || [];
 
-      // ВЫШЕ РАСКОМЕНТИТЬ КОГА БУДЕШЬ ДОКРУЧИВАТЬ СЕРВЕР. Я ДОБАВИЛ ЧИСТО ЧТОБЫ ОНО ОШИБКУ НЕ ВЫБИВАЛО БЕЗ СЕРВЕРА МОМЕНТАЛЬНО
-
-      tasks = [];
       const calendarEl = document.getElementById("calendar");
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth",
@@ -24,7 +25,15 @@ export const Todo = (() => {
         selectable: true,
         selectMirror: true,
         dayMaxEvents: true,
-        events: tasks,
+        events: tasks.map((task) => ({
+          id: task.id,
+          title: task.title,
+          start: task.start || task.taskDate,
+          end: task.end || task.taskDate,
+          description: task.description,
+          priority: task.priority,
+          className: `priority-${task.priority}`,
+        })),
         eventClick: handleEventClick,
         eventChange: handleEventUpdate,
         eventRemove: handleEventDelete,
@@ -33,6 +42,7 @@ export const Todo = (() => {
       calendar.render();
     } catch (error) {
       console.error("Failed to initialize calendar:", error);
+      DomUtils.showError("Failed to load calendar. Please refresh the page.");
     }
   }
 
@@ -52,16 +62,18 @@ export const Todo = (() => {
       calendar.addEvent({
         id: createdTask.id,
         title: createdTask.title,
-        start: createdTask.taskDate,
-        end: createdTask.taskDate,
+        start: createdTask.start || createdTask.taskDate,
+        end: createdTask.end || createdTask.taskDate,
         description: createdTask.description,
         priority: createdTask.priority,
         className: `priority-${createdTask.priority}`,
       });
 
       e.target.reset();
+      DomUtils.showSuccess("Task created successfully!");
     } catch (error) {
       console.error("Task creation failed:", error);
+      DomUtils.showError("Failed to create task. Please try again.");
     }
   }
 
@@ -73,18 +85,22 @@ export const Todo = (() => {
         description: info.event.extendedProps.description,
         priority: info.event.extendedProps.priority,
       });
+      DomUtils.showSuccess("Task updated successfully!");
     } catch (error) {
       info.revert();
       console.error("Update failed:", error);
+      DomUtils.showError("Failed to update task. Changes reverted.");
     }
   }
 
   async function handleEventDelete(info) {
     try {
       await ApiService.deleteTask(info.event.id);
+      DomUtils.showSuccess("Task deleted successfully!");
     } catch (error) {
       calendar.addEvent(info.event);
       console.error("Deletion failed:", error);
+      DomUtils.showError("Failed to delete task. Task restored.");
     }
   }
 
@@ -94,6 +110,8 @@ export const Todo = (() => {
       info.event.extendedProps.description || "No description"
     }\n`;
     details += `Priority: ${info.event.extendedProps.priority}\n`;
+    details += `Date: ${info.event.start.toLocaleDateString()}`;
+
     alert(details);
   }
 

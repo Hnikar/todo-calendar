@@ -1,13 +1,8 @@
-// api.service.js
 import { Loader } from "./loader.js";
 import { DomUtils } from "./domUtils.js";
 
 export const ApiService = (() => {
   const API_BASE = "/api";
-  const getAuthHeader = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    return user?.token ? { Authorization: `Bearer ${user.token}` } : {};
-  };
 
   async function handleRequest(url, method, data) {
     try {
@@ -16,12 +11,18 @@ export const ApiService = (() => {
         method,
         headers: {
           "Content-Type": "application/json",
-          ...getAuthHeader(),
         },
+        credentials: "include",
         body: data ? JSON.stringify(data) : undefined,
       });
 
+      if (response.status === 401) {
+        window.location.href = "/login?reason=unauthenticated";
+        return;
+      }
+
       const responseData = await response.json();
+
       if (!response.ok) {
         throw new Error(responseData.error || "Request failed");
       }

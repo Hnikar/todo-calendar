@@ -48,14 +48,46 @@
   <div class="content">
     <div class="content-header">Calendar</div>
     <div id='calendar'></div>
-    <div class="project-preview">
-      <p>Your calendar events will appear here.</p>
-      <p>Try fetching events:</p>
-      <button id="fetchEventsBtn">Fetch My Events</button>
-      <div id="eventsOutput"></div>
-    </div>
   </div>
-</main>
+  </main>
+  
+  <form id="task-form">
+    <div class="form-group">
+      <label for="title">Task Title</label>
+      <input type="text" id="title" required>
+    </div>
+  
+    <div class="form-group">
+      <label for="taskDate">Date</label>
+      <input type="date" id="taskDate" required>
+    </div>
+  
+    <div id="timeInputs" class="time-inputs" style="display: none;">
+      <div class="form-group">
+        <label for="startTime">Start Time</label>
+        <input type="time" id="startTime">
+      </div>
+  
+      <div class="form-group">
+        <label for="endTime">End Time</label>
+        <input type="time" id="endTime">
+      </div>
+    </div>
+  
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" rows="3"></textarea>
+    </div>
+<div class="form-group">
+  <label for="priority">Priority</label>
+  <select id="priority">
+    <option value="low">Low</option>
+    <option value="medium">Medium</option>
+    <option value="high">High</option>
+  </select>
+  </div>
+<button type="submit">Add Task</button>
+</form>
 
 <div id="loader" class="loader" style="display: none;">
   <div class="spinner"></div>

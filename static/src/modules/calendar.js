@@ -5,27 +5,35 @@ export const Todo = (() => {
   let calendar;
   let tasks = [];
 
-  async function initializeCalendar() {
+  function initializeBaseCalendar() {
+    const calendarEl = document.getElementById("calendar");
+    if (!calendarEl) return;
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth",
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay",
+      },
+      editable: true,
+      selectable: true,
+      selectMirror: true,
+      dayMaxEvents: true,
+      events: [],
+      eventClick: handleEventClick,
+      eventChange: handleEventUpdate,
+      eventRemove: handleEventDelete,
+    });
+
+    calendar.render();
+  }
+
+  async function loadInitialTasks() {
     try {
       const data = await ApiService.fetchTasks();
-      if (!data) {
-        throw new Error("Failed to load tasks");
-      }
-      tasks = data.tasks || [];
-
-      const calendarEl = document.getElementById("calendar");
-      calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
-        headerToolbar: {
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        },
-        editable: true,
-        selectable: true,
-        selectMirror: true,
-        dayMaxEvents: true,
-        events: tasks.map((task) => ({
+      if (data?.tasks?.length) {
+        tasks = data.tasks.map((task) => ({
           id: task.id,
           title: task.title,
           start: task.start || task.taskDate,
@@ -33,16 +41,29 @@ export const Todo = (() => {
           description: task.description,
           priority: task.priority,
           className: `priority-${task.priority}`,
-        })),
-        eventClick: handleEventClick,
-        eventChange: handleEventUpdate,
-        eventRemove: handleEventDelete,
-      });
+        }));
 
-      calendar.render();
+        calendar.batchRendering(() => {
+          tasks.forEach((task) => calendar.addEvent(task));
+        });
+
+        DomUtils.showSuccess("Tasks loaded from server");
+      }
     } catch (error) {
-      console.error("Failed to initialize calendar:", error);
-      DomUtils.showError("Failed to load calendar. Please refresh the page.");
+      console.warn("Offline mode:", error);
+      DomUtils.showInfo("Working offline - changes may not be saved");
+    }
+  }
+
+  async function initializeCalendar() {
+    // Always create calendar first
+    initializeBaseCalendar();
+
+    // Then try to load data silently
+    try {
+      await loadInitialTasks();
+    } catch (error) {
+      // Fail silently, calendar already exists
     }
   }
 
@@ -57,27 +78,37 @@ export const Todo = (() => {
     };
 
     try {
+      // Try to save to server
       const createdTask = await ApiService.createTask(newTask);
 
+      // Add to calendar with server-generated ID
       calendar.addEvent({
         id: createdTask.id,
-        title: createdTask.title,
-        start: createdTask.start || createdTask.taskDate,
-        end: createdTask.end || createdTask.taskDate,
-        description: createdTask.description,
-        priority: createdTask.priority,
-        className: `priority-${createdTask.priority}`,
+        ...newTask,
+        start: newTask.taskDate,
+        end: newTask.taskDate,
+        className: `priority-${newTask.priority}`,
       });
 
-      e.target.reset();
-      DomUtils.showSuccess("Task created successfully!");
+      DomUtils.showSuccess("Task saved to server");
     } catch (error) {
-      console.error("Task creation failed:", error);
-      DomUtils.showError("Failed to create task. Please try again.");
+      // Fallback: Add locally with client ID
+      const localTask = {
+        ...newTask,
+        id: `local-${Date.now()}`,
+        className: `priority-${newTask.priority}`,
+      };
+
+      calendar.addEvent(localTask);
+      DomUtils.showWarning("Task saved locally (offline)");
     }
+
+    e.target.reset();
   }
 
   async function handleEventUpdate(info) {
+    const originalEvent = { ...info.event.toPlainObject() };
+
     try {
       await ApiService.updateTask(info.event.id, {
         title: info.event.title,
@@ -85,32 +116,39 @@ export const Todo = (() => {
         description: info.event.extendedProps.description,
         priority: info.event.extendedProps.priority,
       });
-      DomUtils.showSuccess("Task updated successfully!");
+      DomUtils.showSuccess("Changes saved to server");
     } catch (error) {
       info.revert();
-      console.error("Update failed:", error);
-      DomUtils.showError("Failed to update task. Changes reverted.");
+      DomUtils.showError("Failed to save changes. Restored original.");
+      console.warn("Update failed:", error);
     }
   }
 
   async function handleEventDelete(info) {
+    const eventCopy = info.event.toPlainObject();
+
     try {
       await ApiService.deleteTask(info.event.id);
-      DomUtils.showSuccess("Task deleted successfully!");
+      DomUtils.showSuccess("Task deleted from server");
     } catch (error) {
-      calendar.addEvent(info.event);
-      console.error("Deletion failed:", error);
-      DomUtils.showError("Failed to delete task. Task restored.");
+      calendar.addEvent(eventCopy);
+      DomUtils.showWarning("Deletion failed. Task restored.");
+      console.warn("Delete failed:", error);
     }
   }
 
   function handleEventClick(info) {
-    let details = `Task: ${info.event.title}\n`;
-    details += `Description: ${
-      info.event.extendedProps.description || "No description"
-    }\n`;
-    details += `Priority: ${info.event.extendedProps.priority}\n`;
-    details += `Date: ${info.event.start.toLocaleDateString()}`;
+    const event = info.event;
+    const description = event.extendedProps.description || "No description";
+    const priority = event.extendedProps.priority || "not set";
+    const date = event.start?.toLocaleDateString() || "Unknown date";
+
+    const details = [
+      `Task: ${event.title}`,
+      `Description: ${description}`,
+      `Priority: ${priority}`,
+      `Date: ${date}`,
+    ].join("\n");
 
     alert(details);
   }
@@ -119,7 +157,7 @@ export const Todo = (() => {
     initializeCalendar();
     document
       .getElementById("task-form")
-      .addEventListener("submit", handleFormSubmit);
+      ?.addEventListener("submit", handleFormSubmit);
   });
 
   return { initializeCalendar };

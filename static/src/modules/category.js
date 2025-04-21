@@ -119,70 +119,75 @@ export const Category = (() => {
       updateCategorySelect();
     }
   }
+  if (window.location.pathname === "/app") {
+    document.addEventListener("DOMContentLoaded", function () {
+      const categorySelect = document.getElementById("category");
+      const categoriesContainer = document.getElementById(
+        "categories-container"
+      );
+      const addNewCategoryBtn = document.getElementById("add-new-category-btn");
+      const newCategoryForm = document.getElementById("new-category-form");
+      const createCategoryBtn = document.getElementById("create-category-btn");
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const categorySelect = document.getElementById("category");
-    const categoriesContainer = document.getElementById("categories-container");
-    const addNewCategoryBtn = document.getElementById("add-new-category-btn");
-    const newCategoryForm = document.getElementById("new-category-form");
-    const createCategoryBtn = document.getElementById("create-category-btn");
-
-    // Fetch categories from API or localStorage
-    async function initializeCategories() {
-      try {
-        categories = await ApiService.fetchCategories();
-        renderCategories();
-        updateCategorySelect();
-        // Save server categories to localStorage as backup
-        localStorage.setItem("categories", JSON.stringify(categories));
-      } catch (error) {
-        console.warn("Server unavailable, using localStorage:", error);
-        categories = LocalStorageService.getCategories();
-        renderCategories();
-        updateCategorySelect();
-      }
-    }
-
-    initializeCategories();
-
-    // Category management
-    addNewCategoryBtn.addEventListener("click", () => {
-      newCategoryForm.style.display =
-        newCategoryForm.style.display === "none" ? "flex" : "none";
-    });
-
-    createCategoryBtn.addEventListener("click", async () => {
-      const name = document.getElementById("new-category-name").value.trim();
-      const color = document.getElementById("new-category-color").value;
-
-      if (name) {
-        const newCategory = {
-          id: LocalStorageService.generateId(),
-          name,
-          color,
-        };
+      // Fetch categories from API or localStorage
+      async function initializeCategories() {
         try {
-          // Add new category via API
-          const apiCategory = await ApiService.createCategory({ name, color });
-          categories.push(apiCategory);
-          // Save to localStorage as backup
-          LocalStorageService.saveCategory(apiCategory);
+          categories = await ApiService.fetchCategories();
+          renderCategories();
+          updateCategorySelect();
+          // Save server categories to localStorage as backup
+          localStorage.setItem("categories", JSON.stringify(categories));
         } catch (error) {
-          console.warn("Server unavailable, saving to localStorage:", error);
-          categories.push(newCategory);
-          LocalStorageService.saveCategory(newCategory);
+          console.warn("Server unavailable, using localStorage:", error);
+          categories = LocalStorageService.getCategories();
+          renderCategories();
+          updateCategorySelect();
         }
-        renderCategories();
-        updateCategorySelect();
-
-        // Reset form
-        document.getElementById("new-category-name").value = "";
-        document.getElementById("new-category-color").value = "#cccccc";
-        newCategoryForm.style.display = "none";
       }
-    });
-  });
 
+      initializeCategories();
+
+      // Category management
+      addNewCategoryBtn.addEventListener("click", () => {
+        newCategoryForm.style.display =
+          newCategoryForm.style.display === "none" ? "flex" : "none";
+      });
+
+      createCategoryBtn.addEventListener("click", async () => {
+        const name = document.getElementById("new-category-name").value.trim();
+        const color = document.getElementById("new-category-color").value;
+
+        if (name) {
+          const newCategory = {
+            id: LocalStorageService.generateId(),
+            name,
+            color,
+          };
+          try {
+            // Add new category via API
+            const apiCategory = await ApiService.createCategory({
+              name,
+              color,
+            });
+            categories.push(apiCategory);
+            // Save to localStorage as backup
+            LocalStorageService.saveCategory(apiCategory);
+          } catch (error) {
+            console.warn("Server unavailable, saving to localStorage:", error);
+            categories.push(newCategory);
+            LocalStorageService.saveCategory(newCategory);
+          }
+          renderCategories();
+          updateCategorySelect();
+
+          // Reset form
+          document.getElementById("new-category-name").value = "";
+          document.getElementById("new-category-color").value = "#cccccc";
+          newCategoryForm.style.display = "none";
+        }
+      });
+    });
+  }
   return {
     getCategories: () => categories,
     renderCategories,

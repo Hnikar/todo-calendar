@@ -20,7 +20,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-const eventTimeFormat = "2006-01-02T15:04"
+const dateTimeFormat = "2006-01-02T15:04"
+const dateOnlyFormat = "2006-01-02"
 
 var db *gorm.DB
 var jwtSecret []byte
@@ -165,8 +166,16 @@ func createCategoryHandler(c *gin.Context) {
 }
 
 func MapEventToResponse(event *models.Event, categoryName *string) EventResponse {
-	startStr := event.StartTime.Format(eventTimeFormat)
-	endStr := event.EndTime.Format(eventTimeFormat)
+	var startStr, endStr string
+
+	if event.AllDay {
+		startStr = event.StartTime.Format(dateOnlyFormat)
+		endStr = event.EndTime.Format(dateOnlyFormat)
+	} else {
+		// Для событий со временем возвращаем дату и время
+		startStr = event.StartTime.Format(dateTimeFormat)
+		endStr = event.EndTime.Format(dateTimeFormat)
+	}
 
 	return EventResponse{
 		ID:          event.ID,
@@ -183,10 +192,10 @@ func MapEventToResponse(event *models.Event, categoryName *string) EventResponse
 }
 
 func parseDateTime(dateTimeStr string) (time.Time, error) {
-	t, err := time.Parse(eventTimeFormat, dateTimeStr)
+	t, err := time.Parse(dateTimeFormat, dateTimeStr)
 	if err != nil {
 		log.Printf("Error parsing date string '%s': %v", dateTimeStr, err)
-		return time.Time{}, fmt.Errorf("invalid date/time format, expected YYYY-MM-DDTHH:mm")
+		return time.Time{}, fmt.Errorf("invalid date/time format '%s', expected '%s'", dateTimeStr, dateTimeFormat)
 	}
 	return t, nil
 }
@@ -726,22 +735,65 @@ func createEventHandler(c *gin.Context) {
 		return
 	}
 
-	startTime, err := parseDateTime(req.Start)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date: %v", err)})
-		return
-	}
-	endTime, err := parseDateTime(req.End)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date: %v", err)})
-		return
+	var startTime, endTime time.Time
+	var err error
+	isAllDay := false
+	if req.AllDay != nil {
+		isAllDay = *req.AllDay
 	}
 
-	if endTime.Before(startTime) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "End time must be after start time"})
-		return
+	if isAllDay {
+		// --- Логика для событий "весь день" ---
+		startTime, err = time.Parse(dateOnlyFormat, req.Start)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date format for all-day event '%s': %v. Expected format: %s", req.Start, err, dateOnlyFormat)})
+			return
+		}
+		// Для FullCalendar конец события "весь день" - это начало следующего дня.
+		// Если фронтенд присылает одинаковые start/end, считаем это событием на один день.
+		// Если end не указан или совпадает со start, ставим конец на начало следующего дня.
+		if req.End == "" || req.End == req.Start {
+			endTime = startTime.AddDate(0, 0, 1) // Начало следующего дня
+		} else {
+			// Если указана дата окончания, парсим ее и делаем ее началом следующего дня
+			var endDateParsed time.Time
+			endDateParsed, err = time.Parse(dateOnlyFormat, req.End)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date format for all-day event '%s': %v. Expected format: %s", req.End, err, dateOnlyFormat)})
+				return
+			}
+			// Устанавливаем время на 00:00 и добавляем день, чтобы сделать конец эксклюзивным
+			endTime = endDateParsed.AddDate(0, 0, 1)
+		}
+
+		// Проверяем, что конец не раньше начала (хотя для allDay это менее критично)
+		if endTime.Before(startTime) || endTime.Equal(startTime) {
+			log.Printf("Warning: End date %s is not after start date %s for all-day event creation. Setting end to start+1day.", endTime.Format(dateOnlyFormat), startTime.Format(dateOnlyFormat))
+			endTime = startTime.AddDate(0, 0, 1) // Корректируем, если что-то пошло не так
+		}
+		// У startTime и endTime будет время 00:00:00 UTC после time.Parse
+
+	} else {
+		// --- Логика для событий с указанием времени ---
+		startTime, err = parseDateTime(req.Start) // Ожидает YYYY-MM-DDTHH:mm
+		if err != nil {
+			// Ошибка из parseDateTime уже содержит нужный формат
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date/time: %v", err)})
+			return
+		}
+		endTime, err = parseDateTime(req.End) // Ожидает YYYY-MM-DDTHH:mm
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date/time: %v", err)})
+			return
+		}
+		// Для событий со временем, конец должен быть строго после начала
+		if endTime.Before(startTime) || endTime.Equal(startTime) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "End time must be strictly after start time for timed events"})
+			return
+		}
 	}
 
+	// Получение ID категории (логика остается прежней)
 	categoryID, err := getCategoryIDByName(db, req.Category, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -752,17 +804,14 @@ func createEventHandler(c *gin.Context) {
 	if req.Completed != nil {
 		isCompleted = *req.Completed
 	}
-	isAllDay := false
-	if req.AllDay != nil {
-		isAllDay = *req.AllDay
-	}
 
+	// Создание объекта события с уже обработанными startTime, endTime и isAllDay
 	event := models.Event{
 		UserID:      userID,
 		Title:       req.Title,
 		Description: req.Description,
-		StartTime:   startTime,
-		EndTime:     endTime,
+		StartTime:   startTime, // Содержит 00:00 для allDay или указанное время
+		EndTime:     endTime,   // Содержит начало след. дня для allDay или указанное время
 		AllDay:      isAllDay,
 		IsCompleted: isCompleted,
 		Priority:    req.Priority,
@@ -770,13 +819,16 @@ func createEventHandler(c *gin.Context) {
 		CategoryID:  categoryID,
 	}
 
+	// Сохранение в БД
 	if result := db.Create(&event); result.Error != nil {
 		log.Printf("Error creating event for user %d: %v", userID, result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
 		return
 	}
 
+	// Формирование ответа
 	categoryName, _ := getCategoryNameByID(db, event.CategoryID, userID)
+	// MapEventToResponse теперь правильно форматирует даты для allDay
 	response := MapEventToResponse(&event, categoryName)
 
 	c.JSON(http.StatusCreated, response)
@@ -815,7 +867,7 @@ func updateEventHandler(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
 		} else {
 			log.Printf("Error finding event %s for update, user %d: %v", eventID, userID, err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error while finding event"})
 		}
 		return
 	}
@@ -826,19 +878,47 @@ func updateEventHandler(c *gin.Context) {
 		return
 	}
 
-	startTime, err := parseDateTime(req.Start)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date: %v", err)})
-		return
-	}
-	endTime, err := parseDateTime(req.End)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date: %v", err)})
-		return
-	}
-	if endTime.Before(startTime) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "End time must be after start time"})
-		return
+	var startTime, endTime time.Time
+	var err error
+	isAllDay := req.AllDay
+
+	if isAllDay {
+		startTime, err = time.Parse(dateOnlyFormat, req.Start)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date format for all-day event '%s': %v. Expected format: %s", req.Start, err, dateOnlyFormat)})
+			return
+		}
+		if req.End == "" || req.End == req.Start {
+			endTime = startTime.AddDate(0, 0, 1)
+		} else {
+			var endDateParsed time.Time
+			endDateParsed, err = time.Parse(dateOnlyFormat, req.End)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date format for all-day event '%s': %v. Expected format: %s", req.End, err, dateOnlyFormat)})
+				return
+			}
+			endTime = endDateParsed.AddDate(0, 0, 1)
+		}
+		if endTime.Before(startTime) || endTime.Equal(startTime) {
+			log.Printf("Warning: End date %s is not after start date %s for all-day event update. Setting end to start+1day.", endTime.Format(dateOnlyFormat), startTime.Format(dateOnlyFormat))
+			endTime = startTime.AddDate(0, 0, 1)
+		}
+
+	} else {
+		startTime, err = parseDateTime(req.Start)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date/time: %v", err)})
+			return
+		}
+		endTime, err = parseDateTime(req.End)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date/time: %v", err)})
+			return
+		}
+		if endTime.Before(startTime) || endTime.Equal(startTime) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "End time must be strictly after start time for timed events"})
+			return
+		}
 	}
 
 	categoryID, err := getCategoryIDByName(db, req.Category, userID)
@@ -851,7 +931,7 @@ func updateEventHandler(c *gin.Context) {
 	event.Description = req.Description
 	event.StartTime = startTime
 	event.EndTime = endTime
-	event.AllDay = req.AllDay
+	event.AllDay = isAllDay
 	event.IsCompleted = req.Completed
 	event.Priority = req.Priority
 	event.ClassName = req.ClassName

@@ -22,7 +22,7 @@ export const ApiService = (() => {
       }
 
       const responseData = await response.json();
-
+      console.log(responseData);
       if (!response.ok) {
         throw new Error(responseData.error || "Request failed");
       }
@@ -46,7 +46,5 @@ export const ApiService = (() => {
       handleRequest("/categories", "POST", category),
     fetchCategories: () => handleRequest("/categories", "GET"),
     deleteCategory: (id) => handleRequest(`/categories/${id}`, "DELETE"),
-    clearCategoryFromTasks: (categoryName) =>
-      handleRequest(`/events/clear-category/${categoryName}`, "PATCH"),
   };
 })();

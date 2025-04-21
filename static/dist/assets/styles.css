@@ -286,7 +286,12 @@ body {
   .hidden {
     display: none;
   }
-
+  .completed-task {
+    background-color: #d3d3d3 !important;
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .time-inputs {

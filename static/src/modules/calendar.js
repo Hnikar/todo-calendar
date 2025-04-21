@@ -35,6 +35,14 @@ export const Todo = (() => {
         populateForm(info.event);
         updateFormUI();
       },
+      eventDidMount: function (info) {
+        const isCompleted = info.event.extendedProps.completed;
+        if (isCompleted) {
+          info.el.style.backgroundColor = "#d3d3d3";
+          info.el.style.textDecoration = "line-through";
+          info.el.style.opacity = "0.7";
+        }
+      },
     });
 
     calendar.render();
@@ -107,6 +115,8 @@ export const Todo = (() => {
         event.extendedProps.description || "";
       document.getElementById("priority").value =
         event.extendedProps.priority || "low";
+      document.getElementById("completed").checked =
+        event.extendedProps.completed || false;
     }
 
     function getFormData() {
@@ -117,7 +127,10 @@ export const Todo = (() => {
         end: document.getElementById("taskDate").value,
         description: document.getElementById("description").value,
         priority: document.getElementById("priority").value,
-        className: `priority-${document.getElementById("priority").value}`,
+        completed: document.getElementById("completed").checked,
+        className: `priority-${document.getElementById("priority").value} ${
+          document.getElementById("completed").checked ? "completed-task" : ""
+        }`,
       };
     }
 

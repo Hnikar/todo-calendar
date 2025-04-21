@@ -91,10 +91,14 @@ func main() {
 	// Middleware
 	router.Use(corsMiddleware())
 
-	router.Static("/assets", "./static/dist/assets")
+	//router.Static("/assets", "./static/dist/assets")
 
 	router.GET("/main.js", func(c *gin.Context) {
 		c.File("./static/dist/main.js")
+	})
+
+	router.GET("/styles.css", func(c *gin.Context) {
+		c.File("./static/dist/styles.css")
 	})
 
 	setupRoutes(router, ".")

@@ -1,41 +1,10 @@
 import { Category } from "./category.js";
-import { ApiService } from "./apiService.js"; // Import ApiService
+import { ApiService } from "./apiService.js";
 
 export const Todo = (() => {
   let currentEditingTask = null;
   let isEditing = false;
 
-  // Local Storage Service
-  const LocalStorageService = {
-    getTasks() {
-      const tasks = localStorage.getItem("tasks");
-      return tasks ? JSON.parse(tasks) : [];
-    },
-    saveTask(task) {
-      const tasks = this.getTasks();
-      tasks.push(task);
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      return task;
-    },
-    updateTask(id, updatedTask) {
-      const tasks = this.getTasks();
-      const index = tasks.findIndex((t) => t.id === id);
-      if (index !== -1) {
-        tasks[index] = { ...tasks[index], ...updatedTask };
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        return tasks[index];
-      }
-      return null;
-    },
-    deleteTask(id) {
-      const tasks = this.getTasks();
-      const updatedTasks = tasks.filter((t) => t.id !== id);
-      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    },
-    generateId() {
-      return "local_" + Math.random().toString(36).substr(2, 9); // Simple unique ID for local tasks
-    },
-  };
   if (window.location.pathname === "/app") {
     document.addEventListener("DOMContentLoaded", function () {
       const form = document.getElementById("task-form");
@@ -71,7 +40,7 @@ export const Todo = (() => {
         selectable: true,
         selectMirror: true,
         dayMaxEvents: true,
-        events: [], // Initialize empty, populate via fetchTasks
+        events: [],
         eventClick: function (info) {
           currentEditingTask = info.event;
           isEditing = true;
@@ -86,7 +55,7 @@ export const Todo = (() => {
             info.el.style.opacity = "0.7";
           }
 
-          // Apply category color (handled by Category module)
+          // Apply category color
           const category = info.event.extendedProps.category;
           if (category && category !== "None") {
             const cat = Category.getCategories().find(
@@ -101,19 +70,15 @@ export const Todo = (() => {
         },
       });
 
-      // Fetch tasks from API or localStorage and render calendar
+      // Fetch tasks from API and render calendar
       async function initializeCalendar() {
         try {
           const tasks = await ApiService.fetchTasks();
           tasks.forEach((task) => calendar.addEvent(task));
-          // Save server tasks to localStorage as backup
-          localStorage.setItem("tasks", JSON.stringify(tasks));
+          calendar.render();
         } catch (error) {
-          console.warn("Server unavailable, using localStorage:", error);
-          const localTasks = LocalStorageService.getTasks();
-          localTasks.forEach((task) => calendar.addEvent(task));
+          console.error("Failed to fetch tasks:", error);
         }
-        calendar.render();
       }
 
       initializeCalendar();
@@ -198,7 +163,6 @@ export const Todo = (() => {
         allDayCheckbox.checked = allDay;
         timeInputs.style.display = allDay ? "none" : "flex";
 
-        // Handle time inputs for non-all-day events
         if (!allDay) {
           const startDate = new Date(event.start);
           const endDate = new Date(event.end || event.start);
@@ -240,7 +204,7 @@ export const Todo = (() => {
         }
 
         return {
-          id: isEditing ? currentEditingTask.id : undefined, // ID is managed by server or localStorage
+          id: isEditing ? currentEditingTask.id : undefined,
           title: document.getElementById("title").value,
           start: start,
           end: end,
@@ -256,57 +220,22 @@ export const Todo = (() => {
       }
 
       async function createTask(data) {
-        try {
-          const newTask = await ApiService.createTask(data);
-          calendar.addEvent(newTask);
-          // Save to localStorage as backup
-          LocalStorageService.saveTask(newTask);
-          return newTask;
-        } catch (error) {
-          console.warn("Server unavailable, saving to localStorage:", error);
-          const localTask = { ...data, id: LocalStorageService.generateId() };
-          LocalStorageService.saveTask(localTask);
-          calendar.addEvent(localTask);
-          return localTask;
-        }
+        const newTask = await ApiService.createTask(data);
+        calendar.addEvent(newTask);
+        return newTask;
       }
 
       async function updateTask(data) {
-        try {
-          const updatedTask = await ApiService.updateTask(data.id, data);
-          currentEditingTask.remove();
-          calendar.addEvent(updatedTask);
-          // Update localStorage as backup
-          LocalStorageService.updateTask(data.id, updatedTask);
-          return updatedTask;
-        } catch (error) {
-          console.warn("Server unavailable, updating in localStorage:", error);
-          const updatedTask = LocalStorageService.updateTask(data.id, data);
-          if (updatedTask) {
-            currentEditingTask.remove();
-            calendar.addEvent(updatedTask);
-            return updatedTask;
-          }
-          throw new Error("Task not found in localStorage");
-        }
+        const updatedTask = await ApiService.updateTask(data.id, data);
+        currentEditingTask.remove();
+        calendar.addEvent(updatedTask);
+        return updatedTask;
       }
 
       async function deleteTask(id) {
-        try {
-          await ApiService.deleteTask(id);
-          // Update localStorage
-          LocalStorageService.deleteTask(id);
-        } catch (error) {
-          console.warn(
-            "Server unavailable, deleting from localStorage:",
-            error
-          );
-          LocalStorageService.deleteTask(id);
-        }
+        await ApiService.deleteTask(id);
       }
     });
   }
-  return {
-    // Expose methods if needed by Category module
-  };
+  return {};
 })();

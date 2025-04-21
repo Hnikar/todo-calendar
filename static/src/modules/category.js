@@ -1,45 +1,7 @@
 import { ApiService } from "./apiService.js";
 
 export const Category = (() => {
-  let categories = [
-    { id: "default_1", name: "Personal", color: "#f56565" },
-    { id: "default_2", name: "Work", color: "#63b3ed" },
-    { id: "default_3", name: "Category 1", color: "#f6e05e" },
-  ];
-
-  // Local Storage Service for Categories
-  const LocalStorageService = {
-    getCategories() {
-      const categories = localStorage.getItem("categories");
-      return categories ? JSON.parse(categories) : [];
-    },
-    saveCategory(category) {
-      const categories = this.getCategories();
-      categories.push(category);
-      localStorage.setItem("categories", JSON.stringify(categories));
-      return category;
-    },
-    deleteCategory(id) {
-      const categories = this.getCategories();
-      const updatedCategories = categories.filter((c) => c.id !== id);
-      localStorage.setItem("categories", JSON.stringify(updatedCategories));
-      // Update tasks to clear deleted category
-      this.clearCategoryFromTasks(id);
-    },
-    clearCategoryFromTasks(categoryId) {
-      const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-      const updatedTasks = tasks.map((task) => {
-        if (task.category === categoryId) {
-          return { ...task, category: null };
-        }
-        return task;
-      });
-      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    },
-    generateId() {
-      return "local_cat_" + Math.random().toString(36).substr(2, 9); // Simple unique ID for local categories
-    },
-  };
+  let categories = [];
 
   // Helper functions defined outside DOMContentLoaded
   function renderCategories() {
@@ -50,6 +12,7 @@ export const Category = (() => {
     categoriesContainer.innerHTML = "";
 
     categories.forEach((category, index) => {
+      // Ensure category.id is a string for consistency
       const li = document.createElement("li");
       li.className = "category-item";
       li.innerHTML = `
@@ -68,7 +31,10 @@ export const Category = (() => {
     document.querySelectorAll(".delete-category-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
+        // Ensure id is treated as a string
         const id = btn.dataset.id;
+        console.log("Attempting to delete category with id:", id);
+        console.log("Current categories:", categories);
         deleteCategory(id);
       });
     });
@@ -98,27 +64,29 @@ export const Category = (() => {
   }
 
   async function deleteCategory(id) {
-    const index = categories.findIndex((c) => c.id === id);
+    // Convert id to string for consistency
+    const index = categories.findIndex(
+      (c) => c.id.toString() === id.toString()
+    );
+    console.log("deleteCategory called with id:", id, "Found index:", index);
+
     if (index >= 0) {
       try {
-        const deletedCategoryName = categories[index].name;
         // Delete category via API
         await ApiService.deleteCategory(id);
+        // Remove from local state
         categories.splice(index, 1);
-        // Update tasks via API
-        await ApiService.clearCategoryFromTasks(deletedCategoryName);
-        // Update localStorage as backup
-        LocalStorageService.deleteCategory(id);
+        renderCategories();
+        updateCategorySelect();
       } catch (error) {
-        console.warn("Server unavailable, deleting from localStorage:", error);
-        // Delete from local categories
-        categories.splice(index, 1);
-        LocalStorageService.deleteCategory(id);
+        console.error("Failed to delete category:", error);
+        // Optionally show error message to user
       }
-      renderCategories();
-      updateCategorySelect();
+    } else {
+      console.error("Category not found with id:", id);
     }
   }
+
   if (window.location.pathname === "/app") {
     document.addEventListener("DOMContentLoaded", function () {
       const categorySelect = document.getElementById("category");
@@ -129,17 +97,16 @@ export const Category = (() => {
       const newCategoryForm = document.getElementById("new-category-form");
       const createCategoryBtn = document.getElementById("create-category-btn");
 
-      // Fetch categories from API or localStorage
+      // Fetch categories from API
       async function initializeCategories() {
         try {
           categories = await ApiService.fetchCategories();
+          console.log("Fetched categories:", categories);
           renderCategories();
           updateCategorySelect();
-          // Save server categories to localStorage as backup
-          localStorage.setItem("categories", JSON.stringify(categories));
         } catch (error) {
-          console.warn("Server unavailable, using localStorage:", error);
-          categories = LocalStorageService.getCategories();
+          console.error("Failed to fetch categories:", error);
+          // Optionally show error message to user
           renderCategories();
           updateCategorySelect();
         }
@@ -158,11 +125,6 @@ export const Category = (() => {
         const color = document.getElementById("new-category-color").value;
 
         if (name) {
-          const newCategory = {
-            id: LocalStorageService.generateId(),
-            name,
-            color,
-          };
           try {
             // Add new category via API
             const apiCategory = await ApiService.createCategory({
@@ -170,20 +132,18 @@ export const Category = (() => {
               color,
             });
             categories.push(apiCategory);
-            // Save to localStorage as backup
-            LocalStorageService.saveCategory(apiCategory);
-          } catch (error) {
-            console.warn("Server unavailable, saving to localStorage:", error);
-            categories.push(newCategory);
-            LocalStorageService.saveCategory(newCategory);
-          }
-          renderCategories();
-          updateCategorySelect();
+            console.log("Added new category:", apiCategory);
+            renderCategories();
+            updateCategorySelect();
 
-          // Reset form
-          document.getElementById("new-category-name").value = "";
-          document.getElementById("new-category-color").value = "#cccccc";
-          newCategoryForm.style.display = "none";
+            // Reset form
+            document.getElementById("new-category-name").value = "";
+            document.getElementById("new-category-color").value = "#cccccc";
+            newCategoryForm.style.display = "none";
+          } catch (error) {
+            console.error("Failed to create category:", error);
+            // Optionally show error message to user
+          }
         }
       });
     });

@@ -5,6 +5,38 @@ export const Todo = (() => {
   let currentEditingTask = null;
   let isEditing = false;
 
+  // Local Storage Service
+  const LocalStorageService = {
+    getTasks() {
+      const tasks = localStorage.getItem("tasks");
+      return tasks ? JSON.parse(tasks) : [];
+    },
+    saveTask(task) {
+      const tasks = this.getTasks();
+      tasks.push(task);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      return task;
+    },
+    updateTask(id, updatedTask) {
+      const tasks = this.getTasks();
+      const index = tasks.findIndex((t) => t.id === id);
+      if (index !== -1) {
+        tasks[index] = { ...tasks[index], ...updatedTask };
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        return tasks[index];
+      }
+      return null;
+    },
+    deleteTask(id) {
+      const tasks = this.getTasks();
+      const updatedTasks = tasks.filter((t) => t.id !== id);
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    },
+    generateId() {
+      return "local_" + Math.random().toString(36).substr(2, 9); // Simple unique ID for local tasks
+    },
+  };
+
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("task-form");
     const formHeading = document.getElementById("form-heading");
@@ -14,6 +46,17 @@ export const Todo = (() => {
     const addTaskButton = document.querySelector(
       ".content-header-container > button"
     );
+    const allDayCheckbox = document.getElementById("allDay");
+    const timeInputs = document.getElementById("timeInputs");
+
+    // Toggle time inputs based on All Day checkbox
+    allDayCheckbox.addEventListener("change", () => {
+      timeInputs.style.display = allDayCheckbox.checked ? "none" : "flex";
+      if (allDayCheckbox.checked) {
+        document.getElementById("startTime").value = "";
+        document.getElementById("endTime").value = "";
+      }
+    });
 
     // Calendar initialization
     const calendarEl = document.getElementById("calendar");
@@ -56,15 +99,19 @@ export const Todo = (() => {
       },
     });
 
-    // Fetch tasks from API and render calendar
+    // Fetch tasks from API or localStorage and render calendar
     async function initializeCalendar() {
       try {
         const tasks = await ApiService.fetchTasks();
         tasks.forEach((task) => calendar.addEvent(task));
-        calendar.render();
+        // Save server tasks to localStorage as backup
+        localStorage.setItem("tasks", JSON.stringify(tasks));
       } catch (error) {
-        console.error("Failed to fetch tasks:", error);
+        console.warn("Server unavailable, using localStorage:", error);
+        const localTasks = LocalStorageService.getTasks();
+        localTasks.forEach((task) => calendar.addEvent(task));
       }
+      calendar.render();
     }
 
     initializeCalendar();
@@ -74,6 +121,8 @@ export const Todo = (() => {
       isEditing = false;
       currentEditingTask = null;
       form.reset();
+      allDayCheckbox.checked = false;
+      timeInputs.style.display = "flex";
       updateFormUI();
     });
 
@@ -88,6 +137,8 @@ export const Todo = (() => {
           await createTask(formData);
         }
         form.reset();
+        allDayCheckbox.checked = false;
+        timeInputs.style.display = "flex";
         updateFormUI();
       } catch (error) {
         console.error("Failed to save task:", error);
@@ -97,7 +148,7 @@ export const Todo = (() => {
     deleteButton.addEventListener("click", async () => {
       if (currentEditingTask) {
         try {
-          await ApiService.deleteTask(currentEditingTask.id);
+          await deleteTask(currentEditingTask.id);
           currentEditingTask.remove();
           form.reset();
           isEditing = false;
@@ -113,6 +164,8 @@ export const Todo = (() => {
       form.reset();
       isEditing = false;
       currentEditingTask = null;
+      allDayCheckbox.checked = false;
+      timeInputs.style.display = "flex";
       updateFormUI();
     });
 
@@ -139,6 +192,25 @@ export const Todo = (() => {
         0,
         10
       );
+      const allDay = event.allDay;
+      allDayCheckbox.checked = allDay;
+      timeInputs.style.display = allDay ? "none" : "flex";
+
+      // Handle time inputs for non-all-day events
+      if (!allDay) {
+        const startDate = new Date(event.start);
+        const endDate = new Date(event.end || event.start);
+        document.getElementById("startTime").value = startDate
+          .toTimeString()
+          .substring(0, 5);
+        document.getElementById("endTime").value = endDate
+          .toTimeString()
+          .substring(0, 5);
+      } else {
+        document.getElementById("startTime").value = "";
+        document.getElementById("endTime").value = "";
+      }
+
       document.getElementById("description").value =
         event.extendedProps.description || "";
       document.getElementById("priority").value =
@@ -151,11 +223,26 @@ export const Todo = (() => {
 
     function getFormData() {
       const categoryValue = document.getElementById("category").value;
+      const allDay = document.getElementById("allDay").checked;
+      const date = document.getElementById("taskDate").value;
+      let start, end;
+
+      if (allDay) {
+        start = date;
+        end = date;
+      } else {
+        const startTime = document.getElementById("startTime").value;
+        const endTime = document.getElementById("endTime").value;
+        start = startTime ? `${date}T${startTime}` : date;
+        end = endTime ? `${date}T${endTime}` : start;
+      }
+
       return {
-        id: isEditing ? currentEditingTask.id : undefined, // ID is managed by server
+        id: isEditing ? currentEditingTask.id : undefined, // ID is managed by server or localStorage
         title: document.getElementById("title").value,
-        start: document.getElementById("taskDate").value,
-        end: document.getElementById("taskDate").value,
+        start: start,
+        end: end,
+        allDay: allDay,
         description: document.getElementById("description").value,
         priority: document.getElementById("priority").value,
         category: categoryValue === "None" ? null : categoryValue,
@@ -167,14 +254,50 @@ export const Todo = (() => {
     }
 
     async function createTask(data) {
-      const newTask = await ApiService.createTask(data);
-      calendar.addEvent(newTask);
+      try {
+        const newTask = await ApiService.createTask(data);
+        calendar.addEvent(newTask);
+        // Save to localStorage as backup
+        LocalStorageService.saveTask(newTask);
+        return newTask;
+      } catch (error) {
+        console.warn("Server unavailable, saving to localStorage:", error);
+        const localTask = { ...data, id: LocalStorageService.generateId() };
+        LocalStorageService.saveTask(localTask);
+        calendar.addEvent(localTask);
+        return localTask;
+      }
     }
 
     async function updateTask(data) {
-      const updatedTask = await ApiService.updateTask(data.id, data);
-      currentEditingTask.remove();
-      calendar.addEvent(updatedTask);
+      try {
+        const updatedTask = await ApiService.updateTask(data.id, data);
+        currentEditingTask.remove();
+        calendar.addEvent(updatedTask);
+        // Update localStorage as backup
+        LocalStorageService.updateTask(data.id, updatedTask);
+        return updatedTask;
+      } catch (error) {
+        console.warn("Server unavailable, updating in localStorage:", error);
+        const updatedTask = LocalStorageService.updateTask(data.id, data);
+        if (updatedTask) {
+          currentEditingTask.remove();
+          calendar.addEvent(updatedTask);
+          return updatedTask;
+        }
+        throw new Error("Task not found in localStorage");
+      }
+    }
+
+    async function deleteTask(id) {
+      try {
+        await ApiService.deleteTask(id);
+        // Update localStorage
+        LocalStorageService.deleteTask(id);
+      } catch (error) {
+        console.warn("Server unavailable, deleting from localStorage:", error);
+        LocalStorageService.deleteTask(id);
+      }
     }
   });
   return {

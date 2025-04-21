@@ -37,16 +37,16 @@ export const ApiService = (() => {
 
   return {
     // Task-related endpoints
-    createTask: (task) => handleRequest("/tasks", "POST", task),
-    updateTask: (id, task) => handleRequest(`/tasks/${id}`, "PUT", task),
-    deleteTask: (id) => handleRequest(`/tasks/${id}`, "DELETE"),
-    fetchTasks: () => handleRequest("/tasks", "GET"),
+    createTask: (task) => handleRequest("/events", "POST", task),
+    updateTask: (id, task) => handleRequest(`/events/${id}`, "PUT", task),
+    deleteTask: (id) => handleRequest(`/events/${id}`, "DELETE"),
+    fetchTasks: () => handleRequest("/events", "GET"),
     // Category-related endpoints
     createCategory: (category) =>
       handleRequest("/categories", "POST", category),
     fetchCategories: () => handleRequest("/categories", "GET"),
     deleteCategory: (id) => handleRequest(`/categories/${id}`, "DELETE"),
     clearCategoryFromTasks: (categoryName) =>
-      handleRequest(`/tasks/clear-category/${categoryName}`, "PATCH"),
+      handleRequest(`/events/clear-category/${categoryName}`, "PATCH"),
   };
 })();

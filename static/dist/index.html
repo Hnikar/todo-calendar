@@ -14,8 +14,9 @@
     <nav class="nav" id="nav">
       <div>
         <div class="menu">
-          <div class="nav-header">Menu</div> <button class="button-menu" id="mobileMenu" aria-label="Toggle menu"> <i
-              class="fa-solid fa-bars"></i>
+          <div class="nav-header">Menu</div>
+          <button class="button-menu" id="mobileMenu" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars"></i>
           </button>
         </div>
         <button class="button-default-project" id="btn-upcoming">
@@ -30,10 +31,36 @@
           <i class="fas fa-calendar-alt"></i>
           Calendar
         </button>
+<!-- Lists Section -->
+<div class="nav-section">
+  <div class="nav-header">Lists</div>
+  <ul class="list-group" id="lists-container">
+    <li class="list-item">
+      <span class="list-color" style="background-color: #f56565;"></span> Personal
+    </li>
+    <li class="list-item">
+      <span class="list-color" style="background-color: #63b3ed;"></span> Work
+    </li>
+    <li class="list-item">
+      <span class="list-color" style="background-color: #f6e05e;"></span> List 1
+    </li>
+    <li class="list-item add-new" id="add-new-list-btn">
+      <i class="fas fa-plus"></i> Add New List
+    </li>
+    <!-- Hidden form to create new list -->
+    <li id="new-list-form" class="list-item"
+      style="display: none; flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px;">
+      <input type="text" id="new-list-name" placeholder="List Name" style="width: 100%; padding: 5px;" />
+      <input type="color" id="new-list-color" value="#cccccc" style="width: 100%; padding: 5px;" />
+      <button id="create-list-btn" style="margin-top: 5px;">Create</button>
+    </li>
+  </ul>
+</div>
       </div>
 
       <div>
-        <div class="user-info"> <i class="fas fa-user"></i>
+        <div class="user-info">
+          <i class="fas fa-user"></i>
           <span id="user-name-display">Loading...</span>
         </div>
         <button class="button-default-project" id="btn-settings">
@@ -44,14 +71,14 @@
           <i class="fas fa-right-from-bracket"></i>
           Sign out
         </button>
-        </div>
-        </nav>
+      </div>
+      </nav>
 
     <div class="content">
       <div class="content-header-container">
         <div class="content-header">Calendar</div>
         <button id="btn-add-task">Add a new Task</button>
-        </div>
+      </div>
       <div id='calendar'></div>
     </div>
     
@@ -92,6 +119,12 @@
         </select>
       </div>
       <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category">
+          <!-- Categories will be populated from Lists -->
+        </select>
+        </div>
+        <div class="form-group">
         <label>
           <input type="checkbox" id="completed"> Completed
         </label>
@@ -101,7 +134,7 @@
         <button type="button" id="delete-button" class="hidden">Delete Task</button>
         <button type="button" id="cancel-button" class="hidden">Cancel</button>
       </div>
-      </form>
+    </form>
       
     <div id="loader" class="loader" style="display: none;">
       <div class="spinner"></div>

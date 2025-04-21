@@ -56,6 +56,25 @@ body {
     font-size: 2.5rem;
 }
 
+.content-header-container {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+.content-header-container > button{
+    height: 4rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
 .nav {
     flex: 0 0 280px;
     min-width: 250px;
@@ -173,8 +192,6 @@ body {
 }
 
 /* --- Стили для формы --- */
-
-/* --- Стили для формы --- */
 #task-form {
     background-color: var(--secondary-light);
     padding: 1.5rem;
@@ -254,6 +271,21 @@ body {
 #task-form button[type="submit"]:hover {
     background-color: #7b1fa2;
 }
+
+
+.form-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  #delete-button {
+    background-color: var(--error-color);
+  }
+  
+  .hidden {
+    display: none;
+  }
 
 /* Responsive adjustments */
 @media (max-width: 480px) {

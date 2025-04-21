@@ -1,15 +1,23 @@
-import { ApiService } from "./api-service.js";
-import { DomUtils } from "./domUtils.js";
-
 export const Todo = (() => {
-  let calendar;
-  let tasks = [];
+  let currentEditingTask = null;
+  let isEditing = false;
 
-  function initializeBaseCalendar() {
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("task-form");
+    const formHeading = document.getElementById("form-heading");
+    const submitButton = document.getElementById("submit-button");
+    const deleteButton = document.getElementById("delete-button");
+    const cancelButton = document.getElementById("cancel-button");
+    const addTaskButton = document.querySelector(
+      ".content-header-container > button"
+    );
+
+    // Initialize tasks from localStorage
+    let tasks = JSON.parse(localStorage.getItem("calendarTasks")) || [];
+
+    // Calendar initialization
     const calendarEl = document.getElementById("calendar");
-    if (!calendarEl) return;
-
-    calendar = new FullCalendar.Calendar(calendarEl, {
+    const calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "dayGridMonth",
       headerToolbar: {
         left: "prev,next today",
@@ -20,145 +28,120 @@ export const Todo = (() => {
       selectable: true,
       selectMirror: true,
       dayMaxEvents: true,
-      events: [],
-      eventClick: handleEventClick,
-      eventChange: handleEventUpdate,
-      eventRemove: handleEventDelete,
+      events: tasks,
+      eventClick: function (info) {
+        currentEditingTask = info.event;
+        isEditing = true;
+        populateForm(info.event);
+        updateFormUI();
+      },
     });
 
     calendar.render();
-  }
 
-  async function loadInitialTasks() {
-    try {
-      const data = await ApiService.fetchTasks();
-      if (data?.tasks?.length) {
-        tasks = data.tasks.map((task) => ({
-          id: task.id,
-          title: task.title,
-          start: task.start || task.taskDate,
-          end: task.end || task.taskDate,
-          description: task.description,
-          priority: task.priority,
-          className: `priority-${task.priority}`,
-        }));
+    // Event Listeners
+    addTaskButton.addEventListener("click", () => {
+      isEditing = false;
+      currentEditingTask = null;
+      form.reset();
+      updateFormUI();
+    });
 
-        calendar.batchRendering(() => {
-          tasks.forEach((task) => calendar.addEvent(task));
-        });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = getFormData();
 
-        DomUtils.showSuccess("Tasks loaded from server");
+      if (isEditing) {
+        updateTask(formData);
+      } else {
+        createTask(formData);
       }
-    } catch (error) {
-      console.warn("Offline mode:", error);
-      DomUtils.showInfo("Working offline - changes may not be saved");
+
+      form.reset();
+      updateFormUI();
+    });
+
+    deleteButton.addEventListener("click", () => {
+      if (currentEditingTask) {
+        tasks = tasks.filter((t) => t.id !== currentEditingTask.id);
+        currentEditingTask.remove();
+        saveTasks();
+        form.reset();
+        isEditing = false;
+        currentEditingTask = null;
+        updateFormUI();
+      }
+    });
+
+    cancelButton.addEventListener("click", () => {
+      form.reset();
+      isEditing = false;
+      currentEditingTask = null;
+      updateFormUI();
+    });
+
+    // Helper functions
+    function updateFormUI() {
+      if (isEditing) {
+        formHeading.textContent = "Edit Task";
+        submitButton.textContent = "Save Changes";
+        deleteButton.classList.remove("hidden");
+        cancelButton.classList.remove("hidden");
+        addTaskButton.disabled = true;
+      } else {
+        formHeading.textContent = "Add New Task";
+        submitButton.textContent = "Add Task";
+        deleteButton.classList.add("hidden");
+        cancelButton.classList.add("hidden");
+        addTaskButton.disabled = false;
+      }
     }
-  }
 
-  async function initializeCalendar() {
-    // Always create calendar first
-    initializeBaseCalendar();
-
-    // Then try to load data silently
-    try {
-      await loadInitialTasks();
-    } catch (error) {
-      // Fail silently, calendar already exists
+    function populateForm(event) {
+      document.getElementById("title").value = event.title;
+      document.getElementById("taskDate").value = event.startStr.substring(
+        0,
+        10
+      );
+      document.getElementById("description").value =
+        event.extendedProps.description || "";
+      document.getElementById("priority").value =
+        event.extendedProps.priority || "low";
     }
-  }
 
-  async function handleFormSubmit(e) {
-    e.preventDefault();
-
-    const newTask = {
-      title: document.getElementById("title").value,
-      taskDate: document.getElementById("taskDate").value,
-      description: document.getElementById("description").value,
-      priority: document.getElementById("priority").value,
-    };
-
-    try {
-      // Try to save to server
-      const createdTask = await ApiService.createTask(newTask);
-
-      // Add to calendar with server-generated ID
-      calendar.addEvent({
-        id: createdTask.id,
-        ...newTask,
-        start: newTask.taskDate,
-        end: newTask.taskDate,
-        className: `priority-${newTask.priority}`,
-      });
-
-      DomUtils.showSuccess("Task saved to server");
-    } catch (error) {
-      // Fallback: Add locally with client ID
-      const localTask = {
-        ...newTask,
-        id: `local-${Date.now()}`,
-        className: `priority-${newTask.priority}`,
+    function getFormData() {
+      return {
+        id: isEditing ? currentEditingTask.id : Date.now().toString(),
+        title: document.getElementById("title").value,
+        start: document.getElementById("taskDate").value,
+        end: document.getElementById("taskDate").value,
+        description: document.getElementById("description").value,
+        priority: document.getElementById("priority").value,
+        className: `priority-${document.getElementById("priority").value}`,
       };
-
-      calendar.addEvent(localTask);
-      DomUtils.showWarning("Task saved locally (offline)");
     }
 
-    e.target.reset();
-  }
-
-  async function handleEventUpdate(info) {
-    const originalEvent = { ...info.event.toPlainObject() };
-
-    try {
-      await ApiService.updateTask(info.event.id, {
-        title: info.event.title,
-        taskDate: info.event.start,
-        description: info.event.extendedProps.description,
-        priority: info.event.extendedProps.priority,
-      });
-      DomUtils.showSuccess("Changes saved to server");
-    } catch (error) {
-      info.revert();
-      DomUtils.showError("Failed to save changes. Restored original.");
-      console.warn("Update failed:", error);
+    function createTask(data) {
+      tasks.push(data);
+      calendar.addEvent(data);
+      saveTasks();
     }
-  }
 
-  async function handleEventDelete(info) {
-    const eventCopy = info.event.toPlainObject();
-
-    try {
-      await ApiService.deleteTask(info.event.id);
-      DomUtils.showSuccess("Task deleted from server");
-    } catch (error) {
-      calendar.addEvent(eventCopy);
-      DomUtils.showWarning("Deletion failed. Task restored.");
-      console.warn("Delete failed:", error);
+    function updateTask(data) {
+      const index = tasks.findIndex((t) => t.id === data.id);
+      if (index > -1) {
+        tasks[index] = data;
+        currentEditingTask.remove();
+        calendar.addEvent(data);
+        saveTasks();
+      }
     }
-  }
 
-  function handleEventClick(info) {
-    const event = info.event;
-    const description = event.extendedProps.description || "No description";
-    const priority = event.extendedProps.priority || "not set";
-    const date = event.start?.toLocaleDateString() || "Unknown date";
+    function saveTasks() {
+      localStorage.setItem("calendarTasks", JSON.stringify(tasks));
+    }
 
-    const details = [
-      `Task: ${event.title}`,
-      `Description: ${description}`,
-      `Priority: ${priority}`,
-      `Date: ${date}`,
-    ].join("\n");
-
-    alert(details);
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    initializeCalendar();
-    document
-      .getElementById("task-form")
-      ?.addEventListener("submit", handleFormSubmit);
+    // Initial UI update
+    updateFormUI();
   });
-
-  return { initializeCalendar };
 })();

@@ -1,4 +1,6 @@
-import { Category } from "./category";
+import { Category } from "./category.js";
+import { ApiService } from "./apiService.js"; // Import ApiService
+
 export const Todo = (() => {
   let currentEditingTask = null;
   let isEditing = false;
@@ -13,9 +15,6 @@ export const Todo = (() => {
       ".content-header-container > button"
     );
 
-    // Initialize tasks from localStorage
-    let tasks = JSON.parse(localStorage.getItem("calendarTasks")) || [];
-
     // Calendar initialization
     const calendarEl = document.getElementById("calendar");
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -29,7 +28,7 @@ export const Todo = (() => {
       selectable: true,
       selectMirror: true,
       dayMaxEvents: true,
-      events: tasks,
+      events: [], // Initialize empty, populate via fetchTasks
       eventClick: function (info) {
         currentEditingTask = info.event;
         isEditing = true;
@@ -44,10 +43,10 @@ export const Todo = (() => {
           info.el.style.opacity = "0.7";
         }
 
-        // Apply catagory color (handled by Category module)
-        const catagory = info.event.extendedProps.catagory;
-        if (catagory && catagory !== "None") {
-          const cat = Category.getCatagories().find((c) => c.name === catagory);
+        // Apply category color (handled by Category module)
+        const category = info.event.extendedProps.category;
+        if (category && category !== "None") {
+          const cat = Category.getCategories().find((c) => c.name === category);
           if (cat) {
             info.el.style.borderLeft = `4px solid ${cat.color}`;
           }
@@ -57,7 +56,18 @@ export const Todo = (() => {
       },
     });
 
-    calendar.render();
+    // Fetch tasks from API and render calendar
+    async function initializeCalendar() {
+      try {
+        const tasks = await ApiService.fetchTasks();
+        tasks.forEach((task) => calendar.addEvent(task));
+        calendar.render();
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+      }
+    }
+
+    initializeCalendar();
 
     // Event Listeners
     addTaskButton.addEventListener("click", () => {
@@ -67,29 +77,35 @@ export const Todo = (() => {
       updateFormUI();
     });
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
       const formData = getFormData();
 
-      if (isEditing) {
-        updateTask(formData);
-      } else {
-        createTask(formData);
+      try {
+        if (isEditing) {
+          await updateTask(formData);
+        } else {
+          await createTask(formData);
+        }
+        form.reset();
+        updateFormUI();
+      } catch (error) {
+        console.error("Failed to save task:", error);
       }
-
-      form.reset();
-      updateFormUI();
     });
 
-    deleteButton.addEventListener("click", () => {
+    deleteButton.addEventListener("click", async () => {
       if (currentEditingTask) {
-        tasks = tasks.filter((t) => t.id !== currentEditingTask.id);
-        currentEditingTask.remove();
-        saveTasks();
-        form.reset();
-        isEditing = false;
-        currentEditingTask = null;
-        updateFormUI();
+        try {
+          await ApiService.deleteTask(currentEditingTask.id);
+          currentEditingTask.remove();
+          form.reset();
+          isEditing = false;
+          currentEditingTask = null;
+          updateFormUI();
+        } catch (error) {
+          console.error("Failed to delete task:", error);
+        }
       }
     });
 
@@ -127,22 +143,22 @@ export const Todo = (() => {
         event.extendedProps.description || "";
       document.getElementById("priority").value =
         event.extendedProps.priority || "low";
-      document.getElementById("catagory").value =
-        event.extendedProps.catagory || "None";
+      document.getElementById("category").value =
+        event.extendedProps.category || "None";
       document.getElementById("completed").checked =
         event.extendedProps.completed || false;
     }
 
     function getFormData() {
-      const catagoryValue = document.getElementById("catagory").value;
+      const categoryValue = document.getElementById("category").value;
       return {
-        id: isEditing ? currentEditingTask.id : Date.now().toString(),
+        id: isEditing ? currentEditingTask.id : undefined, // ID is managed by server
         title: document.getElementById("title").value,
         start: document.getElementById("taskDate").value,
         end: document.getElementById("taskDate").value,
         description: document.getElementById("description").value,
         priority: document.getElementById("priority").value,
-        catagory: catagoryValue === "None" ? null : catagoryValue,
+        category: categoryValue === "None" ? null : categoryValue,
         completed: document.getElementById("completed").checked,
         className: `priority-${document.getElementById("priority").value} ${
           document.getElementById("completed").checked ? "completed-task" : ""
@@ -150,30 +166,17 @@ export const Todo = (() => {
       };
     }
 
-    function createTask(data) {
-      tasks.push(data);
-      calendar.addEvent(data);
-      saveTasks();
+    async function createTask(data) {
+      const newTask = await ApiService.createTask(data);
+      calendar.addEvent(newTask);
     }
 
-    function updateTask(data) {
-      const index = tasks.findIndex((t) => t.id === data.id);
-      if (index > -1) {
-        tasks[index] = data;
-        currentEditingTask.remove();
-        calendar.addEvent(data);
-        saveTasks();
-      }
+    async function updateTask(data) {
+      const updatedTask = await ApiService.updateTask(data.id, data);
+      currentEditingTask.remove();
+      calendar.addEvent(updatedTask);
     }
-
-    function saveTasks() {
-      localStorage.setItem("calendarTasks", JSON.stringify(tasks));
-    }
-
-    // Initial UI update
-    updateFormUI();
   });
-
   return {
     // Expose methods if needed by Category module
   };

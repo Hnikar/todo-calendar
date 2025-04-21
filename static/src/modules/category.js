@@ -1,141 +1,139 @@
+import { ApiService } from "./apiService.js";
+
 export const Category = (() => {
-  let catagories = [
+  let categories = [
     { name: "Personal", color: "#f56565" },
     { name: "Work", color: "#63b3ed" },
-    { name: "Catagory 1", color: "#f6e05e" },
+    { name: "Category 1", color: "#f6e05e" },
   ];
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const catagorySelect = document.getElementById("catagory");
-    const catagoriesContainer = document.getElementById("catagories-container");
-    const addNewCatagoryBtn = document.getElementById("add-new-catagory-btn");
-    const newCatagoryForm = document.getElementById("new-catagory-form");
-    const createCatagoryBtn = document.getElementById("create-catagory-btn");
+  // Helper functions defined outside DOMContentLoaded
+  function renderCategories() {
+    const categoriesContainer = document.getElementById("categories-container");
+    const addNewCategoryBtn = document.getElementById("add-new-category-btn");
+    const newCategoryForm = document.getElementById("new-category-form");
 
-    // Initialize catagories from localStorage or default
-    const savedCatagories = JSON.parse(
-      localStorage.getItem("calendarCatagories")
-    );
-    if (savedCatagories && savedCatagories.length > 0) {
-      catagories = savedCatagories;
-    }
+    categoriesContainer.innerHTML = "";
 
-    // Render catagories and update select
-    renderCatagories();
-    updateCatagorySelect();
-
-    // Catagory management
-    addNewCatagoryBtn.addEventListener("click", () => {
-      newCatagoryForm.style.display =
-        newCatagoryForm.style.display === "none" ? "flex" : "none";
+    categories.forEach((category, index) => {
+      const li = document.createElement("li");
+      li.className = "category-item";
+      li.innerHTML = `
+          <div class="category-content">
+            <span class="category-color" style="background-color: ${category.color};"></span> 
+            <span class="category-name">${category.name}</span>
+          </div>
+          <button class="delete-category-btn" data-index="${index}">
+            <i class="fas fa-trash"></i>
+          </button>
+        `;
+      categoriesContainer.appendChild(li);
     });
 
-    createCatagoryBtn.addEventListener("click", () => {
-      const name = document.getElementById("new-catagory-name").value.trim();
-      const color = document.getElementById("new-catagory-color").value;
+    // Add event listeners to delete buttons
+    document.querySelectorAll(".delete-category-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const index = parseInt(btn.dataset.index);
+        deleteCategory(index);
+      });
+    });
+
+    // Add the "Add New Category" button and form back
+    categoriesContainer.appendChild(addNewCategoryBtn);
+    categoriesContainer.appendChild(newCategoryForm);
+  }
+
+  function updateCategorySelect() {
+    const categorySelect = document.getElementById("category");
+    categorySelect.innerHTML = "";
+
+    // Add "None" option first
+    const noneOption = document.createElement("option");
+    noneOption.value = "None";
+    noneOption.textContent = "None";
+    categorySelect.appendChild(noneOption);
+
+    // Add all category options
+    categories.forEach((category) => {
+      const option = document.createElement("option");
+      option.value = category.name;
+      option.textContent = category.name;
+      categorySelect.appendChild(option);
+    });
+  }
+
+  async function deleteCategory(index) {
+    if (index >= 0 && index < categories.length) {
+      try {
+        const deletedCategoryName = categories[index].name;
+        // Delete category via API
+        await ApiService.deleteCategory(categories[index].id);
+        categories.splice(index, 1);
+
+        // Update tasks that were using this category
+        await ApiService.clearCategoryFromTasks(deletedCategoryName);
+
+        renderCategories();
+        updateCategorySelect();
+      } catch (error) {
+        console.error("Failed to delete category:", error);
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const categorySelect = document.getElementById("category");
+    const categoriesContainer = document.getElementById("categories-container");
+    const addNewCategoryBtn = document.getElementById("add-new-category-btn");
+    const newCategoryForm = document.getElementById("new-category-form");
+    const createCategoryBtn = document.getElementById("create-category-btn");
+
+    // Fetch categories from API
+    async function initializeCategories() {
+      try {
+        categories = await ApiService.fetchCategories();
+        renderCategories();
+        updateCategorySelect();
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    }
+
+    initializeCategories();
+
+    // Category management
+    addNewCategoryBtn.addEventListener("click", () => {
+      newCategoryForm.style.display =
+        newCategoryForm.style.display === "none" ? "flex" : "none";
+    });
+
+    createCategoryBtn.addEventListener("click", async () => {
+      const name = document.getElementById("new-category-name").value.trim();
+      const color = document.getElementById("new-category-color").value;
 
       if (name) {
-        // Add new catagory
-        catagories.push({ name, color });
-        saveCatagories();
-        renderCatagories();
-        updateCatagorySelect();
+        try {
+          // Add new category via API
+          const newCategory = await ApiService.createCategory({ name, color });
+          categories.push(newCategory);
+          renderCategories();
+          updateCategorySelect();
 
-        // Reset form
-        document.getElementById("new-catagory-name").value = "";
-        document.getElementById("new-catagory-color").value = "#cccccc";
-        newCatagoryForm.style.display = "none";
+          // Reset form
+          document.getElementById("new-category-name").value = "";
+          document.getElementById("new-category-color").value = "#cccccc";
+          newCategoryForm.style.display = "none";
+        } catch (error) {
+          console.error("Failed to create category:", error);
+        }
       }
     });
-
-    // Helper functions
-    function renderCatagories() {
-      catagoriesContainer.innerHTML = "";
-
-      catagories.forEach((catagory, index) => {
-        const li = document.createElement("li");
-        li.className = "catagory-item";
-        li.innerHTML = `
-            <div class="catagory-content">
-              <span class="catagory-color" style="background-color: ${catagory.color};"></span> 
-              <span class="catagory-name">${catagory.name}</span>
-            </div>
-            <button class="delete-catagory-btn" data-index="${index}">
-              <i class="fas fa-trash"></i>
-            </button>
-          `;
-        catagoriesContainer.appendChild(li);
-      });
-
-      // Add event listeners to delete buttons
-      document.querySelectorAll(".delete-catagory-btn").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const index = parseInt(btn.dataset.index);
-          deleteCatagory(index);
-        });
-      });
-
-      // Add the "Add New Catagory" button and form back
-      catagoriesContainer.appendChild(addNewCatagoryBtn);
-      catagoriesContainer.appendChild(newCatagoryForm);
-    }
-
-    function deleteCatagory(index) {
-      if (index >= 0 && index < catagories.length) {
-        // Remove the catagory
-        const deletedCatagoryName = catagories[index].name;
-        catagories.splice(index, 1);
-        saveCatagories();
-
-        // Update tasks that were using this catagory
-        let tasks = JSON.parse(localStorage.getItem("calendarTasks")) || [];
-        tasks = tasks.map((task) => {
-          if (task.extendedProps?.catagory === deletedCatagoryName) {
-            return {
-              ...task,
-              extendedProps: {
-                ...task.extendedProps,
-                catagory: null,
-              },
-            };
-          }
-          return task;
-        });
-        localStorage.setItem("calendarTasks", JSON.stringify(tasks));
-
-        // Re-render the calendar (Note: Calendar is in Todo module, so we rely on UI update)
-        renderCatagories();
-        updateCatagorySelect();
-      }
-    }
-
-    function updateCatagorySelect() {
-      catagorySelect.innerHTML = "";
-
-      // Add "None" option first
-      const noneOption = document.createElement("option");
-      noneOption.value = "None";
-      noneOption.textContent = "None";
-      catagorySelect.appendChild(noneOption);
-
-      // Add all catagory options
-      catagories.forEach((catagory) => {
-        const option = document.createElement("option");
-        option.value = catagory.name;
-        option.textContent = catagory.name;
-        catagorySelect.appendChild(option);
-      });
-    }
-
-    function saveCatagories() {
-      localStorage.setItem("calendarCatagories", JSON.stringify(catagories));
-    }
   });
 
   return {
-    getCatagories: () => catagories,
-    renderCatagories: () => renderCatagories(),
-    updateCatagorySelect: () => updateCatagorySelect(),
+    getCategories: () => categories,
+    renderCategories,
+    updateCategorySelect,
   };
 })();

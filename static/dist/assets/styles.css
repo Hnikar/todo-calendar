@@ -1,5 +1,4 @@
 @import url(reset.css);
-
 @import url(auth.css);
 @import url(404.css);
 @import url(landing-page.css);
@@ -387,8 +386,8 @@ body {
     padding: 5px 0;
 }
 
-/* --- Catagory Group Styles --- */
-.catagory-group {
+/* --- Category Group Styles --- */
+.category-group {
     list-style: none;
     padding: 0;
     margin: 1.5rem 0;
@@ -396,7 +395,7 @@ body {
     overflow: hidden;
 }
 
-.catagory-item {
+.category-item {
     padding: 0.75rem 1rem;
     background-color: var(--input-bg);
     color: var(--text-light);
@@ -408,16 +407,16 @@ body {
     justify-content: space-between;
 }
 
-.catagory-item:last-child {
+.category-item:last-child {
     border-bottom: none;
 }
 
-.catagory-item:hover {
+.category-item:hover {
     background-color: rgba(138, 43, 226, 0.2);
     color: var(--accent-color);
 }
 
-.catagory-group > button {
+.category-group > button {
     width: 100%;
     padding: 0.75rem 1rem;
     background-color: var(--accent-color);
@@ -431,34 +430,34 @@ body {
     text-align: left;
 }
 
-.catagory-group > button:hover {
+.category-group > button:hover {
     background-color: #7b1fa2;
 }
 
-.catagory-group > button i {
+.category-group > button i {
     margin-right: 8px;
 }
 
-/* Active catagory item */
-.catagory-item.active {
+/* Active category item */
+.category-item.active {
     background-color: rgba(138, 43, 226, 0.3);
     color: var(--accent-color);
     font-weight: 500;
 }
 
-/* Catagory item actions (like delete buttons) */
-.catagory-item-actions {
+/* Category item actions (like delete buttons) */
+.category-item-actions {
     display: flex;
     gap: 0.5rem;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-.catagory-item:hover .catagory-item-actions {
+.category-item:hover .category-item-actions {
     opacity: 1;
 }
 
-.catagory-item-actions button {
+.category-item-actions button {
     background: none;
     border: none;
     color: var(--text-light);
@@ -467,18 +466,18 @@ body {
     font-size: 0.8rem;
 }
 
-.catagory-item-actions button:hover {
+.category-item-actions button:hover {
     color: var(--accent-color);
 }
 
-#new-catagory-form input,
-#new-catagory-form button {
+#new-category-form input,
+#new-category-form button {
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-#new-catagory-form button {
+#new-category-form button {
   background-color: #3182ce;
   color: white;
   border: none;
@@ -486,13 +485,13 @@ body {
   cursor: pointer;
 }
 
-#new-catagory-form button:hover {
+#new-category-form button:hover {
   background-color: #2b6cb0;
 }
 
-/* Catagory styles in calendar */
+/* Category styles in calendar */
 .fc-event {
-    border-left: 4px solid transparent; /* Space for catagory color */
+    border-left: 4px solid transparent; /* Space for category color */
 }
 
 /* Make sure the select elements have consistent styling */
@@ -518,18 +517,18 @@ body {
     box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
 }
 
-/* Catagory content styles */
-.catagory-content {
+/* Category content styles */
+.category-content {
     display: flex;
     align-items: center;
     flex-grow: 1;
 }
 
-.catagory-name {
+.category-name {
     margin-left: 8px;
 }
 
-.delete-catagory-btn {
+.delete-category-btn {
     background: none;
     border: none;
     color: var(--error-color);
@@ -542,11 +541,11 @@ body {
     justify-content: center;
 }
 
-.delete-catagory-btn:hover {
+.delete-category-btn:hover {
     opacity: 1;
 }
 
-.catagory-item {
+.category-item {
     display: flex;
     align-items: center;
     justify-content: space-between;

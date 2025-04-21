@@ -1,0 +1,261 @@
+@import url(reset.css);
+
+@import url(auth.css);
+@import url(404.css);
+@import url(landing-page.css);
+
+:root {
+    --primary-dark: #e3eff2;
+    --secondary-dark: #444;
+    --primary-light: black;
+    --secondary-light: #141023;
+    --accent-color: #8A2BE2;
+    --error-color: #ff6b6b;
+    --success-color: #4CAF50;
+    --input-bg: #2A2140;
+    --text-light: #E6E6FA;
+    --text-dark: #333;
+    --border-color: #4a3f6b;
+}
+
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    background-color: var(--primary-light);
+    color: var(--text-light);
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Стили для основной страницы приложения --- */
+
+#calendar{
+    height: 70vh;
+}
+
+
+.main {
+    display: flex;
+    flex-grow: 1;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.content-header, .nav-header {
+    font-size: 2.5rem;
+}
+
+.nav {
+    flex: 0 0 280px;
+    min-width: 250px;
+    padding: 1.25rem 2rem;
+    background-color: var(--secondary-light);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.nav .menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: var(--primary-dark);
+}
+
+.nav .button-menu {
+    background: none;
+    border: none;
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: none;
+}
+
+.nav .button-menu:hover {
+    color: var(--accent-color);
+}
+
+.nav .button-default-project {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color: var(--text-light);
+    padding: 10px 15px;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav .button-default-project i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+    color: var(--primary-dark);
+    transition: color 0.2s ease;
+}
+
+.nav .button-default-project:hover {
+    background-color: var(--input-bg);
+    color: var(--accent-color);
+}
+
+.nav .button-default-project:hover i {
+    color: var(--accent-color);
+}
+
+.nav .user-info {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    margin-top: 1rem;
+    color: var(--primary-dark);
+    font-size: 1rem;
+}
+
+.nav .user-info i {
+    margin-right: 12px;
+}
+
+#user-name-display {
+    font-size: 16px;
+}
+
+.fa-user {
+    width: 1.25rem;
+    padding-left: 1.5%;
+}
+
+.content {
+    flex: 1;
+    padding: 1.25rem 2rem;
+    background-color: var(--secondary-light);
+    border-radius: 1rem;
+    overflow-y: auto;
+}
+
+.content .content-header {
+    margin-bottom: 1.5rem;
+    color: var(--primary-dark);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.project-preview {
+    line-height: 1.7;
+}
+
+#eventsOutput pre {
+    background-color: var(--input-bg);
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    max-height: 300px;
+    overflow: auto;
+    font-size: 0.9rem;
+}
+
+/* --- Стили для лоадера --- */
+
+.loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Адаптивность --- */
+
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .nav {
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: auto;
+    }
+
+    .nav .button-menu {
+        display: block;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    .auth-form {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-form {
+        padding: 1.5rem 1rem;
+    }
+
+    .auth-form h2 {
+        font-size: 1.5rem;
+    }
+
+    .tab {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .button-submit {
+        font-size: 1rem;
+        padding: 10px 15px;
+    }
+
+    .content {
+        padding: 10px;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+}
+
+.api-error-message {
+    color: var(--error-color);
+    font-weight: bold;
+    padding: 5px 0;
+}

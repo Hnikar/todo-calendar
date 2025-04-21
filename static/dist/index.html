@@ -31,28 +31,28 @@
           <i class="fas fa-calendar-alt"></i>
           Calendar
         </button>
-<!-- Lists Section -->
+<!-- Catagories Section -->
 <div class="nav-section">
-  <div class="nav-header">Lists</div>
-  <ul class="list-group" id="lists-container">
-    <li class="list-item">
-      <span class="list-color" style="background-color: #f56565;"></span> Personal
+  <div class="nav-header">Catagories</div>
+  <ul class="catagory-group" id="catagories-container">
+    <li class="catagory-item">
+      <span class="catagory-color" style="background-color: #f56565;"></span> Personal
     </li>
-    <li class="list-item">
-      <span class="list-color" style="background-color: #63b3ed;"></span> Work
+    <li class="catagory-item">
+      <span class="catagory-color" style="background-color: #63b3ed;"></span> Work
     </li>
-    <li class="list-item">
-      <span class="list-color" style="background-color: #f6e05e;"></span> List 1
+    <li class="catagory-item">
+      <span class="catagory-color" style="background-color: #f6e05e;"></span> Catagory 1
     </li>
-    <li class="list-item add-new" id="add-new-list-btn">
-      <i class="fas fa-plus"></i> Add New List
+    <li class="catagory-item add-new" id="add-new-catagory-btn">
+      <i class="fas fa-plus"></i> Add New Catagory
     </li>
-    <!-- Hidden form to create new list -->
-    <li id="new-list-form" class="list-item"
+    <!-- Hidden form to create new catagory -->
+    <li id="new-catagory-form" class="catagory-item"
       style="display: none; flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px;">
-      <input type="text" id="new-list-name" placeholder="List Name" style="width: 100%; padding: 5px;" />
-      <input type="color" id="new-list-color" value="#cccccc" style="width: 100%; padding: 5px;" />
-      <button id="create-list-btn" style="margin-top: 5px;">Create</button>
+      <input type="text" id="new-catagory-name" placeholder="Catagory Name" style="width: 100%; padding: 5px;" />
+      <input type="color" id="new-catagory-color" value="#cccccc" style="width: 100%; padding: 5px;" />
+      <button id="create-catagory-btn" style="margin-top: 5px;">Create</button>
     </li>
   </ul>
 </div>
@@ -119,9 +119,9 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="category">Category</label>
-        <select id="category">
-          <!-- Categories will be populated from Lists -->
+        <label for="catagory">Catagory</label>
+        <select id="catagory">
+          <!-- Catagories will be populated from Catagories -->
         </select>
         </div>
         <div class="form-group">

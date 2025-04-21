@@ -44,7 +44,6 @@ body {
     height: 70vh;
 }
 
-
 .main {
     display: flex;
     flex-grow: 1;
@@ -272,26 +271,26 @@ body {
     background-color: #7b1fa2;
 }
 
-
 .form-buttons {
     display: flex;
     gap: 1rem;
     margin-top: 1rem;
-  }
-  
-  #delete-button {
+}
+
+#delete-button {
     background-color: var(--error-color);
-  }
-  
-  .hidden {
+}
+
+.hidden {
     display: none;
-  }
-  .completed-task {
+}
+
+.completed-task {
     background-color: #d3d3d3 !important;
     text-decoration: line-through;
     opacity: 0.7;
-  }
-  
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .time-inputs {
@@ -388,10 +387,8 @@ body {
     padding: 5px 0;
 }
 
-
-
-/* --- List Group Styles --- */
-.list-group {
+/* --- Catagory Group Styles --- */
+.catagory-group {
     list-style: none;
     padding: 0;
     margin: 1.5rem 0;
@@ -399,7 +396,7 @@ body {
     overflow: hidden;
 }
 
-.list-item {
+.catagory-item {
     padding: 0.75rem 1rem;
     background-color: var(--input-bg);
     color: var(--text-light);
@@ -411,16 +408,16 @@ body {
     justify-content: space-between;
 }
 
-.list-item:last-child {
+.catagory-item:last-child {
     border-bottom: none;
 }
 
-.list-item:hover {
+.catagory-item:hover {
     background-color: rgba(138, 43, 226, 0.2);
     color: var(--accent-color);
 }
 
-.list-group > button {
+.catagory-group > button {
     width: 100%;
     padding: 0.75rem 1rem;
     background-color: var(--accent-color);
@@ -434,34 +431,34 @@ body {
     text-align: left;
 }
 
-.list-group > button:hover {
+.catagory-group > button:hover {
     background-color: #7b1fa2;
 }
 
-.list-group > button i {
+.catagory-group > button i {
     margin-right: 8px;
 }
 
-/* Active list item */
-.list-item.active {
+/* Active catagory item */
+.catagory-item.active {
     background-color: rgba(138, 43, 226, 0.3);
     color: var(--accent-color);
     font-weight: 500;
 }
 
-/* List item actions (like delete buttons) */
-.list-item-actions {
+/* Catagory item actions (like delete buttons) */
+.catagory-item-actions {
     display: flex;
     gap: 0.5rem;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-.list-item:hover .list-item-actions {
+.catagory-item:hover .catagory-item-actions {
     opacity: 1;
 }
 
-.list-item-actions button {
+.catagory-item-actions button {
     background: none;
     border: none;
     color: var(--text-light);
@@ -470,18 +467,18 @@ body {
     font-size: 0.8rem;
 }
 
-.list-item-actions button:hover {
+.catagory-item-actions button:hover {
     color: var(--accent-color);
 }
 
-#new-list-form input,
-#new-list-form button {
+#new-catagory-form input,
+#new-catagory-form button {
   font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-#new-list-form button {
+#new-catagory-form button {
   background-color: #3182ce;
   color: white;
   border: none;
@@ -489,20 +486,17 @@ body {
   cursor: pointer;
 }
 
-#new-list-form button:hover {
+#new-catagory-form button:hover {
   background-color: #2b6cb0;
 }
 
-
-/* Add these to your existing styles.css */
-
-/* Category styles in calendar */
+/* Catagory styles in calendar */
 .fc-event {
-    border-left: 4px solid transparent; /* Space for category color */
-  }
-  
-  /* Make sure the select elements have consistent styling */
-  #task-form select {
+    border-left: 4px solid transparent; /* Space for catagory color */
+}
+
+/* Make sure the select elements have consistent styling */
+#task-form select {
     padding: 0.75rem;
     background-color: var(--input-bg);
     border: 1px solid var(--border-color);
@@ -516,27 +510,26 @@ body {
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1em;
-  }
-  
-  #task-form select:focus {
+}
+
+#task-form select:focus {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
-  }
+}
 
-  /* Add these styles to your existing styles.css */
-
-.list-content {
+/* Catagory content styles */
+.catagory-content {
     display: flex;
     align-items: center;
     flex-grow: 1;
-  }
-  
-  .list-name {
+}
+
+.catagory-name {
     margin-left: 8px;
-  }
-  
-  .delete-list-btn {
+}
+
+.delete-catagory-btn {
     background: none;
     border: none;
     color: var(--error-color);
@@ -547,14 +540,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .delete-list-btn:hover {
+}
+
+.delete-catagory-btn:hover {
     opacity: 1;
-  }
-  
-  .list-item {
+}
+
+.catagory-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
+}

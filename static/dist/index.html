@@ -47,39 +47,42 @@
           <!-- Categories Section -->
           <div class="sidebar-section">
             <div class="sidebar-section-title">CATEGORIES</div>
-            <ul class="category-group" id="categories-container">
-              <li class="category-item add-new" id="add-new-category-btn">
-                <i class="fas fa-plus"></i> Add New Category
-              </li>
-              <!-- Hidden form to create new category -->
-              <li
-                id="new-category-form"
-                class="category-item"
-                style="
-                  display: none;
-                  flex-direction: column;
-                  align-items: flex-start;
-                  gap: 8px;
-                  padding: 10px;
-                "
-              >
-                <input
-                  type="text"
-                  id="new-category-name"
-                  placeholder="Category Name"
-                  style="width: 100%; padding: 5px"
-                />
-                <input
-                  type="color"
-                  id="new-category-color"
-                  value="#cccccc"
-                  style="width: 100%; padding: 5px"
-                />
-                <button id="create-category-btn" style="margin-top: 5px">
-                  Create
-                </button>
-              </li>
-            </ul>
+            <div class="categories-scroll-wrapper">
+              <ul class="category-group" id="categories-container">
+                <!-- Categories will be rendered here -->
+              </ul>
+            </div>
+            <li class="category-item add-new" id="add-new-category-btn">
+              <i class="fas fa-plus"></i> Add New Category
+            </li>
+            <!-- Hidden form to create new category -->
+            <li
+              id="new-category-form"
+              class="category-item"
+              style="
+                display: none;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 10px;
+              "
+            >
+              <input
+                type="text"
+                id="new-category-name"
+                placeholder="Category Name"
+                style="width: 100%; padding: 5px"
+              />
+              <input
+                type="color"
+                id="new-category-color"
+                value="#cccccc"
+                style="width: 100%; padding: 5px"
+              />
+              <button id="create-category-btn" style="margin-top: 5px">
+                Create
+              </button>
+            </li>
           </div>
         </div>
 

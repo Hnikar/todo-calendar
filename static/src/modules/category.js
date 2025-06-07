@@ -6,8 +6,6 @@ export const Category = (() => {
   // Helper functions defined outside DOMContentLoaded
   function renderCategories() {
     const categoriesContainer = document.getElementById("categories-container");
-    const addNewCategoryBtn = document.getElementById("add-new-category-btn");
-    const newCategoryForm = document.getElementById("new-category-form");
 
     categoriesContainer.innerHTML = "";
 
@@ -38,10 +36,6 @@ export const Category = (() => {
         deleteCategory(id);
       });
     });
-
-    // Add the "Add New Category" button and form back
-    categoriesContainer.appendChild(addNewCategoryBtn);
-    categoriesContainer.appendChild(newCategoryForm);
   }
 
   function updateCategorySelect() {

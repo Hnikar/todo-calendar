@@ -11,10 +11,10 @@
   --primary: #121014;
   --secondary: rgba(255, 255, 255, 0.03);
   --accent: #3535e3;
-  --accent-hover: #2323a0; /* Changed to a darker blue for hover */
+  --accent-hover: #2323a0;
 
   --secondary-accent: #690dab;
-  --secondary-accent-hover: #4b087a; /* Changed to a darker purple for hover */
+  --secondary-accent-hover: #4b087a;
 
   --text-light: #f2f2f3;
   --text-dark: #0c0c0d;
@@ -42,6 +42,9 @@ html {
 
 body {
   min-height: 100vh;
+  max-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   margin: 0;
   background-color: var(--primary);
   color: var(--text-light);
@@ -326,7 +329,7 @@ body {
   padding: 0;
   margin: 0; /* Remove default list margin */
   border-radius: 6px;
-  overflow: hidden;
+  /* Remove overflow from here */
 }
 
 .category-item {
@@ -364,55 +367,103 @@ body {
 .category-item.add-new {
   margin-bottom: 0.5rem; /* Ensure space below the 'Add New' button */
   user-select: none; /* Make text unselectable */
+  background: transparent;
+  color: var(--text-light);
+  font-weight: normal;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: none;
+  border: none;
+  padding: 10px 15px;
+  letter-spacing: normal;
 }
 
-.category-item:last-child:not(.new-category-form) {
-  /* Add margin-bottom to the last item if it's not the form */
-  margin-bottom: 0;
+.category-item.add-new:hover,
+.category-item.add-new:focus {
+  background: var(--input-bg);
+  color: var(--accent);
+  box-shadow: none;
 }
 
-.fa-plus {
+.category-item.add-new i.fa-plus {
+  color: var(--accent);
   margin-right: 8px;
-  color: var(--accent); /* Accent color for plus icon */
+  font-size: 1em;
 }
 
+#new-category-form,
 .new-category-form {
-  display: none; /* Hidden by default */
+  display: none;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  padding: 10px;
-  background-color: var(--input-bg); /* Use input background */
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  margin-top: 0.5rem; /* Space above the form */
-  margin-bottom: 0.5rem; /* Space below the form */
+  gap: 10px;
+  padding: 14px 12px 10px 12px;
+  background-color: var(--secondary);
+  /* border: 1.5px solid var(--accent); */ /* Remove the border */
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.08);
+  animation: fadeIn 0.2s;
 }
 
+#new-category-form input[type="text"],
+#new-category-form input[type="color"],
 .new-category-form input[type="text"],
 .new-category-form input[type="color"] {
   width: 100%;
-  padding: 5px;
-  background-color: var(--secondary); /* Use secondary background */
+  padding: 7px 10px;
+  background-color: var(--input-bg);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 5px;
   color: var(--text-light);
+  font-size: 1rem;
+  margin-bottom: 4px;
+  transition: border-color 0.2s;
 }
 
+#new-category-form input[type="text"]:focus,
+#new-category-form input[type="color"]:focus,
+.new-category-form input[type="text"]:focus,
+.new-category-form input[type="color"]:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#new-category-form button,
 .new-category-form button {
   width: 100%;
-  padding: 5px;
-  margin-top: 5px;
+  padding: 8px 0;
+  margin-top: 6px;
   background-color: var(--accent);
-  color: white;
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-weight: 500;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background 0.2s;
+  box-shadow: 0 1px 4px 0 rgba(53, 53, 227, 0.08);
 }
 
+#new-category-form button:hover,
 .new-category-form button:hover {
   background-color: var(--accent-hover);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --- Лоадер --- */
@@ -470,6 +521,10 @@ body {
 
   .auth-form {
     padding: 1.5rem;
+  }
+
+  .categories-scroll-wrapper {
+    max-height: 120px;
   }
 }
 
@@ -544,4 +599,36 @@ body {
 .delete-category-btn:focus {
   background: rgba(255, 107, 107, 0.08);
   color: #fff;
+}
+
+.categories-scroll-wrapper {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 0.5rem;
+  /* Custom scrollbar styles */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--input-bg);
+}
+
+/* Webkit scrollbar styles */
+
+.categories-scroll-wrapper::-webkit-scrollbar {
+  width: 8px;
+  background: var(--input-bg);
+  border-radius: 6px;
+}
+
+.categories-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 6px;
+}
+
+.categories-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+#add-new-category-btn,
+#new-category-form {
+  /* Ensure these are not inside the scrollable area */
+  margin-bottom: 0.5rem;
 }

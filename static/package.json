@@ -6,6 +6,7 @@
     "watch": "webpack --watch",
     "build": "webpack ",
     "build:css": "postcss src/styles/main.css -o dist/styles.css",
+    "watch:css": "postcss src/styles/main.css -o dist/styles.css --watch",
     "test": "jest"
   },
   "author": "",

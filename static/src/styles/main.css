@@ -1,552 +1,543 @@
-@import url(reset.css);
+/* @import url(reset.css);
 @import url(auth.css);
 @import url(404.css);
-@import url(landing-page.css);
+@import url(landing-page.css); */
 
+/* --- Variables --- */
 :root {
-    --primary-dark: #e3eff2;
-    --secondary-dark: #444;
-    --primary-light: black;
-    --secondary-light: #141023;
-    --accent-color: #8A2BE2;
-    --error-color: #ff6b6b;
-    --success-color: #4CAF50;
-    --input-bg: #2A2140;
-    --text-light: #E6E6FA;
-    --text-dark: #333;
-    --border-color: #4a3f6b;
+  --primary-dark: #e3eff2;
+  --secondary-dark: #444;
+  --primary: #121014;
+  --secondary: rgba(255, 255, 255, 0.03);
+  --accent-color: #690dab;
+  --accent-color-hover: #7b1fa2;
+
+  --text-light: #f2f2f3;
+  --text-dark: #0c0c0d;
+
+  --error-color: #ff6b6b;
+  --success-color: #4caf50;
+
+  --input-bg: #2a2140;
+
+  --border-color: #4a3f6b;
 }
+
+/* --- Base Styles --- */
 
 html {
-    height: 100%;
-    box-sizing: border-box;
+  height: 100%;
+  box-sizing: border-box;
 }
 
-*, *::before, *::after {
-    box-sizing: inherit;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
 body {
-    min-height: 100vh;
-    margin: 0;
-    background-color: var(--primary-light);
-    color: var(--text-light);
-    font-family: 'Roboto', sans-serif;
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--primary);
+  color: var(--text-light);
+  font-family: "Roboto", sans-serif;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
 }
 
 /* --- Стили для основной страницы приложения --- */
 
-#calendar{
-    height: 70vh;
+#calendar {
+  height: 70vh;
+  /* Скрываем календарь временно для тестов */
 }
 
 .main {
-    display: flex;
-    flex-grow: 1;
-    gap: 1rem;
-    padding: 1.25rem;
+  display: flex;
+  flex-grow: 1;
+  gap: 1rem;
+  padding: 1.25rem;
 }
 
-.content-header, .nav-header {
-    font-size: 2.5rem;
+.content-header,
+.menu-header {
+  font-size: larger;
+}
+
+.nav-header,
+.sidebar-section-title {
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
 .content-header-container {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
 }
 
-.content-header-container > button{
-    height: 4rem;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.content-header-container > button {
+  height: 4rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.nav {
-    flex: 0 0 280px;
-    min-width: 250px;
-    padding: 1.25rem 2rem;
-    background-color: var(--secondary-light);
-    border-radius: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 16rem;
+  background-color: var(--secondary);
+  padding: 1rem;
+  border-radius: 1rem;
 }
 
-.nav .menu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.2rem;
-    color: var(--primary-dark);
+.sidebar-btn-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
 }
 
-.nav .button-menu {
-    background: none;
-    border: none;
-    color: var(--primary-dark);
-    font-size: 1.3rem;
-    cursor: pointer;
-    display: none;
+.sidebar-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  color: var(--primary-dark);
 }
 
-.nav .button-menu:hover {
-    color: var(--accent-color);
+#mobileMenu {
+  display: none; /* Hide by default, show on mobile */
+  background: transparent;
+  border: none;
+  color: var(--primary-dark);
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
-.nav .button-default-project {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    text-align: left;
-    background: transparent;
-    color: var(--text-light);
-    padding: 10px 15px;
-    margin-bottom: 0.5rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+.sidebar-menu-title {
+  font-size: larger;
 }
 
-.nav .button-default-project i {
-    margin-right: 12px;
-    width: 20px;
-    text-align: center;
-    color: var(--primary-dark);
-    transition: color 0.2s ease;
+.sidebar-section-title {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem; /* Adjusted margin */
+  padding-bottom: 0.25rem; /* Added padding */
 }
 
-.nav .button-default-project:hover {
-    background-color: var(--input-bg);
-    color: var(--accent-color);
+.sidebar-section {
+  margin-top: 1.5rem;
+  padding: 0; /* Ensure no extra padding */
 }
 
-.nav .button-default-project:hover i {
-    color: var(--accent-color);
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: var(--text-light);
+  padding: 10px 15px;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-size: 1rem;
 }
 
-.nav .user-info {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    margin-top: 1rem;
-    color: var(--primary-dark);
-    font-size: 1rem;
+.sidebar-btn i {
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+  color: var(--primary-dark);
+  transition: color 0.2s ease;
 }
 
-.nav .user-info i {
-    margin-right: 12px;
+.sidebar-btn:hover {
+  background-color: var(--input-bg);
+  color: var(--accent-color);
+}
+
+.sidebar-btn:hover i {
+  color: var(--accent-color);
+}
+
+.sidebar .user-info {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  margin-top: 1rem;
+  color: var(--primary-dark);
+  font-size: 1rem;
+}
+
+.sidebar .user-info i {
+  margin-right: 12px;
 }
 
 #user-name-display {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 .fa-user {
-    width: 1.25rem;
-    padding-left: 1.5%;
+  width: 1.25rem;
+  padding-left: 1.5%;
 }
 
 .content {
-    flex: 1;
-    padding: 1.25rem 2rem;
-    background-color: var(--secondary-light);
-    border-radius: 1rem;
-    overflow-y: auto;
+  flex: 1;
+  padding: 1.25rem 2rem;
+  background-color: var(--secondary);
+  border-radius: 1rem;
+  overflow-y: auto;
 }
 
 .content .content-header {
-    margin-bottom: 1.5rem;
-    color: var(--primary-dark);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-dark);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
 }
 
 .project-preview {
-    line-height: 1.7;
+  line-height: 1.7;
 }
 
 #eventsOutput pre {
-    background-color: var(--input-bg);
-    padding: 1rem;
-    border-radius: 5px;
-    border: 1px solid var(--border-color);
-    max-height: 300px;
-    overflow: auto;
-    font-size: 0.9rem;
+  background-color: var(--input-bg);
+  padding: 1rem;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  max-height: 300px;
+  overflow: auto;
+  font-size: 0.9rem;
 }
 
 /* --- Стили для формы --- */
 #task-form {
-    background-color: var(--secondary-light);
-    padding: 1.5rem;
-    border-radius: 1rem;
-    max-width: 500px;
+  background-color: var(--secondary);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  max-width: 500px;
 }
 
 .form-group {
-    margin-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 #task-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--primary-dark);
-    font-size: 0.9rem;
-    font-weight: 500;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--primary-dark);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 #task-form input,
 #task-form textarea,
 #task-form select {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-light);
-    font-family: inherit;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-light);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
 #task-form input:focus,
 #task-form textarea:focus,
 #task-form select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
 }
 
 #task-form textarea {
-    resize: vertical;
-    min-height: 80px;
+  resize: vertical;
+  min-height: 80px;
 }
 
 #task-form select {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1em;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
 }
 
 .time-inputs {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .time-inputs .form-group {
-    flex: 1;
+  flex: 1;
 }
 
 #task-form button[type="submit"] {
-    width: 100%;
-    padding: 0.875rem;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  width: 100%;
+  padding: 0.875rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 #task-form button[type="submit"]:hover {
-    background-color: #7b1fa2;
+  background-color: #7b1fa2;
 }
 
 .form-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 #delete-button {
-    background-color: var(--error-color);
+  background-color: var(--error-color);
 }
 
-.hidden {
-    display: none;
+/* --- Category Group Styles --- */
+.category-group {
+  list-style: none;
+  padding: 0;
+  margin: 0; /* Remove default list margin */
+  border-radius: 6px;
+  overflow: hidden;
 }
 
-.completed-task {
-    background-color: #d3d3d3 !important;
-    text-decoration: line-through;
-    opacity: 0.7;
+.category-item {
+  padding: 10px 15px; /* Consistent padding with sidebar-btn */
+  background: transparent; /* Transparent background */
+  color: var(--text-light);
+  border-bottom: none; /* Removed border */
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem; /* Consistent margin */
+  border-radius: 6px; /* Added border-radius */
+  border: none; /* Explicitly set border to none */
+  font-size: 1rem; /* Consistent font-size */
 }
 
-/* Responsive adjustments */
-@media (max-width: 480px) {
-    .time-inputs {
-        flex-direction: column;
-        gap: 0;
-    }
+.category-item:hover,
+.category-item.active {
+  background: var(--input-bg); /* Consistent hover background */
+  color: var(--accent-color);
 }
 
-/* --- Стили для лоадера --- */
+.category-item.active {
+  background: rgba(
+    138,
+    43,
+    226,
+    0.3
+  ); /* Slightly different active background */
+  font-weight: 500;
+}
+
+.category-item.add-new {
+  margin-bottom: 0.5rem; /* Ensure space below the 'Add New' button */
+}
+
+.category-item:last-child:not(.new-category-form) {
+  /* Add margin-bottom to the last item if it's not the form */
+  margin-bottom: 0;
+}
+
+.fa-plus {
+  margin-right: 8px;
+  color: var(--primary-dark);
+}
+
+.new-category-form {
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  background-color: var(--input-bg); /* Use input background */
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-top: 0.5rem; /* Space above the form */
+  margin-bottom: 0.5rem; /* Space below the form */
+}
+
+.new-category-form input[type="text"],
+.new-category-form input[type="color"] {
+  width: 100%;
+  padding: 5px;
+  background-color: var(--secondary); /* Use secondary background */
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-light);
+}
+
+.new-category-form button {
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.new-category-form button:hover {
+  background-color: var(--accent-color-hover);
+}
+
+/* --- Лоадер --- */
 
 .loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
 .spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- Адаптивность --- */
 
 @media (max-width: 768px) {
-    .main {
-        flex-direction: column;
-        padding: 0.5rem;
-        gap: 0.5rem;
-    }
+  .main {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
 
-    .nav {
-        flex: 0 0 auto;
-        width: 100%;
-        min-width: auto;
-    }
+  .sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: auto;
+  }
 
-    .nav .button-menu {
-        display: block;
-    }
+  .sidebar .button-menu {
+    display: block;
+  }
 
-    .content {
-        padding: 15px;
-    }
+  .content {
+    padding: 15px;
+  }
 
-    .auth-form {
-        padding: 1.5rem;
-    }
+  .auth-form {
+    padding: 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
-    .auth-form {
-        padding: 1.5rem 1rem;
-    }
+  .time-inputs {
+    flex-direction: column;
+    gap: 0;
+  }
 
-    .auth-form h2 {
-        font-size: 1.5rem;
-    }
+  .content {
+    padding: 10px;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
 
-    .tab {
-        padding: 0.6rem 0.5rem;
-        font-size: 0.9rem;
-    }
+  .auth-form {
+    padding: 1.5rem 1rem;
+  }
 
-    .button-submit {
-        font-size: 1rem;
-        padding: 10px 15px;
-    }
+  .auth-form h2 {
+    font-size: 1.5rem;
+  }
 
-    .content {
-        padding: 10px;
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-    }
+  .tab {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .button-submit {
+    font-size: 1rem;
+    padding: 10px 15px;
+  }
+}
+
+/* --- Utility Classes --- */
+.hidden {
+  display: none;
+}
+
+.completed-task {
+  background-color: #d3d3d3 !important;
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 
 .api-error-message {
-    color: var(--error-color);
-    font-weight: bold;
-    padding: 5px 0;
-}
-
-/* --- Category Group Styles --- */
-.category-group {
-    list-style: none;
-    padding: 0;
-    margin: 1.5rem 0;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.category-item {
-    padding: 0.75rem 1rem;
-    background-color: var(--input-bg);
-    color: var(--text-light);
-    border-bottom: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.category-item:last-child {
-    border-bottom: none;
-}
-
-.category-item:hover {
-    background-color: rgba(138, 43, 226, 0.2);
-    color: var(--accent-color);
-}
-
-.category-group > button {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    margin-top: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 0.9rem;
-    text-align: left;
-}
-
-.category-group > button:hover {
-    background-color: #7b1fa2;
-}
-
-.category-group > button i {
-    margin-right: 8px;
-}
-
-/* Active category item */
-.category-item.active {
-    background-color: rgba(138, 43, 226, 0.3);
-    color: var(--accent-color);
-    font-weight: 500;
-}
-
-/* Category item actions (like delete buttons) */
-.category-item-actions {
-    display: flex;
-    gap: 0.5rem;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.category-item:hover .category-item-actions {
-    opacity: 1;
-}
-
-.category-item-actions button {
-    background: none;
-    border: none;
-    color: var(--text-light);
-    cursor: pointer;
-    padding: 0.25rem;
-    font-size: 0.8rem;
-}
-
-.category-item-actions button:hover {
-    color: var(--accent-color);
-}
-
-#new-category-form input,
-#new-category-form button {
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-#new-category-form button {
-  background-color: #3182ce;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-#new-category-form button:hover {
-  background-color: #2b6cb0;
-}
-
-/* Category styles in calendar */
-.fc-event {
-    border-left: 4px solid transparent; /* Space for category color */
-}
-
-/* Make sure the select elements have consistent styling */
-#task-form select {
-    padding: 0.75rem;
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-light);
-    font-family: inherit;
-    font-size: 1rem;
-    width: 100%;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1em;
-}
-
-#task-form select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
-}
-
-/* Category content styles */
-.category-content {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-}
-
-.category-name {
-    margin-left: 8px;
+  color: var(--error-color);
+  font-weight: bold;
+  padding: 5px 0;
 }
 
 .delete-category-btn {
-    background: none;
-    border: none;
-    color: var(--error-color);
-    cursor: pointer;
-    padding: 5px;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--error-color);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s, color 0.2s;
 }
 
-.delete-category-btn:hover {
-    opacity: 1;
+.delete-category-btn i {
+  font-size: 1.1rem;
+  color: var(--primary-dark);
+  transition: color 0.2s;
 }
 
-.category-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.delete-category-btn:hover,
+.delete-category-btn:focus {
+  background: rgba(255, 107, 107, 0.08);
+  color: #fff;
 }

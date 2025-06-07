@@ -10,8 +10,11 @@
   --secondary-dark: #444;
   --primary: #121014;
   --secondary: rgba(255, 255, 255, 0.03);
-  --accent-color: #690dab;
-  --accent-color-hover: #7b1fa2;
+  --accent: #3535e3;
+  --accent-hover: #2323a0; /* Changed to a darker blue for hover */
+
+  --secondary-accent: #690dab;
+  --secondary-accent-hover: #4b087a; /* Changed to a darker purple for hover */
 
   --text-light: #f2f2f3;
   --text-dark: #0c0c0d;
@@ -63,8 +66,9 @@ body {
 }
 
 .content-header,
-.menu-header {
-  font-size: larger;
+.sidebar-menu-title {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .nav-header,
@@ -76,13 +80,12 @@ body {
 .content-header-container {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-color);
   margin-bottom: 1.5rem;
 }
 
 .content-header-container > button {
   height: 4rem;
-  background-color: var(--accent-color);
+  background-color: var(--accent);
   color: white;
   border: none;
   border-radius: 6px;
@@ -128,10 +131,6 @@ body {
   cursor: pointer;
 }
 
-.sidebar-menu-title {
-  font-size: larger;
-}
-
 .sidebar-section-title {
   font-size: 0.75rem;
   font-weight: bold;
@@ -164,17 +163,17 @@ body {
   margin-right: 12px;
   width: 20px;
   text-align: center;
-  color: var(--primary-dark);
+  color: var(--accent); /* Changed from var(--primary-dark) to var(--accent) */
   transition: color 0.2s ease;
 }
 
 .sidebar-btn:hover {
   background-color: var(--input-bg);
-  color: var(--accent-color);
+  color: var(--accent);
 }
 
 .sidebar-btn:hover i {
-  color: var(--accent-color);
+  color: var(--accent);
 }
 
 .sidebar .user-info {
@@ -197,6 +196,7 @@ body {
 .fa-user {
   width: 1.25rem;
   padding-left: 1.5%;
+  color: var(--accent); /* Accent color for user icon */
 }
 
 .content {
@@ -210,7 +210,6 @@ body {
 .content .content-header {
   margin-bottom: 1.5rem;
   color: var(--primary-dark);
-  border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.5rem;
 }
 
@@ -267,7 +266,7 @@ body {
 #task-form textarea:focus,
 #task-form select:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
 }
 
@@ -296,7 +295,7 @@ body {
 #task-form button[type="submit"] {
   width: 100%;
   padding: 0.875rem;
-  background-color: var(--accent-color);
+  background-color: var(--accent);
   color: white;
   border: none;
   border-radius: 6px;
@@ -349,7 +348,7 @@ body {
 .category-item:hover,
 .category-item.active {
   background: var(--input-bg); /* Consistent hover background */
-  color: var(--accent-color);
+  color: var(--accent);
 }
 
 .category-item.active {
@@ -364,6 +363,7 @@ body {
 
 .category-item.add-new {
   margin-bottom: 0.5rem; /* Ensure space below the 'Add New' button */
+  user-select: none; /* Make text unselectable */
 }
 
 .category-item:last-child:not(.new-category-form) {
@@ -373,7 +373,7 @@ body {
 
 .fa-plus {
   margin-right: 8px;
-  color: var(--primary-dark);
+  color: var(--accent); /* Accent color for plus icon */
 }
 
 .new-category-form {
@@ -403,7 +403,7 @@ body {
   width: 100%;
   padding: 5px;
   margin-top: 5px;
-  background-color: var(--accent-color);
+  background-color: var(--accent);
   color: white;
   border: none;
   border-radius: 4px;
@@ -412,7 +412,7 @@ body {
 }
 
 .new-category-form button:hover {
-  background-color: var(--accent-color-hover);
+  background-color: var(--accent-hover);
 }
 
 /* --- Лоадер --- */
@@ -434,7 +434,7 @@ body {
   width: 50px;
   height: 50px;
   border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: var(--accent-color);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -536,7 +536,7 @@ body {
 
 .delete-category-btn i {
   font-size: 1.1rem;
-  color: var(--primary-dark);
+  color: var(--accent); /* Accent color for trash icon */
   transition: color 0.2s;
 }
 

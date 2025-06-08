@@ -17,6 +17,9 @@ export const Todo = (() => {
       const timeInputs = document.getElementById("timeInputs");
       const content = document.querySelector(".content");
       const closeTaskFormBtn = document.getElementById("close-task-form");
+      const btnCalendar = document.getElementById("btn-calendar");
+      const btnUpcoming = document.getElementById("btn-upcoming");
+      const btnToday = document.getElementById("btn-today");
 
       // Helper to show/hide form and backdrop
       function showForm() {
@@ -33,9 +36,6 @@ export const Todo = (() => {
         content.classList.remove("form-open");
         form.style.display = "none";
         if (addTaskButton) addTaskButton.style.display = "block";
-        // Always enable time fields when hiding the form
-        document.getElementById("startTime").disabled = false;
-        document.getElementById("endTime").disabled = false;
       }
 
       // Toggle time inputs based on All Day checkbox
@@ -56,10 +56,10 @@ export const Todo = (() => {
         headerToolbar: {
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
+          // right: "dayGridMonth,timeGridWeek,timeGridDay",
         },
         editable: true,
-        selectable: true,
+        selectable: false,
         selectMirror: true,
         dayMaxEvents: true,
         events: [],
@@ -105,6 +105,35 @@ export const Todo = (() => {
       }
 
       initializeCalendar();
+
+      // Sidebar button event listeners
+      if (btnCalendar) {
+        btnCalendar.addEventListener("click", () => {
+          calendar.changeView("dayGridMonth");
+          btnCalendar.classList.add("active");
+          btnUpcoming.classList.remove("active");
+          // Optionally update header
+          document.querySelector(".content-header").textContent = "Calendar";
+        });
+      }
+      if (btnUpcoming) {
+        btnUpcoming.addEventListener("click", () => {
+          calendar.changeView("listWeek");
+          btnUpcoming.classList.add("active");
+          btnCalendar.classList.remove("active");
+          // Optionally update header
+          document.querySelector(".content-header").textContent = "Upcoming";
+        });
+      }
+      if (btnToday) {
+        btnToday.addEventListener("click", () => {
+          calendar.changeView("timeGridDay", new Date());
+          btnToday.classList.add("active");
+          btnCalendar.classList.remove("active");
+          btnUpcoming.classList.remove("active");
+          document.querySelector(".content-header").textContent = "Today";
+        });
+      }
 
       // Event Listeners
       if (addTaskButton) {
@@ -200,21 +229,18 @@ export const Todo = (() => {
 
       // Helper functions
       function updateFormUI() {
-        const completedGroup = form.querySelector('.form-group input#completed')?.closest('.form-group');
         if (isEditing) {
           formHeading.textContent = "Edit Task";
           submitButton.textContent = "Save Changes";
           deleteButton.classList.remove("hidden");
           cancelButton.classList.remove("hidden");
           if (addTaskButton) addTaskButton.disabled = true;
-          if (completedGroup) completedGroup.classList.remove("hide-completed-checkbox");
         } else {
           formHeading.textContent = "Add New Task";
           submitButton.textContent = "Add Task";
           deleteButton.classList.add("hidden");
           cancelButton.classList.add("hidden");
           if (addTaskButton) addTaskButton.disabled = false;
-          if (completedGroup) completedGroup.classList.add("hide-completed-checkbox");
         }
       }
 

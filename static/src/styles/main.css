@@ -159,23 +159,60 @@ body {
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
   font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  min-height: 40px; /* Make both the same, slightly less than before */
+  height: 40px; /* Force same height for all */
+  line-height: 1.2;
 }
 
 .sidebar-btn i {
   margin-right: 12px;
   width: 20px;
   text-align: center;
-  color: var(--accent); /* Changed from var(--primary-dark) to var(--accent) */
-  transition: color 0.2s ease;
+  color: var(--accent);
+  transition: color 0.2s;
 }
 
-.sidebar-btn:hover {
+.category-item {
+  padding: 10px 15px; /* Consistent padding with sidebar-btn */
+  background: transparent; /* Transparent background */
+  color: var(--text-light);
+  border-bottom: none; /* Removed border */
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem; /* Consistent margin */
+  border-radius: 6px; /* Added border-radius */
+  border: none; /* Explicitly set border to none */
+  font-size: 1rem; /* Consistent font-size */
+  min-height: 40px; /* override any previous min-height */
+  height: 40px;
+}
+
+.sidebar-btn:hover,
+.category-item:hover {
   background-color: var(--input-bg);
   color: var(--accent);
 }
 
-.sidebar-btn:hover i {
+.sidebar-btn:hover i,
+.category-item:hover i {
   color: var(--accent);
+}
+
+.sidebar-btn.active,
+.category-item.active {
+  background: var(--accent);
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.sidebar-btn.active i,
+.category-item.active i {
+  color: #fff !important;
 }
 
 .sidebar .user-info {
@@ -484,152 +521,69 @@ body {
   border-radius: 6px; /* Added border-radius */
   border: none; /* Explicitly set border to none */
   font-size: 1rem; /* Consistent font-size */
+  min-height: 40px; /* override any previous min-height */
+  height: 40px;
 }
 
-.category-item:hover,
-.category-item.active {
-  background: var(--input-bg); /* Consistent hover background */
-  color: var(--accent);
-}
-
-.category-item.active {
-  background: rgba(
-    138,
-    43,
-    226,
-    0.3
-  ); /* Slightly different active background */
-  font-weight: 500;
-}
-
-.category-item.add-new {
-  margin-bottom: 0.5rem; /* Ensure space below the 'Add New' button */
-  user-select: none; /* Make text unselectable */
+.sidebar-btn,
+.category-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
   background: transparent;
   color: var(--text-light);
-  font-weight: normal;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  box-shadow: none;
-  border: none;
   padding: 10px 15px;
-  letter-spacing: normal;
-}
-
-.category-item.add-new:hover,
-.category-item.add-new:focus {
-  background: var(--input-bg);
-  color: var(--accent);
-  box-shadow: none;
-}
-
-.category-item.add-new i.fa-plus {
-  color: var(--accent);
-  margin-right: 8px;
-  font-size: 1em;
-}
-
-#new-category-form,
-.new-category-form {
-  display: none;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px 12px 10px 12px;
-  background-color: var(--secondary);
-  /* border: 1.5px solid var(--accent); */ /* Remove the border */
-  border-radius: 8px;
-  margin-top: 0.5rem;
   margin-bottom: 0.5rem;
-  box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.08);
-  animation: fadeIn 0.2s;
-}
-
-#new-category-form input[type="text"],
-#new-category-form input[type="color"],
-.new-category-form input[type="text"],
-.new-category-form input[type="color"] {
-  width: 100%;
-  padding: 7px 10px;
-  background-color: var(--input-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  color: var(--text-light);
-  font-size: 1rem;
-  margin-bottom: 4px;
-  transition: border-color 0.2s;
-}
-
-#new-category-form input[type="text"]:focus,
-#new-category-form input[type="color"]:focus,
-.new-category-form input[type="text"]:focus,
-.new-category-form input[type="color"]:focus {
-  border-color: var(--accent);
-  outline: none;
-}
-
-#new-category-form button,
-.new-category-form button {
-  width: 100%;
-  padding: 8px 0;
-  margin-top: 6px;
-  background-color: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  font-weight: 500;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  box-shadow: 0 1px 4px 0 rgba(53, 53, 227, 0.08);
-}
-
-#new-category-form button:hover,
-.new-category-form button:hover {
-  background-color: var(--accent-hover);
-}
-
-#btn-add-task.sidebar-btn {
-  background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
-  border: none;
   border-radius: 6px;
-  box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.1);
-  margin-bottom: 1.2rem;
-  padding: 10px 15px;
-  transition: background 0.3s, box-shadow 0.2s, color 0.2s;
-  text-align: left;
-  width: 100%;
-  display: flex;
-  align-items: center;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  min-height: 40px; /* Make both the same, slightly less than before */
+  height: 40px; /* Force same height for all */
+  line-height: 1.2;
 }
 
-#btn-add-task.sidebar-btn:hover,
-#btn-add-task.sidebar-btn:focus {
-  background: linear-gradient(
-    90deg,
-    var(--accent-hover),
-    var(--secondary-accent-hover)
-  );
-  color: #fff;
-  box-shadow: 0 4px 16px 0 rgba(53, 53, 227, 0.18);
+.sidebar-btn i,
+.category-item i {
+  width: 20px;
+  text-align: center;
+  color: var(--accent);
+  transition: color 0.2s;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Unified hover style */
+.sidebar-btn:hover,
+.category-item:hover {
+  background-color: var(--input-bg);
+  color: var(--accent);
+}
+
+.sidebar-btn:hover i,
+.category-item:hover i {
+  color: var(--accent);
+}
+
+/* Unified active/highlighted style */
+.sidebar-btn.active,
+.category-item.active {
+  background: var(--accent);
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.sidebar-btn.active i,
+.category-item.active i {
+  color: #fff !important;
+}
+
+/* Remove duplicate/old .category-item styles */
+.category-item {
+  justify-content: space-between;
+  /* Remove any conflicting or duplicate rules here */
 }
 
 /* --- Лоадер --- */
@@ -799,4 +753,35 @@ body {
 
 #task-form .form-group.hide-completed-checkbox {
   display: none !important;
+}
+
+#btn-add-task.sidebar-btn {
+  background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.1);
+  margin-bottom: 1.2rem;
+  padding: 10px 15px;
+  transition: background 0.3s, box-shadow 0.2s, color 0.2s;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  height: 40px;
+}
+
+#btn-add-task.sidebar-btn:hover,
+#btn-add-task.sidebar-btn.active,
+#btn-add-task.sidebar-btn:focus {
+  background: linear-gradient(
+    90deg,
+    var(--accent-hover),
+    var(--secondary-accent-hover)
+  );
+  color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(53, 53, 227, 0.18);
 }

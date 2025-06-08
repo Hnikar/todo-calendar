@@ -52,7 +52,7 @@ export const Todo = (() => {
       // Calendar initialization
       const calendarEl = document.getElementById("calendar");
       const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
+        initialView: "listWeek", // Set initial view to Upcoming
         headerToolbar: {
           left: "prev,next today",
           center: "title",
@@ -122,12 +122,14 @@ export const Todo = (() => {
               description: event.extendedProps.description,
               category: event.extendedProps.category,
               completed: event.extendedProps.completed,
-              className: event.classNames.filter(
-                (c) =>
-                  c !== undefined &&
-                  c !== null &&
-                  c.startsWith("priority-") === false
-              ).join(" "),
+              className: event.classNames
+                .filter(
+                  (c) =>
+                    c !== undefined &&
+                    c !== null &&
+                    c.startsWith("priority-") === false
+                )
+                .join(" "),
             };
             const updatedTask = await ApiService.updateTask(
               event.id,
@@ -157,51 +159,77 @@ export const Todo = (() => {
 
       initializeCalendar();
 
-      // Listen for category filter event
-      window.addEventListener("categoryFilter", (e) => {
-        const category = e.detail.category;
-        calendar.removeAllEvents();
-        if (category) {
-          // Switch to year list view (listYear)
-          calendar.changeView("listYear");
-          // Filter tasks by category
-          const filtered = allTasks.filter(
-            (task) => (task.category || "None") === category
-          );
-          filtered.forEach((task) => calendar.addEvent(task));
-        } else {
-          // Show all tasks, restore default view
-          calendar.changeView("dayGridMonth");
-          allTasks.forEach((task) => calendar.addEvent(task));
-        }
-      });
-
       // Sidebar button event listeners
+      function setActiveSidebarButton(activeBtn) {
+        document
+          .querySelectorAll(".sidebar-btn, .category-item")
+          .forEach((btn) => {
+            btn.classList.remove("active");
+          });
+        if (activeBtn) activeBtn.classList.add("active");
+      }
+
+      // Highlight Upcoming button on load
+      setActiveSidebarButton(btnUpcoming);
+
       if (btnCalendar) {
         btnCalendar.addEventListener("click", () => {
           calendar.changeView("dayGridMonth");
-          btnCalendar.classList.add("active");
-          btnUpcoming.classList.remove("active");
+          setActiveSidebarButton(btnCalendar);
           updateCalendarHeaderButtons("dayGridMonth");
+          window.dispatchEvent(
+            new CustomEvent("viewChange", { detail: { view: "calendar" } })
+          );
         });
       }
       if (btnUpcoming) {
         btnUpcoming.addEventListener("click", () => {
           calendar.changeView("listWeek");
-          btnUpcoming.classList.add("active");
-          btnCalendar.classList.remove("active");
+          setActiveSidebarButton(btnUpcoming);
           updateCalendarHeaderButtons("listWeek");
+          window.dispatchEvent(
+            new CustomEvent("viewChange", { detail: { view: "upcoming" } })
+          );
         });
       }
       if (btnToday) {
         btnToday.addEventListener("click", () => {
           calendar.changeView("timeGridDay", new Date());
-          btnToday.classList.add("active");
-          btnCalendar.classList.remove("active");
-          btnUpcoming.classList.remove("active");
+          setActiveSidebarButton(btnToday);
           updateCalendarHeaderButtons("timeGridDay");
+          window.dispatchEvent(
+            new CustomEvent("viewChange", { detail: { view: "today" } })
+          );
         });
       }
+
+      // Listen for category filter event
+      window.addEventListener("categoryFilter", (e) => {
+        const category = e.detail.category;
+        calendar.removeAllEvents();
+        if (category) {
+          calendar.changeView("listYear");
+          const filtered = allTasks.filter(
+            (task) => (task.category || "None") === category
+          );
+          filtered.forEach((task) => calendar.addEvent(task));
+          // Remove .active from all sidebar-btn and category-item, then highlight the category
+          document
+            .querySelectorAll(".sidebar-btn, .category-item")
+            .forEach((btn) => {
+              btn.classList.remove("active");
+            });
+          // Highlight the correct category item
+          const catBtn = Array.from(
+            document.querySelectorAll(".category-item")
+          ).find((li) => li.textContent.includes(category));
+          if (catBtn) catBtn.classList.add("active");
+        } else {
+          calendar.changeView("dayGridMonth");
+          allTasks.forEach((task) => calendar.addEvent(task));
+          setActiveSidebarButton(btnCalendar);
+        }
+      });
 
       // Event Listeners
       if (addTaskButton) {

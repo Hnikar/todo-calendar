@@ -31,6 +31,13 @@ export const Category = (() => {
         // Prevent click if delete button is clicked
         if (e.target.closest(".delete-category-btn")) return;
         activeCategory = category.name;
+        // Remove .active from all sidebar-btn and category-item
+        document
+          .querySelectorAll(".sidebar-btn, .category-item")
+          .forEach((btn) => {
+            btn.classList.remove("active");
+          });
+        li.classList.add("active");
         renderCategories();
         // Dispatch custom event for filtering
         window.dispatchEvent(

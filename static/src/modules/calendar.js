@@ -111,6 +111,7 @@ export const Todo = (() => {
           calendar.changeView("dayGridMonth");
           btnCalendar.classList.add("active");
           btnUpcoming.classList.remove("active");
+          updateCalendarHeaderButtons("dayGridMonth");
           // Optionally update header
           document.querySelector(".content-header").textContent = "Calendar";
         });
@@ -120,6 +121,7 @@ export const Todo = (() => {
           calendar.changeView("listWeek");
           btnUpcoming.classList.add("active");
           btnCalendar.classList.remove("active");
+          updateCalendarHeaderButtons("listWeek");
           // Optionally update header
           document.querySelector(".content-header").textContent = "Upcoming";
         });
@@ -130,6 +132,7 @@ export const Todo = (() => {
           btnToday.classList.add("active");
           btnCalendar.classList.remove("active");
           btnUpcoming.classList.remove("active");
+          updateCalendarHeaderButtons("timeGridDay");
           document.querySelector(".content-header").textContent = "Today";
         });
       }
@@ -326,6 +329,34 @@ export const Todo = (() => {
       async function deleteTask(id) {
         await ApiService.deleteTask(id);
       }
+
+      // After calendar initialization
+      function updateCalendarHeaderButtons(viewType) {
+        const fcHeader = document.querySelector(".fc-header-toolbar");
+        if (!fcHeader) return;
+        const prevBtn = fcHeader.querySelector(".fc-prev-button");
+        const nextBtn = fcHeader.querySelector(".fc-next-button");
+        const todayBtn = fcHeader.querySelector(".fc-today-button");
+        // Hide right-side view switchers if present
+        const rightBtns = fcHeader.querySelectorAll(
+          ".fc-toolbar-chunk:last-child .fc-button"
+        );
+        if (viewType === "listWeek" || viewType === "timeGridDay") {
+          if (prevBtn) prevBtn.style.display = "none";
+          if (nextBtn) nextBtn.style.display = "none";
+          if (todayBtn) todayBtn.style.display = "none";
+          rightBtns.forEach((btn) => (btn.style.display = "none"));
+        } else {
+          if (prevBtn) prevBtn.style.display = "";
+          if (nextBtn) nextBtn.style.display = "";
+          if (todayBtn) todayBtn.style.display = "";
+          rightBtns.forEach((btn) => (btn.style.display = ""));
+        }
+      }
+
+      calendar.on("viewDidMount", function (arg) {
+        updateCalendarHeaderButtons(arg.view.type);
+      });
     });
   }
   return {};

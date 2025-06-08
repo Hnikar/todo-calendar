@@ -601,14 +601,17 @@ body {
   background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
   color: #fff;
   font-weight: 600;
-  font-size: 1.08rem;
+  font-size: 1rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.1);
   margin-bottom: 1.2rem;
-  padding: 1rem 0;
+  padding: 10px 15px;
   transition: background 0.3s, box-shadow 0.2s, color 0.2s;
-  text-align: center;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 #btn-add-task.sidebar-btn:hover,

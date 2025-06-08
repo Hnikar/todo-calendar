@@ -450,6 +450,16 @@ export const Todo = (() => {
       function updateCalendarHeaderButtons(viewType) {
         const fcHeader = document.querySelector(".fc-header-toolbar");
         if (!fcHeader) return;
+        // Hide header for listWeek (Upcoming), timeGridDay (Today), and listYear (Year)
+        if (
+          viewType === "listWeek" ||
+          viewType === "timeGridDay" ||
+          viewType === "listYear"
+        ) {
+          fcHeader.style.display = "none";
+        } else {
+          fcHeader.style.display = "";
+        }
         const prevBtn = fcHeader.querySelector(".fc-prev-button");
         const nextBtn = fcHeader.querySelector(".fc-next-button");
         const todayBtn = fcHeader.querySelector(".fc-today-button");
@@ -473,6 +483,12 @@ export const Todo = (() => {
       calendar.on("viewDidMount", function (arg) {
         updateCalendarHeaderButtons(arg.view.type);
       });
+
+      // Hide header on initial load if in listWeek (Upcoming)
+      setTimeout(() => {
+        const fcHeader = document.querySelector(".fc-header-toolbar");
+        if (fcHeader) fcHeader.style.display = "none";
+      }, 100);
     });
   }
   return {};

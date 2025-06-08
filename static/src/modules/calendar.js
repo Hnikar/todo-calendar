@@ -53,11 +53,6 @@ export const Todo = (() => {
       const calendarEl = document.getElementById("calendar");
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "listWeek", // Set initial view to Upcoming
-        headerToolbar: {
-          left: "prev,next today",
-          center: "title",
-          // right: "dayGridMonth,timeGridWeek,timeGridDay",
-        },
         editable: true,
         selectable: false,
         selectMirror: true,
@@ -454,7 +449,7 @@ export const Todo = (() => {
         if (
           viewType === "listWeek" ||
           viewType === "timeGridDay" ||
-          viewType === "listYear"
+          viewType === "listYear" // <-- add listYear here
         ) {
           fcHeader.style.display = "none";
         } else {
@@ -467,7 +462,11 @@ export const Todo = (() => {
         const rightBtns = fcHeader.querySelectorAll(
           ".fc-toolbar-chunk:last-child .fc-button"
         );
-        if (viewType === "listWeek" || viewType === "timeGridDay") {
+        if (
+          viewType === "listWeek" ||
+          viewType === "timeGridDay" ||
+          viewType === "listYear" // <-- add listYear here
+        ) {
           if (prevBtn) prevBtn.style.display = "none";
           if (nextBtn) nextBtn.style.display = "none";
           if (todayBtn) todayBtn.style.display = "none";

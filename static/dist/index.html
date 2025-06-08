@@ -104,41 +104,50 @@
           <button id="btn-add-task">Add a new Task</button>
         </div>
         <div id="calendar"></div>
+        <!-- Task form moved below .content -->
       </div>
 
+      <!-- Task form as popup above everything -->
       <form id="task-form">
+        <button
+          type="button"
+          id="close-task-form"
+          class="close-task-form-btn"
+          aria-label="Close"
+        >
+          &times;
+        </button>
         <h3 id="form-heading">Add New Task</h3>
         <div class="form-group">
           <label for="title">Task Title</label>
           <input type="text" id="title" required />
         </div>
-
         <div class="form-group">
           <label for="taskDate">Date</label>
           <input type="date" id="taskDate" required />
         </div>
-
-        <div class="form-group">
-          <label> <input type="checkbox" id="allDay" /> All Day </label>
-        </div>
-
         <div id="timeInputs" class="time-inputs">
           <div class="form-group">
             <label for="startTime">Start Time</label>
             <input type="time" id="startTime" />
           </div>
-
           <div class="form-group">
             <label for="endTime">End Time</label>
             <input type="time" id="endTime" />
           </div>
+          <div
+            class="form-group all-day-group"
+            style="align-self: flex-end; margin-bottom: 0"
+          >
+            <label style="white-space: nowrap">
+              <input type="checkbox" id="allDay" /> All Day
+            </label>
+          </div>
         </div>
-
         <div class="form-group">
           <label for="description">Description</label>
           <textarea id="description" rows="3"></textarea>
         </div>
-
         <div class="form-group">
           <label for="priority">Priority</label>
           <select id="priority">

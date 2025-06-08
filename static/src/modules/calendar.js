@@ -12,16 +12,38 @@ export const Todo = (() => {
       const submitButton = document.getElementById("submit-button");
       const deleteButton = document.getElementById("delete-button");
       const cancelButton = document.getElementById("cancel-button");
-      const addTaskButton = document.querySelector(
-        ".content-header-container > button"
-      );
+      const addTaskButton = document.getElementById("btn-add-task");
       const allDayCheckbox = document.getElementById("allDay");
       const timeInputs = document.getElementById("timeInputs");
+      const content = document.querySelector(".content");
+      const closeTaskFormBtn = document.getElementById("close-task-form");
+
+      // Helper to show/hide form and backdrop
+      function showForm() {
+        form.classList.add("visible");
+        content.classList.add("form-open");
+        form.style.display = "block";
+        if (addTaskButton) addTaskButton.style.display = "none";
+        setTimeout(() => {
+          form.focus && form.focus();
+        }, 0);
+      }
+      function hideForm() {
+        form.classList.remove("visible");
+        content.classList.remove("form-open");
+        form.style.display = "none";
+        if (addTaskButton) addTaskButton.style.display = "block";
+        // Always enable time fields when hiding the form
+        document.getElementById("startTime").disabled = false;
+        document.getElementById("endTime").disabled = false;
+      }
 
       // Toggle time inputs based on All Day checkbox
       allDayCheckbox.addEventListener("change", () => {
-        timeInputs.style.display = allDayCheckbox.checked ? "none" : "flex";
-        if (allDayCheckbox.checked) {
+        const isAllDay = allDayCheckbox.checked;
+        document.getElementById("startTime").disabled = isAllDay;
+        document.getElementById("endTime").disabled = isAllDay;
+        if (isAllDay) {
           document.getElementById("startTime").value = "";
           document.getElementById("endTime").value = "";
         }
@@ -46,6 +68,7 @@ export const Todo = (() => {
           isEditing = true;
           populateForm(info.event);
           updateFormUI();
+          showForm();
         },
         eventDidMount: function (info) {
           const isCompleted = info.event.extendedProps.completed;
@@ -84,14 +107,17 @@ export const Todo = (() => {
       initializeCalendar();
 
       // Event Listeners
-      addTaskButton.addEventListener("click", () => {
-        isEditing = false;
-        currentEditingTask = null;
-        form.reset();
-        allDayCheckbox.checked = false;
-        timeInputs.style.display = "flex";
-        updateFormUI();
-      });
+      if (addTaskButton) {
+        addTaskButton.addEventListener("click", () => {
+          isEditing = false;
+          currentEditingTask = null;
+          form.reset();
+          allDayCheckbox.checked = false;
+          timeInputs.style.display = "flex";
+          updateFormUI();
+          showForm();
+        });
+      }
 
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -107,6 +133,7 @@ export const Todo = (() => {
           allDayCheckbox.checked = false;
           timeInputs.style.display = "flex";
           updateFormUI();
+          hideForm();
         } catch (error) {
           console.error("Failed to save task:", error);
         }
@@ -121,6 +148,7 @@ export const Todo = (() => {
             isEditing = false;
             currentEditingTask = null;
             updateFormUI();
+            hideForm();
           } catch (error) {
             console.error("Failed to delete task:", error);
           }
@@ -134,22 +162,59 @@ export const Todo = (() => {
         allDayCheckbox.checked = false;
         timeInputs.style.display = "flex";
         updateFormUI();
+        hideForm();
       });
+
+      // Add close (cross) button handler
+      if (closeTaskFormBtn) {
+        closeTaskFormBtn.addEventListener("click", () => {
+          form.reset();
+          isEditing = false;
+          currentEditingTask = null;
+          allDayCheckbox.checked = false;
+          timeInputs.style.display = "flex";
+          updateFormUI();
+          hideForm();
+        });
+      }
+
+      // Hide form on click outside
+      document.addEventListener("mousedown", (e) => {
+        if (
+          form.classList.contains("visible") &&
+          !form.contains(e.target) &&
+          !(addTaskButton && addTaskButton.contains(e.target))
+        ) {
+          form.reset();
+          isEditing = false;
+          currentEditingTask = null;
+          allDayCheckbox.checked = false;
+          timeInputs.style.display = "flex";
+          updateFormUI();
+          hideForm();
+        }
+      });
+
+      // Hide form initially
+      hideForm();
 
       // Helper functions
       function updateFormUI() {
+        const completedGroup = form.querySelector('.form-group input#completed')?.closest('.form-group');
         if (isEditing) {
           formHeading.textContent = "Edit Task";
           submitButton.textContent = "Save Changes";
           deleteButton.classList.remove("hidden");
           cancelButton.classList.remove("hidden");
-          addTaskButton.disabled = true;
+          if (addTaskButton) addTaskButton.disabled = true;
+          if (completedGroup) completedGroup.classList.remove("hide-completed-checkbox");
         } else {
           formHeading.textContent = "Add New Task";
           submitButton.textContent = "Add Task";
           deleteButton.classList.add("hidden");
           cancelButton.classList.add("hidden");
-          addTaskButton.disabled = false;
+          if (addTaskButton) addTaskButton.disabled = false;
+          if (completedGroup) completedGroup.classList.add("hide-completed-checkbox");
         }
       }
 
@@ -161,7 +226,8 @@ export const Todo = (() => {
         );
         const allDay = event.allDay;
         allDayCheckbox.checked = allDay;
-        timeInputs.style.display = allDay ? "none" : "flex";
+        document.getElementById("startTime").disabled = allDay;
+        document.getElementById("endTime").disabled = allDay;
 
         if (!allDay) {
           const startDate = new Date(event.start);

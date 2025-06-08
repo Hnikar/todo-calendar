@@ -94,30 +94,44 @@ export const Todo = (() => {
         eventDrop: async function (info) {
           try {
             const event = info.event;
-            let start = event.startStr;
-            let end = event.endStr;
+            let start = event.start;
+            let end = event.end;
 
-            // Fix for allDay events: FullCalendar uses exclusive end date
+            // Format start and end as 'YYYY-MM-DDTHH:mm'
+            function formatDateTime(dt) {
+              if (!dt) return "";
+              // Pad month, day, hour, minute
+              const yyyy = dt.getFullYear();
+              const mm = String(dt.getMonth() + 1).padStart(2, "0");
+              const dd = String(dt.getDate()).padStart(2, "0");
+              const hh = String(dt.getHours()).padStart(2, "0");
+              const min = String(dt.getMinutes()).padStart(2, "0");
+              return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+            }
+
+            let formattedStart, formattedEnd;
+
             if (event.allDay) {
-              // If end is present, subtract one day to get the inclusive end
+              // For allDay, use date only
+              formattedStart = event.startStr.slice(0, 10);
               if (event.end) {
                 const endDate = new Date(event.end);
                 endDate.setDate(endDate.getDate() - 1);
-                // Format as yyyy-mm-dd
-                end = endDate.toISOString().slice(0, 10);
+                formattedEnd = endDate.toISOString().slice(0, 10);
               } else {
-                end = start;
+                formattedEnd = formattedStart;
               }
             } else {
-              // For timed events, use end as is, or set to start if not present
-              end = event.endStr || start;
+              // For timed events, use 'YYYY-MM-DDTHH:mm'
+              formattedStart = formatDateTime(start);
+              formattedEnd = end ? formatDateTime(end) : formattedStart;
             }
 
             const updatedData = {
               id: event.id,
               title: event.title,
-              start: start,
-              end: end,
+              start: formattedStart,
+              end: formattedEnd,
               allDay: event.allDay,
               description: event.extendedProps.description,
               category: event.extendedProps.category,

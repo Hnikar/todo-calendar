@@ -120,10 +120,14 @@ export const Todo = (() => {
               end: end,
               allDay: event.allDay,
               description: event.extendedProps.description,
-              priority: event.extendedProps.priority,
               category: event.extendedProps.category,
               completed: event.extendedProps.completed,
-              className: event.classNames.join(" "),
+              className: event.classNames.filter(
+                (c) =>
+                  c !== undefined &&
+                  c !== null &&
+                  c.startsWith("priority-") === false
+              ).join(" "),
             };
             const updatedTask = await ApiService.updateTask(
               event.id,
@@ -335,8 +339,9 @@ export const Todo = (() => {
 
         document.getElementById("description").value =
           event.extendedProps.description || "";
-        document.getElementById("priority").value =
-          event.extendedProps.priority || "low";
+        // Remove priority
+        // document.getElementById("priority").value =
+        //   event.extendedProps.priority || "low";
         document.getElementById("category").value =
           event.extendedProps.category || "None";
         document.getElementById("completed").checked =
@@ -366,10 +371,12 @@ export const Todo = (() => {
           end: end,
           allDay: allDay,
           description: document.getElementById("description").value,
-          priority: document.getElementById("priority").value,
+          // Remove priority
+          // priority: document.getElementById("priority").value,
           category: categoryValue === "None" ? null : categoryValue,
           completed: document.getElementById("completed").checked,
-          className: `priority-${document.getElementById("priority").value} ${
+          // Remove priority from className
+          className: `${
             document.getElementById("completed").checked ? "completed-task" : ""
           }`,
         };

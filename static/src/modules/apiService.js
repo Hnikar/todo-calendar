@@ -37,8 +37,14 @@ export const ApiService = (() => {
 
   return {
     // Task-related endpoints
-    createTask: (task) => handleRequest("/events", "POST", task),
-    updateTask: (id, task) => handleRequest(`/events/${id}`, "PUT", task),
+    createTask: (task) => {
+      const { priority, ...rest } = task;
+      return handleRequest("/events", "POST", rest);
+    },
+    updateTask: (id, task) => {
+      const { priority, ...rest } = task;
+      return handleRequest(`/events/${id}`, "PUT", rest);
+    },
     deleteTask: (id) => handleRequest(`/events/${id}`, "DELETE"),
     fetchTasks: () => handleRequest("/events", "GET"),
     // Category-related endpoints

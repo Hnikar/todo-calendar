@@ -91,6 +91,52 @@ export const Todo = (() => {
             info.el.style.borderLeft = "4px solid transparent";
           }
         },
+        eventDrop: async function (info) {
+          try {
+            const event = info.event;
+            let start = event.startStr;
+            let end = event.endStr;
+
+            // Fix for allDay events: FullCalendar uses exclusive end date
+            if (event.allDay) {
+              // If end is present, subtract one day to get the inclusive end
+              if (event.end) {
+                const endDate = new Date(event.end);
+                endDate.setDate(endDate.getDate() - 1);
+                // Format as yyyy-mm-dd
+                end = endDate.toISOString().slice(0, 10);
+              } else {
+                end = start;
+              }
+            } else {
+              // For timed events, use end as is, or set to start if not present
+              end = event.endStr || start;
+            }
+
+            const updatedData = {
+              id: event.id,
+              title: event.title,
+              start: start,
+              end: end,
+              allDay: event.allDay,
+              description: event.extendedProps.description,
+              priority: event.extendedProps.priority,
+              category: event.extendedProps.category,
+              completed: event.extendedProps.completed,
+              className: event.classNames.join(" "),
+            };
+            const updatedTask = await ApiService.updateTask(
+              event.id,
+              updatedData
+            );
+            allTasks = allTasks.map((t) =>
+              t.id === event.id ? updatedTask : t
+            );
+          } catch (error) {
+            info.revert();
+            console.error("Failed to update event after drag:", error);
+          }
+        },
       });
 
       // Fetch tasks from API and render calendar

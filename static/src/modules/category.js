@@ -2,6 +2,7 @@ import { ApiService } from "./apiService.js";
 
 export const Category = (() => {
   let categories = [];
+  let activeCategory = null; // Track the currently selected category
 
   // Helper functions defined outside DOMContentLoaded
   function renderCategories() {
@@ -13,6 +14,9 @@ export const Category = (() => {
       // Ensure category.id is a string for consistency
       const li = document.createElement("li");
       li.className = "category-item";
+      if (activeCategory === category.name) {
+        li.classList.add("active");
+      }
       li.innerHTML = `
           <div class="category-content">
             <span class="category-color" style="background-color: ${category.color};"></span> 
@@ -22,6 +26,19 @@ export const Category = (() => {
             <i class="fas fa-trash"></i>
           </button>
         `;
+      // Add click event for filtering
+      li.addEventListener("click", (e) => {
+        // Prevent click if delete button is clicked
+        if (e.target.closest(".delete-category-btn")) return;
+        activeCategory = category.name;
+        renderCategories();
+        // Dispatch custom event for filtering
+        window.dispatchEvent(
+          new CustomEvent("categoryFilter", {
+            detail: { category: category.name },
+          })
+        );
+      });
       categoriesContainer.appendChild(li);
     });
 
@@ -138,6 +155,20 @@ export const Category = (() => {
             console.error("Failed to create category:", error);
             // Optionally show error message to user
           }
+        }
+      });
+
+      // Add a global listener to clear filter when clicking "Calendar" or "Upcoming" or "Today"
+      ["btn-calendar", "btn-upcoming", "btn-today"].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.addEventListener("click", () => {
+            activeCategory = null;
+            renderCategories();
+            window.dispatchEvent(
+              new CustomEvent("categoryFilter", { detail: { category: null } })
+            );
+          });
         }
       });
     });

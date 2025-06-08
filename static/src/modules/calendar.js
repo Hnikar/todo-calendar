@@ -4,6 +4,7 @@ import { ApiService } from "./apiService.js";
 export const Todo = (() => {
   let currentEditingTask = null;
   let isEditing = false;
+  let allTasks = []; // Store all tasks for filtering
 
   if (window.location.pathname === "/app") {
     document.addEventListener("DOMContentLoaded", function () {
@@ -96,6 +97,7 @@ export const Todo = (() => {
       async function initializeCalendar() {
         try {
           const tasks = await ApiService.fetchTasks();
+          allTasks = tasks; // Save all tasks for filtering
           tasks.forEach((task) => calendar.addEvent(task));
           calendar.render();
         } catch (error) {
@@ -105,6 +107,25 @@ export const Todo = (() => {
 
       initializeCalendar();
 
+      // Listen for category filter event
+      window.addEventListener("categoryFilter", (e) => {
+        const category = e.detail.category;
+        calendar.removeAllEvents();
+        if (category) {
+          // Switch to year list view (listYear)
+          calendar.changeView("listYear");
+          // Filter tasks by category
+          const filtered = allTasks.filter(
+            (task) => (task.category || "None") === category
+          );
+          filtered.forEach((task) => calendar.addEvent(task));
+        } else {
+          // Show all tasks, restore default view
+          calendar.changeView("dayGridMonth");
+          allTasks.forEach((task) => calendar.addEvent(task));
+        }
+      });
+
       // Sidebar button event listeners
       if (btnCalendar) {
         btnCalendar.addEventListener("click", () => {
@@ -112,8 +133,6 @@ export const Todo = (() => {
           btnCalendar.classList.add("active");
           btnUpcoming.classList.remove("active");
           updateCalendarHeaderButtons("dayGridMonth");
-          // Optionally update header
-          document.querySelector(".content-header").textContent = "Calendar";
         });
       }
       if (btnUpcoming) {
@@ -122,8 +141,6 @@ export const Todo = (() => {
           btnUpcoming.classList.add("active");
           btnCalendar.classList.remove("active");
           updateCalendarHeaderButtons("listWeek");
-          // Optionally update header
-          document.querySelector(".content-header").textContent = "Upcoming";
         });
       }
       if (btnToday) {
@@ -133,7 +150,6 @@ export const Todo = (() => {
           btnCalendar.classList.remove("active");
           btnUpcoming.classList.remove("active");
           updateCalendarHeaderButtons("timeGridDay");
-          document.querySelector(".content-header").textContent = "Today";
         });
       }
 
@@ -315,12 +331,16 @@ export const Todo = (() => {
 
       async function createTask(data) {
         const newTask = await ApiService.createTask(data);
+        allTasks.push(newTask);
         calendar.addEvent(newTask);
         return newTask;
       }
 
       async function updateTask(data) {
         const updatedTask = await ApiService.updateTask(data.id, data);
+        // Remove old task from allTasks and add updated one
+        allTasks = allTasks.filter((t) => t.id !== data.id);
+        allTasks.push(updatedTask);
         currentEditingTask.remove();
         calendar.addEvent(updatedTask);
         return updatedTask;
@@ -328,6 +348,7 @@ export const Todo = (() => {
 
       async function deleteTask(id) {
         await ApiService.deleteTask(id);
+        allTasks = allTasks.filter((t) => t.id !== id);
       }
 
       // After calendar initialization

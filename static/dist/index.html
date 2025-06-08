@@ -27,6 +27,13 @@
               <i class="fa-solid fa-bars"></i>
             </button>
           </div>
+          <button
+            id="btn-add-task"
+            class="sidebar-btn"
+            style="width: 100%; margin-bottom: 1.2rem"
+          >
+            Add a new Task
+          </button>
           <div class="tasks-container">
             <div class="sidebar-section-title">TASKS</div>
             <div class="sidebar-btn-group">
@@ -99,11 +106,7 @@
       </nav>
 
       <div class="content">
-        <div class="content-header-container">
-          <div class="content-header">Calendar</div>
-          <button id="btn-add-task">Add a new Task</button>
-        </div>
-        <div id="calendar"></div>
+        <div id="calendar" style="height: 100%; min-height: 0"></div>
         <!-- Task form moved below .content -->
       </div>
 

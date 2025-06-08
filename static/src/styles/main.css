@@ -203,17 +203,26 @@ body {
 
 .content {
   flex: 1;
-  padding: 1.25rem 2rem;
+  padding: 0;
   background-color: var(--secondary);
   border-radius: 1rem;
   overflow-y: auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.content .content-header {
-  margin-bottom: 1.5rem;
-  color: var(--primary-dark);
-  padding-bottom: 0.5rem;
+#calendar {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  padding: 1rem;
+}
+
+/* Remove margin from .content-header-container if it still exists */
+.content-header-container {
+  display: none;
 }
 
 .project-preview {
@@ -582,6 +591,31 @@ body {
 #new-category-form button:hover,
 .new-category-form button:hover {
   background-color: var(--accent-hover);
+}
+
+#btn-add-task.sidebar-btn {
+  background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.1);
+  margin-bottom: 1.2rem;
+  padding: 1rem 0;
+  transition: background 0.3s, box-shadow 0.2s, color 0.2s;
+  text-align: center;
+}
+
+#btn-add-task.sidebar-btn:hover,
+#btn-add-task.sidebar-btn:focus {
+  background: linear-gradient(
+    90deg,
+    var(--accent-hover),
+    var(--secondary-accent-hover)
+  );
+  color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(53, 53, 227, 0.18);
 }
 
 @keyframes fadeIn {

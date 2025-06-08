@@ -26,7 +26,6 @@ export const Todo = (() => {
         form.classList.add("visible");
         content.classList.add("form-open");
         form.style.display = "block";
-        if (addTaskButton) addTaskButton.style.display = "none";
         setTimeout(() => {
           form.focus && form.focus();
         }, 0);

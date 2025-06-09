@@ -1,4 +1,3 @@
-import { Loader } from "./loader.js";
 import { DomUtils } from "./domUtils.js";
 
 export const Auth = (() => {
@@ -47,7 +46,6 @@ export const Auth = (() => {
   async function handleSubmit(e) {
     e.preventDefault();
     DomUtils.clearMessages();
-    Loader.toggle(true);
 
     const isLogin = document
       .querySelector('[data-mode="login"]')
@@ -73,8 +71,6 @@ export const Auth = (() => {
       await handleResponse(response, isLogin);
     } catch (err) {
       DomUtils.showError(err.message || "Unexpected error during submission.");
-    } finally {
-      Loader.toggle(false);
     }
   }
 

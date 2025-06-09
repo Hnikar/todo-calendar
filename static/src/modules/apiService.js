@@ -22,7 +22,6 @@ export const ApiService = (() => {
       }
 
       const responseData = await response.json();
-
       if (!response.ok) {
         throw new Error(responseData.error || "Request failed");
       }
@@ -37,8 +36,14 @@ export const ApiService = (() => {
 
   return {
     // Task-related endpoints
-    createTask: (task) => handleRequest("/events", "POST", task),
-    updateTask: (id, task) => handleRequest(`/events/${id}`, "PUT", task),
+    createTask: (task) => {
+      const { priority, ...rest } = task;
+      return handleRequest("/events", "POST", rest);
+    },
+    updateTask: (id, task) => {
+      const { priority, ...rest } = task;
+      return handleRequest(`/events/${id}`, "PUT", rest);
+    },
     deleteTask: (id) => handleRequest(`/events/${id}`, "DELETE"),
     fetchTasks: () => handleRequest("/events", "GET"),
     // Category-related endpoints
@@ -46,7 +51,5 @@ export const ApiService = (() => {
       handleRequest("/categories", "POST", category),
     fetchCategories: () => handleRequest("/categories", "GET"),
     deleteCategory: (id) => handleRequest(`/categories/${id}`, "DELETE"),
-    clearCategoryFromTasks: (categoryName) =>
-      handleRequest(`/events/clear-category/${categoryName}`, "PATCH"),
   };
 })();

@@ -4,9 +4,9 @@ import { DomUtils } from "./domUtils.js";
 export const ApiService = (() => {
   const API_BASE = "/api";
 
-  async function handleRequest(url, method, data) {
+  async function handleRequest(url, method, data, opts = {}) {
     try {
-      Loader.toggle(true);
+      if (!opts.skipLoader) Loader.toggle(true);
       const response = await fetch(`${API_BASE}${url}`, {
         method,
         headers: {
@@ -31,7 +31,7 @@ export const ApiService = (() => {
       DomUtils.showError(error.message);
       throw error;
     } finally {
-      Loader.toggle(false);
+      if (!opts.skipLoader) Loader.toggle(false);
     }
   }
 
@@ -41,9 +41,9 @@ export const ApiService = (() => {
       const { priority, ...rest } = task;
       return handleRequest("/events", "POST", rest);
     },
-    updateTask: (id, task) => {
+    updateTask: (id, task, opts) => {
       const { priority, ...rest } = task;
-      return handleRequest(`/events/${id}`, "PUT", rest);
+      return handleRequest(`/events/${id}`, "PUT", rest, opts);
     },
     deleteTask: (id) => handleRequest(`/events/${id}`, "DELETE"),
     fetchTasks: () => handleRequest("/events", "GET"),

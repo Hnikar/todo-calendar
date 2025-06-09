@@ -51,6 +51,7 @@ export const Todo = (() => {
 
       // Calendar initialization
       const calendarEl = document.getElementById("calendar");
+
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "dayGridMonth", // Set initial view to Calendar
         editable: true,
@@ -140,17 +141,26 @@ export const Todo = (() => {
                 )
                 .join(" "),
             };
-            const updatedTask = await ApiService.updateTask(
+            // Do not show loader for drag/drop update
+            await ApiService.updateTask(
               event.id,
-              updatedData
+              updatedData,
+              { skipLoader: true }
             );
             allTasks = allTasks.map((t) =>
-              t.id === event.id ? updatedTask : t
+              t.id === event.id ? updatedData : t
             );
           } catch (error) {
             info.revert();
             console.error("Failed to update event after drag:", error);
           }
+        },
+        viewDidMount: function(arg) {
+          updateCalendarHeaderButtons(arg.view.type);
+          // Always force a resize after any view change
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         },
       });
 
@@ -161,6 +171,10 @@ export const Todo = (() => {
           allTasks = tasks; // Save all tasks for filtering
           tasks.forEach((task) => calendar.addEvent(task));
           calendar.render();
+          // Force correct size after initial render
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         } catch (error) {
           console.error("Failed to fetch tasks:", error);
         }
@@ -189,6 +203,9 @@ export const Todo = (() => {
           window.dispatchEvent(
             new CustomEvent("viewChange", { detail: { view: "calendar" } })
           );
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         });
       }
       if (btnUpcoming) {
@@ -199,6 +216,9 @@ export const Todo = (() => {
           window.dispatchEvent(
             new CustomEvent("viewChange", { detail: { view: "upcoming" } })
           );
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         });
       }
       if (btnToday) {
@@ -209,6 +229,9 @@ export const Todo = (() => {
           window.dispatchEvent(
             new CustomEvent("viewChange", { detail: { view: "today" } })
           );
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         });
       }
 
@@ -233,10 +256,16 @@ export const Todo = (() => {
             document.querySelectorAll(".category-item")
           ).find((li) => li.textContent.includes(category));
           if (catBtn) catBtn.classList.add("active");
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         } else {
           calendar.changeView("dayGridMonth");
           allTasks.forEach((task) => calendar.addEvent(task));
           setActiveSidebarButton(btnCalendar);
+          setTimeout(() => {
+            calendar.updateSize();
+          }, 0);
         }
       });
 
@@ -449,7 +478,7 @@ export const Todo = (() => {
         if (
           viewType === "listWeek" ||
           viewType === "timeGridDay" ||
-          viewType === "listYear" // <-- add listYear here
+          viewType === "listYear"
         ) {
           fcHeader.style.display = "none";
         } else {
@@ -465,7 +494,7 @@ export const Todo = (() => {
         if (
           viewType === "listWeek" ||
           viewType === "timeGridDay" ||
-          viewType === "listYear" // <-- add listYear here
+          viewType === "listYear"
         ) {
           if (prevBtn) prevBtn.style.display = "none";
           if (nextBtn) nextBtn.style.display = "none";
@@ -482,6 +511,9 @@ export const Todo = (() => {
       calendar.on("viewDidMount", function (arg) {
         updateCalendarHeaderButtons(arg.view.type);
       });
+
+      // Render calendar after DOM is ready and header is hidden
+      calendar.render();
 
       // Hide header on initial load if in listWeek (Upcoming)
       setTimeout(() => {

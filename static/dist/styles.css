@@ -1,50 +1,10 @@
-/*
-  Josh's Custom CSS Reset
-  https://www.joshwcomeau.com/css/custom-css-reset/
-*/
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-* {
-    margin: 0;
-}
-body {
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-}
-img,
-picture,
-video,
-canvas,
-svg {
-    display: block;
-    max-width: 100%;
-}
-input,
-button,
-textarea,
-select {
-    font: inherit;
-}
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    overflow-wrap: break-word;
-}
-#root,
-#__next {
-    isolation: isolate;
-}
-/* @import url(auth.css);
+/* @import url(reset.css);
+@import url(auth.css);
 @import url(404.css);
 @import url(landing-page.css); */
+
 /* --- Variables --- */
+
 :root {
   --primary-dark: #e3eff2;
   --secondary-dark: #444;
@@ -66,16 +26,20 @@ h6 {
 
   --border-color: #4a3f6b;
 }
+
 /* --- Base Styles --- */
+
 html {
   height: 100%;
   box-sizing: border-box;
 }
+
 *,
 *::before,
 *::after {
   box-sizing: inherit;
 }
+
 body {
   min-height: 100vh;
   max-height: 100vh;
@@ -89,32 +53,39 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 /* --- Стили для основной страницы приложения --- */
+
 #calendar {
   height: 70vh;
   /* Скрываем календарь временно для тестов */
 }
+
 .main {
   display: flex;
   flex-grow: 1;
   gap: 1rem;
   padding: 1.25rem;
 }
+
 .content-header,
 .sidebar-menu-title {
   font-size: 1.5rem;
   font-weight: bold;
 }
+
 .nav-header,
 .sidebar-section-title {
   font-size: 0.75rem;
   font-weight: bold;
 }
+
 .content-header-container {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1.5rem;
 }
+
 .content-header-container > button {
   height: 4rem;
   background-color: var(--accent);
@@ -126,6 +97,7 @@ body {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -135,6 +107,7 @@ body {
   padding: 1rem;
   border-radius: 1rem;
 }
+
 .sidebar-btn-group {
   display: flex;
   flex-direction: column;
@@ -142,6 +115,7 @@ body {
   align-items: center;
   font-size: 1rem;
 }
+
 .sidebar-menu {
   display: flex;
   justify-content: space-between;
@@ -150,6 +124,7 @@ body {
   font-size: 1.2rem;
   color: var(--primary-dark);
 }
+
 #mobileMenu {
   display: none; /* Hide by default, show on mobile */
   background: transparent;
@@ -158,16 +133,19 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
 }
+
 .sidebar-section-title {
   font-size: 0.75rem;
   font-weight: bold;
   margin-bottom: 0.75rem; /* Adjusted margin */
   padding-bottom: 0.25rem; /* Added padding */
 }
+
 .sidebar-section {
   margin-top: 1.5rem;
   padding: 0; /* Ensure no extra padding */
 }
+
 .sidebar-btn {
   display: flex;
   align-items: center;
@@ -188,6 +166,7 @@ body {
   height: 40px; /* Force same height for all */
   line-height: 1.2;
 }
+
 .sidebar-btn i {
   margin-right: 12px;
   width: 20px;
@@ -195,6 +174,7 @@ body {
   color: var(--accent);
   transition: color 0.2s;
 }
+
 .category-item {
   padding: 10px 15px; /* Consistent padding with sidebar-btn */
   background: transparent; /* Transparent background */
@@ -212,25 +192,30 @@ body {
   min-height: 40px; /* override any previous min-height */
   height: 40px;
 }
+
 .sidebar-btn:hover,
 .category-item:hover {
   background-color: var(--input-bg);
   color: var(--accent);
 }
+
 .sidebar-btn:hover i,
 .category-item:hover i {
   color: var(--accent);
 }
+
 .sidebar-btn.active,
 .category-item.active {
   background: var(--accent);
   color: #fff !important;
   font-weight: bold;
 }
+
 .sidebar-btn.active i,
 .category-item.active i {
   color: #fff !important;
 }
+
 .sidebar .user-info {
   display: flex;
   align-items: center;
@@ -239,17 +224,21 @@ body {
   color: var(--primary-dark);
   font-size: 1rem;
 }
+
 .sidebar .user-info i {
   margin-right: 12px;
 }
+
 #user-name-display {
   font-size: 16px;
 }
+
 .fa-user {
   width: 1.25rem;
   padding-left: 1.5%;
   color: var(--accent); /* Accent color for user icon */
 }
+
 .content {
   flex: 1;
   padding: 0;
@@ -261,19 +250,24 @@ body {
   flex-direction: column;
   min-height: 0;
 }
+
 #calendar {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
   padding: 1rem;
 }
+
 /* Remove margin from .content-header-container if it still exists */
+
 .content-header-container {
   display: none;
 }
+
 .project-preview {
   line-height: 1.7;
 }
+
 #eventsOutput pre {
   background-color: var(--input-bg);
   padding: 1rem;
@@ -283,7 +277,9 @@ body {
   overflow: auto;
   font-size: 0.9rem;
 }
+
 /* --- Стили для формы --- */
+
 #task-form {
   background-color: var(
     --secondary
@@ -300,9 +296,11 @@ body {
   display: none;
   box-shadow: 0 8px 32px 0 rgba(18, 16, 20, 0.85); /* less transparent shadow */
 }
+
 #task-form.visible {
   display: block;
 }
+
 .content.form-open::after {
   content: "";
   position: fixed;
@@ -311,6 +309,7 @@ body {
   z-index: 2000;
   pointer-events: auto;
 }
+
 .close-task-form-btn {
   position: absolute;
   top: 1rem;
@@ -325,9 +324,11 @@ body {
   padding: 0;
   transition: color 0.2s;
 }
+
 .close-task-form-btn:hover {
   color: var(--error-color);
 }
+
 #task-form h3#form-heading {
   margin-top: 0.5rem;
   margin-bottom: 1.5rem;
@@ -338,12 +339,14 @@ body {
   letter-spacing: 0.01em;
   text-shadow: 0 1px 8px rgba(53, 53, 227, 0.08);
 }
+
 .form-group {
   margin-bottom: 1.1rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
+
 #task-form label {
   color: var(--primary-dark);
   font-size: 1rem;
@@ -352,6 +355,7 @@ body {
   margin-bottom: 0.2rem;
   margin-top: 0.1rem;
 }
+
 #task-form input,
 #task-form textarea,
 #task-form select {
@@ -369,12 +373,14 @@ body {
   box-sizing: border-box;
   outline: none;
 }
+
 #task-form input:focus,
 #task-form textarea:focus,
 #task-form select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(53, 53, 227, 0.13);
 }
+
 #task-form textarea {
   resize: vertical;
   min-height: 70px;
@@ -382,6 +388,7 @@ body {
   font-size: 1.02rem;
   line-height: 1.5;
 }
+
 #task-form select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -390,15 +397,18 @@ body {
   background-size: 1em;
   padding-right: 2.2em;
 }
+
 .time-inputs {
   display: flex;
   gap: 1rem;
   align-items: flex-end;
 }
+
 .time-inputs .form-group {
   flex: 1;
   margin-bottom: 0;
 }
+
 .time-inputs .all-day-group {
   flex: 0 0 auto;
   margin-left: 1rem;
@@ -406,6 +416,7 @@ body {
   align-self: flex-end;
   padding-bottom: 0.5rem;
 }
+
 #task-form input[type="checkbox"] {
   accent-color: var(--accent);
   width: 1.1em;
@@ -414,23 +425,27 @@ body {
   vertical-align: middle;
   cursor: pointer;
 }
+
 #task-form input[type="time"][disabled] {
   background-color: #444 !important;
   color: #bbb !important;
   cursor: not-allowed;
   opacity: 0.7;
 }
+
 .form-group > label {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
+
 .form-buttons {
   display: flex;
   gap: 0.7rem;
   margin-top: 1.2rem;
   justify-content: space-between;
 }
+
 #task-form button[type="submit"] {
   flex: 1 1 50%;
   padding: 0.85rem 0;
@@ -444,6 +459,7 @@ body {
   transition: background 0.2s, box-shadow 0.2s;
   box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.1);
 }
+
 #task-form button[type="submit"]:hover {
   background: linear-gradient(
     90deg,
@@ -451,6 +467,7 @@ body {
     var(--secondary-accent-hover)
   );
 }
+
 #delete-button {
   background-color: var(--error-color);
   color: #fff;
@@ -462,9 +479,11 @@ body {
   transition: background 0.2s;
   box-shadow: 0 2px 8px 0 rgba(255, 107, 107, 0.1);
 }
+
 #delete-button:hover {
   background-color: #d32f2f;
 }
+
 #cancel-button {
   background-color: var(--input-bg);
   color: var(--text-light);
@@ -475,12 +494,15 @@ body {
   padding: 0.85rem 0.9rem;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
+
 #cancel-button:hover {
   background-color: var(--accent);
   color: #fff;
   border-color: var(--accent);
 }
+
 /* --- Category Group Styles --- */
+
 .category-group {
   list-style: none;
   padding: 0;
@@ -488,6 +510,7 @@ body {
   border-radius: 6px;
   /* Remove overflow from here */
 }
+
 .category-item {
   padding: 10px 15px; /* Consistent padding with sidebar-btn */
   background: transparent; /* Transparent background */
@@ -505,6 +528,7 @@ body {
   min-height: 40px; /* override any previous min-height */
   height: 40px;
 }
+
 .sidebar-btn,
 .category-item {
   display: flex;
@@ -526,6 +550,7 @@ body {
   height: 40px; /* Force same height for all */
   line-height: 1.2;
 }
+
 .sidebar-btn i,
 .category-item i {
   width: 20px;
@@ -533,33 +558,43 @@ body {
   color: var(--accent);
   transition: color 0.2s;
 }
+
 /* Unified hover style */
+
 .sidebar-btn:hover,
 .category-item:hover {
   background-color: var(--input-bg);
   color: var(--accent);
 }
+
 .sidebar-btn:hover i,
 .category-item:hover i {
   color: var(--accent);
 }
+
 /* Unified active/highlighted style */
+
 .sidebar-btn.active,
 .category-item.active {
   background: var(--accent);
   color: #fff !important;
   font-weight: bold;
 }
+
 .sidebar-btn.active i,
 .category-item.active i {
   color: #fff !important;
 }
+
 /* Remove duplicate/old .category-item styles */
+
 .category-item {
   justify-content: space-between;
   /* Remove any conflicting or duplicate rules here */
 }
+
 /* --- Лоадер --- */
+
 .loader {
   position: fixed;
   top: 0;
@@ -572,6 +607,7 @@ body {
   justify-content: center;
   z-index: 1000;
 }
+
 .spinner {
   width: 50px;
   height: 50px;
@@ -580,12 +616,15 @@ body {
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
+
 /* --- Адаптивность --- */
+
 @media (max-width: 768px) {
   .main {
     flex-direction: column;
@@ -615,6 +654,7 @@ body {
     max-height: 120px;
   }
 }
+
 @media (max-width: 480px) {
   .time-inputs {
     flex-direction: column;
@@ -645,20 +685,25 @@ body {
     padding: 10px 15px;
   }
 }
+
 /* --- Utility Classes --- */
+
 .hidden {
   display: none;
 }
+
 .completed-task {
   background-color: #d3d3d3 !important;
   text-decoration: line-through;
   opacity: 0.7;
 }
+
 .api-error-message {
   color: var(--error-color);
   font-weight: bold;
   padding: 5px 0;
 }
+
 .delete-category-btn {
   background: transparent;
   border: none;
@@ -670,16 +715,19 @@ body {
   align-items: center;
   transition: background 0.2s, color 0.2s;
 }
+
 .delete-category-btn i {
   font-size: 1.1rem;
   color: var(--accent); /* Accent color for trash icon */
   transition: color 0.2s;
 }
+
 .delete-category-btn:hover,
 .delete-category-btn:focus {
   background: rgba(255, 107, 107, 0.08);
   color: #fff;
 }
+
 .categories-scroll-wrapper {
   max-height: 280px;
   overflow-y: auto;
@@ -688,27 +736,34 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--accent) var(--input-bg);
 }
+
 /* Webkit scrollbar styles */
+
 .categories-scroll-wrapper::-webkit-scrollbar {
   width: 8px;
   background: var(--input-bg);
   border-radius: 6px;
 }
+
 .categories-scroll-wrapper::-webkit-scrollbar-thumb {
   background: var(--accent);
   border-radius: 6px;
 }
+
 .categories-scroll-wrapper::-webkit-scrollbar-thumb:hover {
   background: var(--accent-hover);
 }
+
 #add-new-category-btn,
 #new-category-form {
   /* Ensure these are not inside the scrollable area */
   margin-bottom: 0.5rem;
 }
+
 #task-form .form-group.hide-completed-checkbox {
   display: none !important;
 }
+
 #btn-add-task.sidebar-btn {
   background: linear-gradient(90deg, var(--accent), var(--secondary-accent));
   color: #fff;
@@ -727,7 +782,9 @@ body {
   min-height: 40px;
   height: 40px;
 }
+
 /* --- FullCalendar Theme: Dark Integration --- */
+
 .fc {
   --fc-page-bg-color: var(--secondary);
   --fc-neutral-bg-color: var(--primary);
@@ -747,6 +804,7 @@ body {
   --fc-list-event-dot-height: 10px;
   --fc-list-event-dot-border-radius: 50%;
 }
+
 .fc {
   background: var(--secondary);
   color: var(--text-light);
@@ -754,6 +812,7 @@ body {
   font-family: "Roboto", sans-serif;
   font-size: 1rem;
 }
+
 .fc .fc-toolbar {
   background: var(--secondary);
   color: var(--text-light);
@@ -761,29 +820,35 @@ body {
   padding: 0.5rem 1rem;
   border-bottom: none; /* Remove toolbar border */
 }
+
 .fc .fc-scrollgrid {
   border-radius: 1rem;
   border: none !important; /* Remove grid border around calendar main part */
 }
+
 .fc .fc-popover {
   background: var(--secondary);
   color: var(--text-light);
   border: none; /* Remove popover border */
   border-radius: 8px;
 }
+
 .fc .fc-popover-header {
   background: var(--secondary);
   color: var(--text-light);
   border-bottom: none; /* Remove popover header border */
 }
+
 .fc .fc-list-table td,
 .fc .fc-list-table th {
   border: none;
 }
+
 .fc .fc-list-table tr {
   border-radius: 6px;
   overflow: hidden;
 }
+
 .fc .fc-daygrid-day,
 .fc .fc-timegrid-slot,
 .fc .fc-list-table tr {
@@ -791,6 +856,7 @@ body {
   color: var(--text-light);
   border: none; /* Remove cell borders */
 }
+
 .fc .fc-button {
   background: var(--accent);
   color: #fff;
@@ -802,25 +868,30 @@ body {
   margin: 0 2px;
   padding: 0.5em 1.1em;
 }
+
 .fc .fc-button:hover,
 .fc .fc-button:focus {
   background: var(--accent-hover);
   color: #fff;
 }
+
 .fc .fc-button.fc-button-active {
   background: var(--secondary-accent);
   color: #fff;
 }
+
 .fc .fc-daygrid-day,
 .fc .fc-timegrid-slot,
 .fc .fc-list-table tr {
   background: var(--secondary);
   color: var(--text-light);
 }
+
 .fc .fc-daygrid-day.fc-day-today,
 .fc .fc-timegrid-col.fc-day-today {
   background: rgba(53, 53, 227, 0.12);
 }
+
 .fc .fc-list-event {
   background: var(--secondary);
   color: var(--text-light);
@@ -828,12 +899,15 @@ body {
   transition: background 0.2s;
   border: none;
 }
+
 .fc .fc-list-event:hover {
   background: var(--input-bg);
 }
+
 .fc .fc-list-event-dot {
   background: var(--accent);
 }
+
 .fc .fc-event,
 .fc .fc-list-event-title a {
   color: #fff;
@@ -843,6 +917,7 @@ body {
   font-weight: 500;
   padding: 2px 8px;
 }
+
 .fc .fc-event.completed-task,
 .fc .fc-list-event.completed-task {
   background: #d3d3d3 !important;
@@ -850,157 +925,198 @@ body {
   text-decoration: line-through;
   opacity: 0.7;
 }
+
 .fc .fc-popover {
   background: var(--secondary);
   color: var(--text-light);
   border: 1.5px solid var(--border-color);
   border-radius: 8px;
 }
+
 .fc .fc-popover-header {
   background: var(--secondary);
   color: var(--text-light);
   border-bottom: 1px solid var(--border-color);
 }
+
 .fc .fc-popover-close {
   color: var(--accent);
 }
+
 .fc .fc-scrollgrid {
   border-radius: 1rem;
   border: 1.5px solid var(--border-color);
 }
+
 .fc .fc-col-header-cell-cushion,
 .fc .fc-daygrid-day-number {
   color: var(--primary-dark);
   font-weight: 600;
 }
+
 .fc .fc-list-empty {
   color: var(--primary-dark);
   background: var(--secondary);
 }
+
 .fc .fc-list-day-cushion {
   background: var(--primary);
   color: var(--accent);
   font-weight: bold;
   border-radius: 6px;
 }
+
 .fc .fc-list-event-title {
   color: var(--text-light);
 }
+
 .fc .fc-list-event-time {
   color: var(--primary-dark);
 }
+
 .fc .fc-list-event-graphic {
   margin-right: 0.5em;
 }
+
 .fc .fc-daygrid-event-dot {
   background: var(--accent);
 }
+
 .fc .fc-daygrid-event {
   border-radius: 6px;
   padding: 2px 6px;
 }
+
 .fc .fc-daygrid-block-event .fc-event-title {
   color: #fff;
 }
+
 .fc .fc-highlight {
   background: var(--accent-hover);
   opacity: 0.15;
 }
+
 .fc .fc-bg-event {
   opacity: 0.25;
 }
+
 .fc .fc-timegrid-axis-cushion {
   color: var(--primary-dark);
 }
+
 .fc .fc-timegrid-slot-label {
   color: var(--primary-dark);
 }
+
 .fc .fc-daygrid-day-top {
   color: var(--primary-dark);
 }
+
 .fc .fc-daygrid-day-number {
   color: var(--primary-dark);
 }
+
 .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
   color: var(--accent);
 }
+
 .fc .fc-list-event-title a {
   color: #fff;
   text-decoration: none;
 }
+
 .fc .fc-list-event-title a:hover {
   color: var(--accent);
   text-decoration: underline;
 }
+
 .fc .fc-list-event-dot {
   background: var(--accent);
 }
+
 .fc .fc-list-event.completed-task {
   background: #d3d3d3 !important;
   color: #222 !important;
   text-decoration: line-through;
   opacity: 0.7;
 }
+
 .fc .fc-daygrid-day-frame {
   border-radius: 0.5rem;
   box-shadow: none;
   border: none !important; /* Ensure border is removed */
 }
+
 .fc .fc-daygrid-day.fc-day-today {
   border-radius: 0.5rem;
   /* Remove highlight border */
   box-shadow: none;
   border: none;
 }
+
 .fc .fc-daygrid-day.fc-day-past {
   opacity: 0.6;
 }
+
 .fc .fc-daygrid-day.fc-day-future {
   opacity: 1;
 }
+
 .fc .fc-daygrid-day.fc-day-other {
   background: var(--primary);
   color: var(--secondary-dark);
   opacity: 0.5;
 }
+
 .fc .fc-daygrid-day-events {
   margin-top: 2px;
 }
+
 .fc .fc-daygrid-event {
   margin-bottom: 2px;
 }
+
 .fc .fc-daygrid-event-dot {
   margin-right: 4px;
 }
+
 .fc .fc-list-event-dot {
   margin-right: 8px;
 }
+
 .fc .fc-list-event-title {
   font-size: 1rem;
 }
+
 .fc .fc-list-event-time {
   font-size: 0.95rem;
 }
+
 .fc .fc-list-day-cushion {
   font-size: 1.05rem;
   padding: 0.5em 1em;
 }
+
 .fc .fc-list-table td,
 .fc .fc-list-table th {
   border: none;
 }
+
 .fc .fc-list-table tr {
   border-radius: 6px;
   overflow: hidden;
 }
+
 .fc .fc-list-event {
   margin-bottom: 4px;
 }
+
 .fc .fc-list-empty {
   padding: 1.5em 0;
   text-align: center;
   font-size: 1.1rem;
 }
+
 .fc .fc-toolbar-chunk .fc-button {
   margin-right: 0.5em;
 }

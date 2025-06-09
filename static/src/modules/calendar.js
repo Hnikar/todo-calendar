@@ -144,8 +144,7 @@ export const Todo = (() => {
             // Do not show loader for drag/drop update
             await ApiService.updateTask(
               event.id,
-              updatedData,
-              { skipLoader: true }
+              updatedData
             );
             allTasks = allTasks.map((t) =>
               t.id === event.id ? updatedData : t

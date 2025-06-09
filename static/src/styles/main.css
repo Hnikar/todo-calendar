@@ -747,8 +747,71 @@ body {
 
 #add-new-category-btn,
 #new-category-form {
-  /* Ensure these are not inside the scrollable area */
   margin-bottom: 0.5rem;
+}
+
+#new-category-form,
+.new-category-form {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 12px 10px 12px;
+  background-color: var(--secondary);
+  height: 10rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px 0 rgba(53, 53, 227, 0.08);
+  animation: fadeIn 0.2s;
+}
+
+#new-category-form input[type="text"],
+#new-category-form input[type="color"],
+.new-category-form input[type="text"],
+.new-category-form input[type="color"] {
+  width: 100%;
+  padding: 7px 10px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  color: var(--text-light);
+  font-size: 1rem;
+  margin-bottom: 4px;
+  transition: border-color 0.2s;
+}
+
+input[type="color"] {
+  height: 100%;
+}
+
+#new-category-form input[type="text"]:focus,
+#new-category-form input[type="color"]:focus,
+.new-category-form input[type="text"]:focus,
+.new-category-form input[type="color"]:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#new-category-form button,
+.new-category-form button {
+  width: 100%;
+  padding: 8px 0;
+  margin-top: 6px;
+  background-color: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 1px 4px 0 rgba(53, 53, 227, 0.08);
+}
+
+#new-category-form button:hover,
+.new-category-form button:hover {
+  background-color: var(--accent-hover);
 }
 
 #task-form .form-group.hide-completed-checkbox {
@@ -774,14 +837,336 @@ body {
   height: 40px;
 }
 
-#btn-add-task.sidebar-btn:hover,
-#btn-add-task.sidebar-btn.active,
-#btn-add-task.sidebar-btn:focus {
-  background: linear-gradient(
-    90deg,
-    var(--accent-hover),
-    var(--secondary-accent-hover)
-  );
+/* --- FullCalendar Theme: Dark Integration --- */
+.fc {
+  --fc-page-bg-color: var(--secondary);
+  --fc-neutral-bg-color: var(--primary);
+  --fc-border-color: transparent; /* Remove most borders */
+  --fc-button-bg-color: var(--accent);
+  --fc-button-border-color: var(--accent);
+  --fc-button-hover-bg-color: var(--accent-hover);
+  --fc-button-hover-border-color: var(--accent-hover);
+  --fc-button-active-bg-color: var(--secondary-accent);
+  --fc-button-active-border-color: var(--secondary-accent);
+  --fc-event-bg-color: var(--accent);
+  --fc-event-border-color: var(--accent);
+  --fc-event-text-color: #fff;
+  --fc-today-bg-color: rgba(53, 53, 227, 0.12);
+  --fc-list-event-hover-bg-color: var(--input-bg);
+  --fc-list-event-dot-width: 10px;
+  --fc-list-event-dot-height: 10px;
+  --fc-list-event-dot-border-radius: 50%;
+}
+
+.fc {
+  background: var(--secondary);
+  color: var(--text-light);
+  border-radius: 1rem;
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+}
+
+.fc .fc-toolbar {
+  background: var(--secondary);
+  color: var(--text-light);
+  border-radius: 1rem 1rem 0 0;
+  padding: 0.5rem 1rem;
+  border-bottom: none; /* Remove toolbar border */
+}
+
+.fc .fc-scrollgrid {
+  border-radius: 1rem;
+  border: none !important; /* Remove grid border around calendar main part */
+}
+
+.fc .fc-popover {
+  background: var(--secondary);
+  color: var(--text-light);
+  border: none; /* Remove popover border */
+  border-radius: 8px;
+}
+
+.fc .fc-popover-header {
+  background: var(--secondary);
+  color: var(--text-light);
+  border-bottom: none; /* Remove popover header border */
+}
+
+.fc .fc-list-table td,
+.fc .fc-list-table th {
+  border: none;
+}
+
+.fc .fc-list-table tr {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.fc .fc-daygrid-day,
+.fc .fc-timegrid-slot,
+.fc .fc-list-table tr {
+  background: var(--secondary);
+  color: var(--text-light);
+  border: none; /* Remove cell borders */
+}
+
+.fc .fc-button {
+  background: var(--accent);
   color: #fff;
-  box-shadow: 0 4px 16px 0 rgba(53, 53, 227, 0.18);
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: none;
+  margin: 0 2px;
+  padding: 0.5em 1.1em;
+}
+.fc .fc-button:hover,
+.fc .fc-button:focus {
+  background: var(--accent-hover);
+  color: #fff;
+}
+.fc .fc-button.fc-button-active {
+  background: var(--secondary-accent);
+  color: #fff;
+}
+
+.fc .fc-daygrid-day,
+.fc .fc-timegrid-slot,
+.fc .fc-list-table tr {
+  background: var(--secondary);
+  color: var(--text-light);
+}
+
+.fc .fc-daygrid-day.fc-day-today,
+.fc .fc-timegrid-col.fc-day-today {
+  background: rgba(53, 53, 227, 0.12);
+}
+
+.fc .fc-list-event {
+  background: var(--secondary);
+  color: var(--text-light);
+  border-radius: 6px;
+  transition: background 0.2s;
+  border: none;
+}
+.fc .fc-list-event:hover {
+  background: var(--input-bg);
+}
+
+.fc .fc-list-event-dot {
+  background: var(--accent);
+}
+
+.fc .fc-event,
+.fc .fc-list-event-title a {
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 2px 8px;
+}
+
+.fc .fc-event.completed-task,
+.fc .fc-list-event.completed-task {
+  background: #d3d3d3 !important;
+  color: #222 !important;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.fc .fc-popover {
+  background: var(--secondary);
+  color: var(--text-light);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.fc .fc-popover-header {
+  background: var(--secondary);
+  color: var(--text-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.fc .fc-popover-close {
+  color: var(--accent);
+}
+
+.fc .fc-scrollgrid {
+  border-radius: 1rem;
+  border: 1.5px solid var(--border-color);
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.fc .fc-list-empty {
+  color: var(--primary-dark);
+  background: var(--secondary);
+}
+
+.fc .fc-list-day-cushion {
+  background: var(--primary);
+  color: var(--accent);
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+.fc .fc-list-event-title {
+  color: var(--text-light);
+}
+
+.fc .fc-list-event-time {
+  color: var(--primary-dark);
+}
+
+.fc .fc-list-event-graphic {
+  margin-right: 0.5em;
+}
+
+.fc .fc-daygrid-event-dot {
+  background: var(--accent);
+}
+
+.fc .fc-daygrid-event {
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.fc .fc-daygrid-block-event .fc-event-title {
+  color: #fff;
+}
+
+.fc .fc-highlight {
+  background: var(--accent-hover);
+  opacity: 0.15;
+}
+
+.fc .fc-bg-event {
+  opacity: 0.25;
+}
+
+.fc .fc-timegrid-axis-cushion {
+  color: var(--primary-dark);
+}
+
+.fc .fc-timegrid-slot-label {
+  color: var(--primary-dark);
+}
+
+.fc .fc-daygrid-day-top {
+  color: var(--primary-dark);
+}
+
+.fc .fc-daygrid-day-number {
+  color: var(--primary-dark);
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  color: var(--accent);
+}
+
+.fc .fc-list-event-title a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.fc .fc-list-event-title a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.fc .fc-list-event-dot {
+  background: var(--accent);
+}
+
+.fc .fc-list-event.completed-task {
+  background: #d3d3d3 !important;
+  color: #222 !important;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.fc .fc-daygrid-day-frame {
+  border-radius: 0.5rem;
+  box-shadow: none;
+  border: none !important; /* Ensure border is removed */
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  border-radius: 0.5rem;
+  /* Remove highlight border */
+  box-shadow: none;
+  border: none;
+}
+
+.fc .fc-daygrid-day.fc-day-past {
+  opacity: 0.6;
+}
+
+.fc .fc-daygrid-day.fc-day-future {
+  opacity: 1;
+}
+
+.fc .fc-daygrid-day.fc-day-other {
+  background: var(--primary);
+  color: var(--secondary-dark);
+  opacity: 0.5;
+}
+
+.fc .fc-daygrid-day-events {
+  margin-top: 2px;
+}
+
+.fc .fc-daygrid-event {
+  margin-bottom: 2px;
+}
+
+.fc .fc-daygrid-event-dot {
+  margin-right: 4px;
+}
+
+.fc .fc-list-event-dot {
+  margin-right: 8px;
+}
+
+.fc .fc-list-event-title {
+  font-size: 1rem;
+}
+
+.fc .fc-list-event-time {
+  font-size: 0.95rem;
+}
+
+.fc .fc-list-day-cushion {
+  font-size: 1.05rem;
+  padding: 0.5em 1em;
+}
+
+.fc .fc-list-table td,
+.fc .fc-list-table th {
+  border: none;
+}
+
+.fc .fc-list-table tr {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.fc .fc-list-event {
+  margin-bottom: 4px;
+}
+
+.fc .fc-list-empty {
+  padding: 1.5em 0;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.fc .fc-toolbar-chunk .fc-button {
+  margin-right: 0.5em;
 }

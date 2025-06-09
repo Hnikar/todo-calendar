@@ -52,7 +52,7 @@ export const Todo = (() => {
       // Calendar initialization
       const calendarEl = document.getElementById("calendar");
       const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "listWeek", // Set initial view to Upcoming
+        initialView: "dayGridMonth", // Set initial view to Calendar
         editable: true,
         selectable: false,
         selectMirror: true,
@@ -178,8 +178,8 @@ export const Todo = (() => {
         if (activeBtn) activeBtn.classList.add("active");
       }
 
-      // Highlight Upcoming button on load
-      setActiveSidebarButton(btnUpcoming);
+      // Highlight Calendar button on load
+      setActiveSidebarButton(btnCalendar);
 
       if (btnCalendar) {
         btnCalendar.addEventListener("click", () => {
@@ -486,7 +486,7 @@ export const Todo = (() => {
       // Hide header on initial load if in listWeek (Upcoming)
       setTimeout(() => {
         const fcHeader = document.querySelector(".fc-header-toolbar");
-        if (fcHeader) fcHeader.style.display = "none";
+        if (fcHeader) fcHeader.style.display = "";
       }, 100);
     });
   }

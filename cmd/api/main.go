@@ -27,11 +27,13 @@ var db *gorm.DB
 var jwtSecret []byte
 
 type CreateCategoryRequest struct {
-	Name string `json:"name" binding:"required,min=1,max=100"`
+	Name  string `json:"name" binding:"required,min=1,max=100"`
+	Color string `json:"color" binding:"required"`
 }
 type CategoryResponse struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID    uint   `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
 }
 
 type EventResponse struct {
@@ -89,10 +91,7 @@ func main() {
 
 	router := gin.Default()
 
-	// Middleware
 	router.Use(corsMiddleware())
-
-	//router.Static("/assets", "./static/dist/assets")
 
 	router.GET("/main.js", func(c *gin.Context) {
 		c.File("./static/dist/main.js")
@@ -131,7 +130,6 @@ func initDatabase() {
 	log.Println("Database migrations successful.")
 }
 
-// createCategoryHandler создает новую категорию для текущего пользователя
 func createCategoryHandler(c *gin.Context) {
 	userID := c.MustGet("user_id").(uint)
 
@@ -143,10 +141,10 @@ func createCategoryHandler(c *gin.Context) {
 
 	category := models.Category{
 		UserID: userID,
-		Name:   req.Name, // Валидация GORM/индекс БД проверят уникальность имени для юзера
+		Name:   req.Name,
+		Color:  req.Color,
 	}
 
-	// Пытаемся создать категорию
 	result := db.Create(&category)
 	if result.Error != nil {
 		if strings.Contains(result.Error.Error(), "UNIQUE constraint failed") {
@@ -159,8 +157,9 @@ func createCategoryHandler(c *gin.Context) {
 	}
 
 	response := CategoryResponse{
-		ID:   category.ID,
-		Name: category.Name,
+		ID:    category.ID,
+		Name:  category.Name,
+		Color: category.Color,
 	}
 	c.JSON(http.StatusCreated, response)
 }
@@ -172,7 +171,6 @@ func MapEventToResponse(event *models.Event, categoryName *string) EventResponse
 		startStr = event.StartTime.Format(dateOnlyFormat)
 		endStr = event.EndTime.Format(dateOnlyFormat)
 	} else {
-		// Для событий со временем возвращаем дату и время
 		startStr = event.StartTime.Format(dateTimeFormat)
 		endStr = event.EndTime.Format(dateTimeFormat)
 	}
@@ -234,7 +232,6 @@ func getCategoryNameByID(tx *gorm.DB, categoryID *uint, userID uint) (*string, e
 	return &category.Name, nil
 }
 
-// getCategoriesHandler возвращает список категорий текущего пользователя
 func getCategoriesHandler(c *gin.Context) {
 	userID := c.MustGet("user_id").(uint)
 
@@ -248,18 +245,18 @@ func getCategoriesHandler(c *gin.Context) {
 	response := make([]CategoryResponse, len(categories))
 	for i, cat := range categories {
 		response[i] = CategoryResponse{
-			ID:   cat.ID,
-			Name: cat.Name,
+			ID:    cat.ID,
+			Name:  cat.Name,
+			Color: cat.Color,
 		}
 	}
 
 	c.JSON(http.StatusOK, response)
 }
 
-// deleteCategoryHandler удаляет категорию по ID для текущего пользователя
 func deleteCategoryHandler(c *gin.Context) {
 	userID := c.MustGet("user_id").(uint)
-	categoryID := c.Param("id") // Получаем ID из URL
+	categoryID := c.Param("id")
 
 	tx := db.Begin()
 	if tx.Error != nil {
@@ -270,7 +267,7 @@ func deleteCategoryHandler(c *gin.Context) {
 
 	updateResult := tx.Model(&models.Event{}).
 		Where("category_id = ? AND user_id = ?", categoryID, userID).
-		Update("category_id", nil) // NULL
+		Update("category_id", nil)
 
 	if updateResult.Error != nil {
 		tx.Rollback()
@@ -310,10 +307,9 @@ func setupRoutes(router *gin.Engine, basePath string) {
 		filepath.Join(templateBaseDir, "auth.html"),
 		filepath.Join(templateBaseDir, "index.html"),
 		filepath.Join(templateBaseDir, "landing-page.html"),
-		filepath.Join(templateBaseDir, "404.html"), // <-- Убедись, что он здесь есть
+		filepath.Join(templateBaseDir, "404.html"),
 	)
 
-	// --- Маршруты для страниц ---
 	router.GET("/landing", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "landing-page.html", nil)
 	})
@@ -355,45 +351,38 @@ func setupRoutes(router *gin.Engine, basePath string) {
 		appGroup.GET("/*any", handler)
 	}
 
-	// --- API эндпоинты ---
 	api := router.Group("/api")
 	{
-		// Публичные API аутентификации
 		api.POST("/register", registerHandler)
 		api.POST("/login", loginHandler)
 		api.POST("/logout", logoutHandler)
 
-		// Защищенные API
 		protectedApi := api.Group("")
 		protectedApi.Use(AuthApiMiddleware())
 		{
 			categories := protectedApi.Group("/categories")
 			{
-				categories.POST("", createCategoryHandler)       // POST /api/categories
-				categories.GET("", getCategoriesHandler)         // GET /api/categories
-				categories.DELETE("/:id", deleteCategoryHandler) // DELETE /api/categories/:id
-				// categories.PUT("/:id", updateCategoryHandler) // Если нужно обновление
+				categories.POST("", createCategoryHandler)
+				categories.GET("", getCategoriesHandler)
+				categories.DELETE("/:id", deleteCategoryHandler)
 			}
 
 			events := protectedApi.Group("/events")
 			{
-				events.POST("", createEventHandler)       // POST /api/events
-				events.GET("", getEventsHandler)          // GET /api/events
-				events.GET("/:id", getSingleEventHandler) // GET /api/events/:id
-				events.PUT("/:id", updateEventHandler)    // PUT /api/events/:id
-				events.DELETE("/:id", deleteEventHandler) // DELETE /api/events/:id
-				// events.PATCH("/:id", patchEventHandler) // Если решишь добавить PATCH
+				events.POST("", createEventHandler)
+				events.GET("", getEventsHandler)
+				events.GET("/:id", getSingleEventHandler)
+				events.PUT("/:id", updateEventHandler)
+				events.DELETE("/:id", deleteEventHandler)
 			}
 		}
 	}
 
-	// --- Обработчик 404 ---
 	router.NoRoute(func(c *gin.Context) {
 		acceptHeader := c.Request.Header.Get("Accept")
 		if strings.Contains(acceptHeader, "application/json") {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Resource not found"})
 		} else {
-			// Шаблон "404.html" уже должен быть загружен через LoadHTMLFiles
 			c.HTML(http.StatusNotFound, "404.html", nil)
 		}
 	})
@@ -411,7 +400,6 @@ func startServer(router *gin.Engine) {
 	}
 }
 
-// --- Обработчики аутентификации (registerHandler, loginHandler, logoutHandler) ---
 func registerHandler(c *gin.Context) {
 	type RegisterRequest struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -483,7 +471,7 @@ func loginHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
-	expirationTime := time.Now().Add(time.Hour * 24 * 7) // 7 дней
+	expirationTime := time.Now().Add(time.Hour * 24 * 7)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"name":    user.Name,
@@ -514,7 +502,6 @@ func logoutHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
-// --- Middleware (AuthApiMiddleware, AuthPageMiddleware, corsMiddleware) ---
 func AuthApiMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := getTokenFromHeaderOrCookie(c)
@@ -583,7 +570,7 @@ func AuthPageMiddleware() gin.HandlerFunc {
 
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080") // Или твой порт фронтенда
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
@@ -595,7 +582,6 @@ func corsMiddleware() gin.HandlerFunc {
 	}
 }
 
-// --- Хелперы (getTokenFromHeaderOrCookie, getTokenString, validateToken, getCookieDomain, isSecureCookie) ---
 func getTokenFromHeaderOrCookie(c *gin.Context) (string, error) {
 	tokenString, err := c.Cookie("jwtToken")
 	if err == nil && tokenString != "" {
@@ -662,7 +648,6 @@ func isSecureCookie(c *gin.Context) bool {
 	return strings.HasPrefix(c.Request.Host, "localhost") == false
 }
 
-// --- Обработчики событий (Заглушки - getEventsHandler, createEventHandler) ---
 func getEventsHandler(c *gin.Context) {
 	userID := c.MustGet("user_id").(uint)
 
@@ -743,57 +728,45 @@ func createEventHandler(c *gin.Context) {
 	}
 
 	if isAllDay {
-		// --- Логика для событий "весь день" ---
 		startTime, err = time.Parse(dateOnlyFormat, req.Start)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date format for all-day event '%s': %v. Expected format: %s", req.Start, err, dateOnlyFormat)})
 			return
 		}
-		// Для FullCalendar конец события "весь день" - это начало следующего дня.
-		// Если фронтенд присылает одинаковые start/end, считаем это событием на один день.
-		// Если end не указан или совпадает со start, ставим конец на начало следующего дня.
 		if req.End == "" || req.End == req.Start {
-			endTime = startTime.AddDate(0, 0, 1) // Начало следующего дня
+			endTime = startTime.AddDate(0, 0, 1)
 		} else {
-			// Если указана дата окончания, парсим ее и делаем ее началом следующего дня
 			var endDateParsed time.Time
 			endDateParsed, err = time.Parse(dateOnlyFormat, req.End)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date format for all-day event '%s': %v. Expected format: %s", req.End, err, dateOnlyFormat)})
 				return
 			}
-			// Устанавливаем время на 00:00 и добавляем день, чтобы сделать конец эксклюзивным
 			endTime = endDateParsed.AddDate(0, 0, 1)
 		}
 
-		// Проверяем, что конец не раньше начала (хотя для allDay это менее критично)
 		if endTime.Before(startTime) || endTime.Equal(startTime) {
 			log.Printf("Warning: End date %s is not after start date %s for all-day event creation. Setting end to start+1day.", endTime.Format(dateOnlyFormat), startTime.Format(dateOnlyFormat))
-			endTime = startTime.AddDate(0, 0, 1) // Корректируем, если что-то пошло не так
+			endTime = startTime.AddDate(0, 0, 1)
 		}
-		// У startTime и endTime будет время 00:00:00 UTC после time.Parse
 
 	} else {
-		// --- Логика для событий с указанием времени ---
-		startTime, err = parseDateTime(req.Start) // Ожидает YYYY-MM-DDTHH:mm
+		startTime, err = parseDateTime(req.Start)
 		if err != nil {
-			// Ошибка из parseDateTime уже содержит нужный формат
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid start date/time: %v", err)})
 			return
 		}
-		endTime, err = parseDateTime(req.End) // Ожидает YYYY-MM-DDTHH:mm
+		endTime, err = parseDateTime(req.End)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid end date/time: %v", err)})
 			return
 		}
-		// Для событий со временем, конец должен быть строго после начала
 		if endTime.Before(startTime) || endTime.Equal(startTime) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "End time must be strictly after start time for timed events"})
 			return
 		}
 	}
 
-	// Получение ID категории (логика остается прежней)
 	categoryID, err := getCategoryIDByName(db, req.Category, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -805,13 +778,12 @@ func createEventHandler(c *gin.Context) {
 		isCompleted = *req.Completed
 	}
 
-	// Создание объекта события с уже обработанными startTime, endTime и isAllDay
 	event := models.Event{
 		UserID:      userID,
 		Title:       req.Title,
 		Description: req.Description,
-		StartTime:   startTime, // Содержит 00:00 для allDay или указанное время
-		EndTime:     endTime,   // Содержит начало след. дня для allDay или указанное время
+		StartTime:   startTime,
+		EndTime:     endTime,
 		AllDay:      isAllDay,
 		IsCompleted: isCompleted,
 		Priority:    req.Priority,
@@ -819,16 +791,13 @@ func createEventHandler(c *gin.Context) {
 		CategoryID:  categoryID,
 	}
 
-	// Сохранение в БД
 	if result := db.Create(&event); result.Error != nil {
 		log.Printf("Error creating event for user %d: %v", userID, result.Error)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
 		return
 	}
 
-	// Формирование ответа
 	categoryName, _ := getCategoryNameByID(db, event.CategoryID, userID)
-	// MapEventToResponse теперь правильно форматирует даты для allDay
 	response := MapEventToResponse(&event, categoryName)
 
 	c.JSON(http.StatusCreated, response)

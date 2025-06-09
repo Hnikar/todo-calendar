@@ -599,6 +599,13 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.loader.hide {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .spinner {
@@ -1114,7 +1121,9 @@ input[type="color"] {
 }
 
 .fc .fc-daygrid-day-events {
-  margin-top: 2px;
+  margin: 0 !important;
+  padding: 1rem;
+  min-height: 3rem !important;
 }
 
 .fc .fc-daygrid-event {
@@ -1164,4 +1173,8 @@ input[type="color"] {
 
 .fc .fc-toolbar-chunk .fc-button {
   margin-right: 0.5em;
+}
+
+.fc .fc-timegrid-divider.fc-cell-shaded {
+  display: none !important;
 }

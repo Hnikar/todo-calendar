@@ -52,13 +52,33 @@ export const Todo = (() => {
       // Calendar initialization
       const calendarEl = document.getElementById("calendar");
 
+      // Hide header immediately before calendar is rendered
+      function preHideHeader() {
+        // Hide header and calendar container before render to avoid layout flash
+        const fcHeader = document.querySelector(".fc-header-toolbar");
+        if (fcHeader) fcHeader.style.display = "none";
+        if (calendarEl) calendarEl.style.visibility = "hidden";
+      }
+      preHideHeader();
+
       const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth", // Set initial view to Calendar
+        initialView: "dayGridMonth",
         editable: true,
         selectable: false,
         selectMirror: true,
         dayMaxEvents: true,
         events: [],
+        // Prevent dragging all-day events in week (listWeek) and today (timeGridDay) views
+        eventAllow: function (dropInfo, draggedEvent) {
+          const viewType = calendar.view ? calendar.view.type : "";
+          if (
+            (viewType === "listWeek" || viewType === "timeGridDay") &&
+            draggedEvent.allDay
+          ) {
+            return false;
+          }
+          return true;
+        },
         eventClick: function (info) {
           currentEditingTask = info.event;
           isEditing = true;
@@ -141,24 +161,30 @@ export const Todo = (() => {
                 )
                 .join(" "),
             };
-            // Do not show loader for drag/drop update
-            await ApiService.updateTask(
+            const updatedTask = await ApiService.updateTask(
               event.id,
               updatedData
             );
+            // Update allTasks with the new data
             allTasks = allTasks.map((t) =>
-              t.id === event.id ? updatedData : t
+              t.id === event.id ? updatedTask : t
             );
+            // Remove and re-add the event to force update in all views
+            const current = calendar.getEventById(event.id);
+            if (current) current.remove();
+            calendar.addEvent(updatedTask);
           } catch (error) {
             info.revert();
             console.error("Failed to update event after drag:", error);
           }
         },
-        viewDidMount: function(arg) {
+        viewDidMount: function (arg) {
           updateCalendarHeaderButtons(arg.view.type);
           // Always force a resize after any view change
           setTimeout(() => {
             calendar.updateSize();
+            // Show calendar after resize to avoid flash
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         },
       });
@@ -167,12 +193,13 @@ export const Todo = (() => {
       async function initializeCalendar() {
         try {
           const tasks = await ApiService.fetchTasks();
-          allTasks = tasks; // Save all tasks for filtering
+          allTasks = tasks;
           tasks.forEach((task) => calendar.addEvent(task));
           calendar.render();
-          // Force correct size after initial render
+          // Force correct size and show after initial render
           setTimeout(() => {
             calendar.updateSize();
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         } catch (error) {
           console.error("Failed to fetch tasks:", error);
@@ -204,6 +231,7 @@ export const Todo = (() => {
           );
           setTimeout(() => {
             calendar.updateSize();
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         });
       }
@@ -217,6 +245,7 @@ export const Todo = (() => {
           );
           setTimeout(() => {
             calendar.updateSize();
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         });
       }
@@ -230,6 +259,7 @@ export const Todo = (() => {
           );
           setTimeout(() => {
             calendar.updateSize();
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         });
       }
@@ -244,19 +274,18 @@ export const Todo = (() => {
             (task) => (task.category || "None") === category
           );
           filtered.forEach((task) => calendar.addEvent(task));
-          // Remove .active from all sidebar-btn and category-item, then highlight the category
           document
             .querySelectorAll(".sidebar-btn, .category-item")
             .forEach((btn) => {
               btn.classList.remove("active");
             });
-          // Highlight the correct category item
           const catBtn = Array.from(
             document.querySelectorAll(".category-item")
           ).find((li) => li.textContent.includes(category));
           if (catBtn) catBtn.classList.add("active");
           setTimeout(() => {
             calendar.updateSize();
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         } else {
           calendar.changeView("dayGridMonth");
@@ -264,6 +293,7 @@ export const Todo = (() => {
           setActiveSidebarButton(btnCalendar);
           setTimeout(() => {
             calendar.updateSize();
+            if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         }
       });
@@ -504,6 +534,16 @@ export const Todo = (() => {
           if (nextBtn) nextBtn.style.display = "";
           if (todayBtn) todayBtn.style.display = "";
           rightBtns.forEach((btn) => (btn.style.display = ""));
+        }
+
+        // Remove .fc-scrollgrid-section-header on "today" view (timeGridDay)
+        const sectionHeader = document.querySelector(
+          ".fc-scrollgrid-section-header"
+        );
+        if (viewType === "timeGridDay") {
+          if (sectionHeader) sectionHeader.style.display = "none";
+        } else {
+          if (sectionHeader) sectionHeader.style.display = "";
         }
       }
 

@@ -1,3 +1,4 @@
+import { Loader } from "./loader.js";
 import { DomUtils } from "./domUtils.js";
 
 export const ApiService = (() => {
@@ -5,6 +6,7 @@ export const ApiService = (() => {
 
   async function handleRequest(url, method, data) {
     try {
+      Loader.toggle(true);
       const response = await fetch(`${API_BASE}${url}`, {
         method,
         headers: {
@@ -28,6 +30,8 @@ export const ApiService = (() => {
     } catch (error) {
       DomUtils.showError(error.message);
       throw error;
+    } finally {
+      Loader.toggle(false);
     }
   }
 

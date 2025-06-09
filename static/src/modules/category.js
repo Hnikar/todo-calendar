@@ -144,6 +144,8 @@ export const Category = (() => {
 
         if (name) {
           try {
+            // Log the payload being sent to the backend
+            console.log("Sending category to backend:", { name, color });
             // Add new category via API
             const apiCategory = await ApiService.createCategory({
               name,

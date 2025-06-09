@@ -103,6 +103,9 @@ export const Todo = (() => {
               (c) => c.name === category
             );
             if (cat) {
+              console.log(
+                `Assigning color "${cat.color}" to event "${info.event.title}" (category: "${category}")`
+              );
               info.el.style.borderLeft = `4px solid ${cat.color}`;
             }
           } else {

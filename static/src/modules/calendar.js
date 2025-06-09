@@ -68,6 +68,8 @@ export const Todo = (() => {
         selectMirror: true,
         dayMaxEvents: true,
         events: [],
+        eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false }, // 24-hour format for event times
+        slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: false }, // 24-hour format for time axis in timeGrid views
         // Prevent dragging all-day events in week (listWeek) and today (timeGridDay) views
         eventAllow: function (dropInfo, draggedEvent) {
           const viewType = calendar.view ? calendar.view.type : "";

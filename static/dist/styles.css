@@ -286,7 +286,7 @@ body {
   ); /* use theme variable for solid background */
   padding: 2.25rem 2rem 2rem 2rem;
   border-radius: 1.25rem;
-  max-width: 420px;
+  max-width: 32rem;
   width: 95%;
   position: fixed;
   left: 50%;

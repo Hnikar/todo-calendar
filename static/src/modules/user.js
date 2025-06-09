@@ -1,10 +1,8 @@
-import { Loader } from "./loader.js";
 import { DomUtils } from "./domUtils.js";
 
 export const User = (() => {
   async function logout() {
     console.log("Attempting logout...");
-    Loader.toggle(true);
     try {
       const response = await fetch("/api/logout", {
         method: "POST",
@@ -24,7 +22,6 @@ export const User = (() => {
       );
     } finally {
       localStorage.removeItem("user");
-      Loader.toggle(false);
       window.location.href = "/login";
     }
   }

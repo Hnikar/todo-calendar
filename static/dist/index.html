@@ -1,144 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Todo Calendar</title>
-  <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo Calendar</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="shortcut icon" href="#" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
+  </head>
 
-<body>
-  <main class="main">
-    <nav class="nav" id="nav">
-      <div>
-        <div class="menu">
-          <div class="nav-header">Menu</div>
-          <button class="button-menu" id="mobileMenu" aria-label="Toggle menu">
-            <i class="fa-solid fa-bars"></i>
+  <body>
+    <main class="main">
+      <nav class="sidebar" id="sidebar">
+        <div>
+          <div class="sidebar-menu">
+            <div class="sidebar-menu-title">Menu</div>
+            <button
+              class="button-menu"
+              id="mobileMenu"
+              aria-label="Toggle menu"
+            >
+              <i class="fa-solid fa-bars"></i>
+            </button>
+          </div>
+          <button
+            id="btn-add-task"
+            class="sidebar-btn"
+            style="width: 100%; margin-bottom: 1.2rem"
+          >
+            Add a new Task
+          </button>
+          <div class="tasks-container">
+            <div class="sidebar-section-title">TASKS</div>
+            <div class="sidebar-btn-group">
+              <button class="sidebar-btn" id="btn-upcoming">
+                <i class="fa-solid fa-angles-right"></i>
+                Upcoming
+              </button>
+              <button class="sidebar-btn" id="btn-today">
+                <i class="fas fa-calendar-day"></i>
+                Today
+              </button>
+              <button class="sidebar-btn" id="btn-calendar">
+                <i class="fas fa-calendar-alt"></i>
+                Calendar
+              </button>
+            </div>
+          </div>
+          <!-- Categories Section -->
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">CATEGORIES</div>
+            <div class="categories-scroll-wrapper">
+              <ul class="category-group" id="categories-container">
+                <!-- Categories will be rendered here -->
+              </ul>
+            </div>
+            <li class="category-item add-new" id="add-new-category-btn">
+              <i class="fas fa-plus"></i> Add New Category
+            </li>
+            <!-- Hidden form to create new category -->
+            <li
+              id="new-category-form"
+              class="category-item"
+              style="
+                display: none;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 10px;
+              "
+            >
+              <input
+                type="text"
+                id="new-category-name"
+                placeholder="Category Name"
+                style="width: 100%; padding: 5px"
+              />
+              <input
+                type="color"
+                id="new-category-color"
+                value="#cccccc"
+                style="width: 100%; padding: 5px"
+              />
+              <button id="create-category-btn" style="margin-top: 5px">
+                Create
+              </button>
+            </li>
+          </div>
+        </div>
+
+        <div>
+          <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span id="user-name-display">Loading...</span>
+          </div>
+          <button class="sidebar-btn" id="btn-logout">
+            <i class="fas fa-right-from-bracket"></i>
+            Sign out
           </button>
         </div>
-        <button class="button-default-project" id="btn-upcoming">
-          <i class="fa-solid fa-angles-right"></i>
-          Upcoming
-        </button>
-        <button class="button-default-project" id="btn-today">
-          <i class="fas fa-calendar-day"></i>
-          Today
-        </button>
-        <button class="button-default-project" id="btn-calendar">
-          <i class="fas fa-calendar-alt"></i>
-          Calendar
-        </button>
-<!-- Categories Section -->
-<div class="nav-section">
-  <div class="nav-header">Categories</div>
-  <ul class="category-group" id="categories-container">
-    <li class="category-item add-new" id="add-new-category-btn">
-      <i class="fas fa-plus"></i> Add New Category
-    </li>
-    <!-- Hidden form to create new category -->
-    <li id="new-category-form" class="category-item"
-      style="display: none; flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px;">
-      <input type="text" id="new-category-name" placeholder="Category Name" style="width: 100%; padding: 5px;" />
-      <input type="color" id="new-category-color" value="#cccccc" style="width: 100%; padding: 5px;" />
-      <button id="create-category-btn" style="margin-top: 5px;">Create</button>
-    </li>
-  </ul>
-</div>
-      </div>
-
-      <div>
-        <div class="user-info">
-          <i class="fas fa-user"></i>
-          <span id="user-name-display">Loading...</span>
-        </div>
-        <button class="button-default-project" id="btn-settings">
-          <i class="fas fa-cog"></i>
-          Settings
-        </button>
-        <button class="button-default-project" id="btn-logout">
-          <i class="fas fa-right-from-bracket"></i>
-          Sign out
-        </button>
-      </div>
       </nav>
 
-    <div class="content">
-      <div class="content-header-container">
-        <div class="content-header">Calendar</div>
-        <button id="btn-add-task">Add a new Task</button>
+      <div class="content">
+        <div id="calendar" style="height: 100%; min-height: 0"></div>
+        <!-- Task form moved below .content -->
       </div>
-      <div id='calendar'></div>
-    </div>
-    
-    <form id="task-form">
-      <h3 id="form-heading">Add New Task</h3>
-      <div class="form-group">
-        <label for="title">Task Title</label>
-        <input type="text" id="title" required>
-      </div>
-    
-      <div class="form-group">
-        <label for="taskDate">Date</label>
-        <input type="date" id="taskDate" required>
-      </div>
-    
-      <div class="form-group">
-        <label>
-          <input type="checkbox" id="allDay"> All Day
-        </label>
-      </div>
-      
-      <div id="timeInputs" class="time-inputs">
-        <div class="form-group">
-          <label for="startTime">Start Time</label>
-          <input type="time" id="startTime">
-        </div>
-    
-        <div class="form-group">
-          <label for="endTime">End Time</label>
-          <input type="time" id="endTime">
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" rows="3"></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label for="priority">Priority</label>
-        <select id="priority">
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="category">Category</label>
-        <select id="category">
-          <!-- Categories will be populated from Categories -->
-        </select>
-        </div>
-        <div class="form-group">
-        <label>
-          <input type="checkbox" id="completed"> Completed
-        </label>
-      </div>
-      <div class="form-buttons">
-        <button type="submit" id="submit-button">Add Task</button>
-        <button type="button" id="delete-button" class="hidden">Delete Task</button>
-        <button type="button" id="cancel-button" class="hidden">Cancel</button>
-      </div>
-    </form>
-      
-    <div id="loader" class="loader" style="display: none;">
-      <div class="spinner"></div>
-    </div>
-  </main>
 
-  <script src="./main.js"></script>
-</body>
+      <!-- Task form as popup above everything -->
+      <form id="task-form">
+        <button
+          type="button"
+          id="close-task-form"
+          class="close-task-form-btn"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <h3 id="form-heading">Add New Task</h3>
+        <div class="form-group">
+          <label for="title">Task Title</label>
+          <input type="text" id="title" required />
+        </div>
+        <div class="form-group">
+          <label for="taskDate">Date</label>
+          <input type="date" id="taskDate" required />
+        </div>
+        <div id="timeInputs" class="time-inputs">
+          <div class="form-group">
+            <label for="startTime">Start Time</label>
+            <input type="time" id="startTime" />
+          </div>
+          <div class="form-group">
+            <label for="endTime">End Time</label>
+            <input type="time" id="endTime" />
+          </div>
+          <div
+            class="form-group all-day-group"
+            style="align-self: flex-end; margin-bottom: 0"
+          >
+            <label style="white-space: nowrap">
+              <input type="checkbox" id="allDay" /> All Day
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category">
+            <!-- Categories will be populated from Categories -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label> <input type="checkbox" id="completed" /> Completed </label>
+        </div>
+        <div class="form-buttons">
+          <button type="submit" id="submit-button">Add Task</button>
+          <button type="button" id="delete-button" class="hidden">
+            Delete Task
+          </button>
+          <button type="button" id="cancel-button" class="hidden">
+            Cancel
+          </button>
+        </div>
+      </form>
+
+      <div id="loader" class="loader" style="display: none">
+        <div class="spinner"></div>
+      </div>
+    </main>
+
+    <script src="./main.js"></script>
+  </body>
 </html>

@@ -170,10 +170,11 @@ export const Todo = (() => {
               event.id,
               updatedData
             );
-            // Update allTasks with the new data
-            allTasks = allTasks.map((t) =>
-              t.id === event.id ? updatedTask : t
-            );
+            // Ensure allTasks has only one event per ID (replace old with new)
+            allTasks = [
+              ...allTasks.filter((t) => t.id !== updatedTask.id),
+              updatedTask,
+            ];
             // Remove and re-add the event to force update in all views
             const current = calendar.getEventById(event.id);
             if (current) current.remove();
@@ -275,9 +276,15 @@ export const Todo = (() => {
         calendar.removeAllEvents();
         if (category) {
           calendar.changeView("listYear");
-          const filtered = allTasks.filter(
-            (task) => (task.category || "None") === category
-          );
+          // Only add unique events by ID
+          const filtered = [];
+          const seen = new Set();
+          for (const task of allTasks) {
+            if ((task.category || "None") === category && !seen.has(task.id)) {
+              filtered.push(task);
+              seen.add(task.id);
+            }
+          }
           filtered.forEach((task) => calendar.addEvent(task));
           document
             .querySelectorAll(".sidebar-btn, .category-item")
@@ -294,7 +301,16 @@ export const Todo = (() => {
           }, 0);
         } else {
           calendar.changeView("dayGridMonth");
-          allTasks.forEach((task) => calendar.addEvent(task));
+          // Only add unique events by ID
+          const unique = [];
+          const seen = new Set();
+          for (const task of allTasks) {
+            if (!seen.has(task.id)) {
+              unique.push(task);
+              seen.add(task.id);
+            }
+          }
+          unique.forEach((task) => calendar.addEvent(task));
           setActiveSidebarButton(btnCalendar);
           setTimeout(() => {
             calendar.updateSize();
@@ -491,9 +507,11 @@ export const Todo = (() => {
 
       async function updateTask(data) {
         const updatedTask = await ApiService.updateTask(data.id, data);
-        // Remove old task from allTasks and add updated one
-        allTasks = allTasks.filter((t) => t.id !== data.id);
-        allTasks.push(updatedTask);
+        // Ensure allTasks has only one event per ID (replace old with new)
+        allTasks = [
+          ...allTasks.filter((t) => t.id !== updatedTask.id),
+          updatedTask,
+        ];
         currentEditingTask.remove();
         calendar.addEvent(updatedTask);
         return updatedTask;

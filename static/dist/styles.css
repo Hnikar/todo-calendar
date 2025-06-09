@@ -41,7 +41,6 @@ h6 {
 #__next {
     isolation: isolate;
 }
-/* FullCalendar Dark Theme Integration - extracted from main.css */
 .fc {
   --fc-page-bg-color: var(--secondary);
   --fc-neutral-bg-color: var(--primary);

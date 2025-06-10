@@ -106,7 +106,9 @@ h6 {
 .fc .fc-list-table tr {
   background: var(--secondary);
   color: var(--text-light);
-  border: none;
+}
+.fc .fc-timegrid-slot {
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 .fc .fc-button {
   background: var(--accent);
@@ -318,12 +320,6 @@ h6 {
 }
 .fc .fc-timegrid-divider.fc-cell-shaded {
   display: none !important;
-}
-.fc .fc-timegrid-col {
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
-}
-.fc .fc-timegrid-col:last-child {
-  border-right: none;
 }
 :root {
   --primary-dark: #e3eff2;

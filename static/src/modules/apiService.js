@@ -4,9 +4,10 @@ import { DomUtils } from "./domUtils.js";
 export const ApiService = (() => {
   const API_BASE = "/api";
 
-  async function handleRequest(url, method, data) {
+  async function handleRequest(url, method, data, options = {}) {
+    const { showLoader = true } = options;
     try {
-      Loader.toggle(true);
+      if (showLoader) Loader.toggle(true);
       const response = await fetch(`${API_BASE}${url}`, {
         method,
         headers: {
@@ -30,26 +31,28 @@ export const ApiService = (() => {
       DomUtils.showError(error.message);
       throw error;
     } finally {
-      Loader.toggle(false);
+      if (showLoader) Loader.toggle(false);
     }
   }
 
   return {
-    // Task-related endpoints
-    createTask: (task) => {
+    createTask: (task, options) => {
       const { priority, ...rest } = task;
-      return handleRequest("/events", "POST", rest);
+      return handleRequest("/events", "POST", rest, options);
     },
-    updateTask: (id, task) => {
+    updateTask: (id, task, options) => {
       const { priority, ...rest } = task;
-      return handleRequest(`/events/${id}`, "PUT", rest);
+      return handleRequest(`/events/${id}`, "PUT", rest, options);
     },
-    deleteTask: (id) => handleRequest(`/events/${id}`, "DELETE"),
-    fetchTasks: () => handleRequest("/events", "GET"),
-    // Category-related endpoints
-    createCategory: (category) =>
-      handleRequest("/categories", "POST", category),
-    fetchCategories: () => handleRequest("/categories", "GET"),
-    deleteCategory: (id) => handleRequest(`/categories/${id}`, "DELETE"),
+    deleteTask: (id, options) =>
+      handleRequest(`/events/${id}`, "DELETE", undefined, options),
+    fetchTasks: (options) =>
+      handleRequest("/events", "GET", undefined, options),
+    createCategory: (category, options) =>
+      handleRequest("/categories", "POST", category, options),
+    fetchCategories: (options) =>
+      handleRequest("/categories", "GET", undefined, options),
+    deleteCategory: (id, options) =>
+      handleRequest(`/categories/${id}`, "DELETE", undefined, options),
   };
 })();

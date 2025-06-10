@@ -31,9 +31,32 @@ export const DomUtils = (() => {
     }
   }
 
+  function showFloatingError(message, type = "error") {
+    let floating = document.getElementById("floatingMessage");
+    if (!floating) {
+      floating = document.createElement("div");
+      floating.id = "floatingMessage";
+      document.body.appendChild(floating);
+    }
+    floating.textContent = message;
+    floating.className =
+      type === "success"
+        ? "floating-message success"
+        : "floating-message error";
+    floating.style.display = "block";
+    setTimeout(() => {
+      floating.classList.add("fade-out");
+      setTimeout(() => {
+        floating.style.display = "none";
+        floating.classList.remove("fade-out");
+      }, 1000);
+    }, 3000);
+  }
+
   return {
     clearMessages,
-    showError: (msg) => showMessage(msg, "error"),
-    showSuccess: (msg) => showMessage(msg, "success"),
+    showError: (msg) => showFloatingError(msg, "error"),
+    showSuccess: (msg) => showFloatingError(msg, "success"),
+    showFloatingError,
   };
 })();

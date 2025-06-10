@@ -2,16 +2,12 @@ import { ApiService } from "./apiService.js";
 
 export const Category = (() => {
   let categories = [];
-  let activeCategory = null; // Track the currently selected category
+  let activeCategory = null;
 
-  // Helper functions defined outside DOMContentLoaded
   function renderCategories() {
     const categoriesContainer = document.getElementById("categories-container");
-
     categoriesContainer.innerHTML = "";
-
     categories.forEach((category, index) => {
-      // Ensure category.id is a string for consistency
       const li = document.createElement("li");
       li.className = "category-item";
       if (activeCategory === category.name) {
@@ -19,19 +15,16 @@ export const Category = (() => {
       }
       li.innerHTML = `
           <div class="category-content">
-            <span class="category-color" style="background-color: ${category.color};"></span> 
+            <span class="category-dot" style="background-color:${category.color};"></span>
             <span class="category-name">${category.name}</span>
           </div>
           <button class="delete-category-btn" data-id="${category.id}">
             <i class="fas fa-trash"></i>
           </button>
         `;
-      // Add click event for filtering
       li.addEventListener("click", (e) => {
-        // Prevent click if delete button is clicked
         if (e.target.closest(".delete-category-btn")) return;
         activeCategory = category.name;
-        // Remove .active from all sidebar-btn and category-item
         document
           .querySelectorAll(".sidebar-btn, .category-item")
           .forEach((btn) => {
@@ -39,7 +32,6 @@ export const Category = (() => {
           });
         li.classList.add("active");
         renderCategories();
-        // Dispatch custom event for filtering
         window.dispatchEvent(
           new CustomEvent("categoryFilter", {
             detail: { category: category.name },
@@ -49,11 +41,9 @@ export const Category = (() => {
       categoriesContainer.appendChild(li);
     });
 
-    // Add event listeners to delete buttons
     document.querySelectorAll(".delete-category-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        // Ensure id is treated as a string
         const id = btn.dataset.id;
         console.log("Attempting to delete category with id:", id);
         console.log("Current categories:", categories);
@@ -65,14 +55,10 @@ export const Category = (() => {
   function updateCategorySelect() {
     const categorySelect = document.getElementById("category");
     categorySelect.innerHTML = "";
-
-    // Add "None" option first
     const noneOption = document.createElement("option");
     noneOption.value = "None";
     noneOption.textContent = "None";
     categorySelect.appendChild(noneOption);
-
-    // Add all category options
     categories.forEach((category) => {
       const option = document.createElement("option");
       option.value = category.name;
@@ -82,7 +68,6 @@ export const Category = (() => {
   }
 
   async function deleteCategory(id) {
-    // Convert id to string for consistency
     const index = categories.findIndex(
       (c) => c.id.toString() === id.toString()
     );
@@ -90,15 +75,12 @@ export const Category = (() => {
 
     if (index >= 0) {
       try {
-        // Delete category via API
         await ApiService.deleteCategory(id);
-        // Remove from local state
         categories.splice(index, 1);
         renderCategories();
         updateCategorySelect();
       } catch (error) {
         console.error("Failed to delete category:", error);
-        // Optionally show error message to user
       }
     } else {
       console.error("Category not found with id:", id);
@@ -115,7 +97,6 @@ export const Category = (() => {
       const newCategoryForm = document.getElementById("new-category-form");
       const createCategoryBtn = document.getElementById("create-category-btn");
 
-      // Fetch categories from API
       async function initializeCategories() {
         try {
           categories = await ApiService.fetchCategories();
@@ -124,7 +105,6 @@ export const Category = (() => {
           updateCategorySelect();
         } catch (error) {
           console.error("Failed to fetch categories:", error);
-          // Optionally show error message to user
           renderCategories();
           updateCategorySelect();
         }
@@ -132,7 +112,6 @@ export const Category = (() => {
 
       initializeCategories();
 
-      // Category management
       addNewCategoryBtn.addEventListener("click", () => {
         newCategoryForm.style.display =
           newCategoryForm.style.display === "none" ? "flex" : "none";
@@ -144,9 +123,7 @@ export const Category = (() => {
 
         if (name) {
           try {
-            // Log the payload being sent to the backend
             console.log("Sending category to backend:", { name, color });
-            // Add new category via API
             const apiCategory = await ApiService.createCategory({
               name,
               color,
@@ -155,19 +132,15 @@ export const Category = (() => {
             console.log("Added new category:", apiCategory);
             renderCategories();
             updateCategorySelect();
-
-            // Reset form
             document.getElementById("new-category-name").value = "";
             document.getElementById("new-category-color").value = "#cccccc";
             newCategoryForm.style.display = "none";
           } catch (error) {
             console.error("Failed to create category:", error);
-            // Optionally show error message to user
           }
         }
       });
 
-      // Add a global listener to clear filter when clicking "Calendar" or "Upcoming" or "Today"
       ["btn-calendar", "btn-upcoming", "btn-today"].forEach((id) => {
         const btn = document.getElementById(id);
         if (btn) {

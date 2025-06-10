@@ -1,42 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Authentication - Todo Calendar</title>
-  <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-<div class="auth-container"> <div class="auth-form">
-  <h2>Todo Calendar</h2> <div class="tabs">
-  <button data-mode="login" class="tab active">Login</button>
-  <button data-mode="register" class="tab">Sign Up</button>
-</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Authentication - Todo Calendar</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-form">
+        <h2>Todo Calendar</h2>
+        <div class="tabs">
+          <button data-mode="login" class="tab active">Login</button>
+          <button data-mode="register" class="tab">Sign Up</button>
+        </div>
 
-  <div id="messageContainer"></div>
+        <div id="messageContainer"></div>
 
-  <form id="authForm" novalidate> <div id="nameField" class="form-group hidden"> <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Enter your name" autocomplete="name">
-  </div>
+        <form id="authForm" novalidate>
+          <div id="nameField" class="form-group hidden">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your name"
+              autocomplete="name"
+            />
+          </div>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+
+          <button type="submit" class="button-submit">Continue</button>
+        </form>
+      </div>
+    </div>
+    <div id="loader" class="loader" style="display: none">
+      <div class="spinner"></div>
     </div>
 
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
-    </div>
-
-    <button type="submit" class="button-submit">Continue</button>
-  </form>
-</div>
-</div> <div id="loader" class="loader" style="display: none;">
-  <div class="spinner"></div>
-</div>
-
-<script src="./main.js"></script>
-</body>
+    <script src="./main.js"></script>
+  </body>
 </html>

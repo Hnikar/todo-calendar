@@ -14,18 +14,19 @@
   </head>
 
   <body>
+    <button
+      id="mobileSidebarToggle"
+      aria-label="Open menu"
+      style="display: none"
+    >
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <main class="main">
       <nav class="sidebar" id="sidebar">
         <div>
           <div class="sidebar-menu">
             <div class="sidebar-menu-title">Menu</div>
-            <button
-              class="button-menu"
-              id="mobileMenu"
-              aria-label="Toggle menu"
-            >
-              <i class="fa-solid fa-bars"></i>
-            </button>
           </div>
           <button
             id="btn-add-task"
@@ -51,18 +52,14 @@
               </button>
             </div>
           </div>
-          <!-- Categories Section -->
           <div class="sidebar-section">
             <div class="sidebar-section-title">CATEGORIES</div>
             <div class="categories-scroll-wrapper">
-              <ul class="category-group" id="categories-container">
-                <!-- Categories will be rendered here -->
-              </ul>
+              <ul class="category-group" id="categories-container"></ul>
             </div>
             <li class="category-item add-new" id="add-new-category-btn">
               <i class="fas fa-plus"></i> Add New Category
             </li>
-            <!-- Hidden form to create new category -->
             <li
               id="new-category-form"
               class="category-item"
@@ -107,10 +104,8 @@
 
       <div class="content">
         <div id="calendar" style="height: 100%; min-height: 0"></div>
-        <!-- Task form moved below .content -->
       </div>
 
-      <!-- Task form as popup above everything -->
       <form id="task-form">
         <button
           type="button"
@@ -153,9 +148,7 @@
         </div>
         <div class="form-group">
           <label for="category">Category</label>
-          <select id="category">
-            <!-- Categories will be populated from Categories -->
-          </select>
+          <select id="category"></select>
         </div>
         <div class="form-group">
           <label> <input type="checkbox" id="completed" /> Completed </label>
@@ -177,5 +170,45 @@
     </main>
 
     <script src="./main.js"></script>
+    <script>
+      function isMobile() {
+        return window.matchMedia("(max-width: 768px)").matches;
+      }
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
+      const mobileSidebarToggle = document.getElementById(
+        "mobileSidebarToggle"
+      );
+
+      function updateSidebarMobileState() {
+        if (isMobile()) {
+          mobileSidebarToggle.style.display = "flex";
+          sidebar.classList.remove("open");
+          sidebarOverlay.classList.remove("visible");
+        } else {
+          mobileSidebarToggle.style.display = "none";
+          sidebar.classList.remove("open");
+          sidebarOverlay.classList.remove("visible");
+        }
+      }
+      window.addEventListener("resize", updateSidebarMobileState);
+      document.addEventListener("DOMContentLoaded", () => {
+        updateSidebarMobileState();
+        mobileSidebarToggle.addEventListener("click", () => {
+          sidebar.classList.add("open");
+          sidebarOverlay.classList.add("visible");
+        });
+        sidebarOverlay.addEventListener("click", () => {
+          sidebar.classList.remove("open");
+          sidebarOverlay.classList.remove("visible");
+        });
+        sidebar.addEventListener("click", (e) => {
+          if (isMobile() && e.target.closest(".sidebar-btn, .category-item")) {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("visible");
+          }
+        });
+      });
+    </script>
   </body>
 </html>

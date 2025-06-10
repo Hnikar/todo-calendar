@@ -62,12 +62,20 @@
   overflow: hidden;
 }
 
-.fc .fc-daygrid-day,
+.fc .fc-daygrid-day {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--secondary);
+  color: var(--text-light);
+}
+
 .fc .fc-timegrid-slot,
 .fc .fc-list-table tr {
   background: var(--secondary);
   color: var(--text-light);
-  border: none;
+}
+
+.fc .fc-timegrid-slot {
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .fc .fc-button {
@@ -89,13 +97,6 @@
 .fc .fc-button.fc-button-active {
   background: var(--secondary-accent);
   color: #fff;
-}
-
-.fc .fc-daygrid-day,
-.fc .fc-timegrid-slot,
-.fc .fc-list-table tr {
-  background: var(--secondary);
-  color: var(--text-light);
 }
 
 .fc .fc-daygrid-day.fc-day-today,
@@ -189,7 +190,7 @@
 }
 
 .fc .fc-daygrid-event-dot {
-  background: var(--accent);
+  display: none !important;
 }
 
 .fc .fc-daygrid-event {

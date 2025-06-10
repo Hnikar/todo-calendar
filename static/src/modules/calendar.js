@@ -355,7 +355,7 @@ export const Todo = (() => {
       deleteButton.addEventListener("click", async () => {
         if (currentEditingTask) {
           try {
-            await deleteTask(currentEditingTask.id);
+            await deleteTask(currentEditingTask.id); // <-- Calls deleteTask, which updates allTasks
             currentEditingTask.remove();
             form.reset();
             isEditing = false;
@@ -518,8 +518,17 @@ export const Todo = (() => {
       }
 
       async function deleteTask(id) {
+        console.log("allTasks before delete:", allTasks.map((t) => t.id));
         await ApiService.deleteTask(id);
-        allTasks = allTasks.filter((t) => t.id !== id);
+        // Ensure id comparison is always string-based and update array in place
+        const idStr = String(id);
+        for (let i = allTasks.length - 1; i >= 0; i--) {
+          if (String(allTasks[i].id) === idStr) {
+            allTasks.splice(i, 1);
+          }
+        }
+        console.log("Deleted task id:", id);
+        console.log("allTasks after delete:", allTasks.map((t) => t.id));
       }
 
       // After calendar initialization

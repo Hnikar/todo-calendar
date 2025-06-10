@@ -121,6 +121,7 @@ export const Todo = (() => {
           }
         },
         eventDrop: async function (info) {
+          Loader.toggle(true);
           try {
             const event = info.event;
             let start = event.start;
@@ -190,6 +191,8 @@ export const Todo = (() => {
           } catch (error) {
             info.revert();
             console.error("Failed to update event after drag:", error);
+          } finally {
+            Loader.toggle(false);
           }
         },
         viewDidMount: function (arg) {
@@ -507,22 +510,32 @@ export const Todo = (() => {
       }
 
       async function createTask(data) {
-        const newTask = await ApiService.createTask(data);
-        allTasks.push(newTask);
-        calendar.addEvent(newTask);
-        return newTask;
+        Loader.toggle(true);
+        try {
+          const newTask = await ApiService.createTask(data);
+          allTasks.push(newTask);
+          calendar.addEvent(newTask);
+          return newTask;
+        } finally {
+          Loader.toggle(false);
+        }
       }
 
       async function updateTask(data) {
-        const updatedTask = await ApiService.updateTask(data.id, data);
-        // Ensure allTasks has only one event per ID (replace old with new)
-        allTasks = [
-          ...allTasks.filter((t) => t.id !== updatedTask.id),
-          updatedTask,
-        ];
-        currentEditingTask.remove();
-        calendar.addEvent(updatedTask);
-        return updatedTask;
+        Loader.toggle(true);
+        try {
+          const updatedTask = await ApiService.updateTask(data.id, data);
+          // Ensure allTasks has only one event per ID (replace old with new)
+          allTasks = [
+            ...allTasks.filter((t) => t.id !== updatedTask.id),
+            updatedTask,
+          ];
+          currentEditingTask.remove();
+          calendar.addEvent(updatedTask);
+          return updatedTask;
+        } finally {
+          Loader.toggle(false);
+        }
       }
 
       async function deleteTask(id) {

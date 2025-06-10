@@ -100,17 +100,18 @@ export const Todo = (() => {
             info.el.style.opacity = "0.7";
           }
 
-          // Apply category color
+          // Apply category color to the whole event body
           const category = info.event.extendedProps.category;
           if (category && category !== "None") {
             const cat = Category.getCategories().find(
               (c) => c.name === category
             );
             if (cat) {
-              console.log(
-                `Assigning color "${cat.color}" to event "${info.event.title}" (category: "${category}")`
-              );
+              info.el.style.backgroundColor = cat.color;
               info.el.style.borderLeft = `4px solid ${cat.color}`;
+              // For list views, also set color for .fc-list-event-dot if present
+              const dot = info.el.querySelector(".fc-list-event-dot");
+              if (dot) dot.style.backgroundColor = cat.color;
             }
           } else {
             info.el.style.borderLeft = "4px solid transparent";

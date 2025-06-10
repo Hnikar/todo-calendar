@@ -31,7 +31,6 @@ export const DomUtils = (() => {
     }
   }
 
-  // Create a floating error message container if not present
   function showFloatingError(message, type = "error") {
     let floating = document.getElementById("floatingMessage");
     if (!floating) {

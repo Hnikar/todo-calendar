@@ -36,7 +36,6 @@ export const ApiService = (() => {
   }
 
   return {
-    // Task-related endpoints
     createTask: (task, options) => {
       const { priority, ...rest } = task;
       return handleRequest("/events", "POST", rest, options);
@@ -49,7 +48,6 @@ export const ApiService = (() => {
       handleRequest(`/events/${id}`, "DELETE", undefined, options),
     fetchTasks: (options) =>
       handleRequest("/events", "GET", undefined, options),
-    // Category-related endpoints
     createCategory: (category, options) =>
       handleRequest("/categories", "POST", category, options),
     fetchCategories: (options) =>

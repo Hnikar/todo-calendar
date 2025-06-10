@@ -12,7 +12,7 @@ export const Loader = (() => {
           if (loader.classList.contains("hide")) {
             loader.style.display = "none";
           }
-        }, 300); // match CSS transition duration
+        }, 300);
       }
     }
   }

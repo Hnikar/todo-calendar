@@ -4,7 +4,7 @@ import { Loader } from "./loader.js";
 export const Todo = (() => {
   let currentEditingTask = null;
   let isEditing = false;
-  let allTasks = []; // Store all tasks for filtering
+  let allTasks = [];
 
   if (window.location.pathname === "/app") {
     document.addEventListener("DOMContentLoaded", function () {
@@ -22,12 +22,10 @@ export const Todo = (() => {
       const btnUpcoming = document.getElementById("btn-upcoming");
       const btnToday = document.getElementById("btn-today");
 
-      // Helper to show/hide form and backdrop
       function showForm() {
         form.classList.add("visible");
         content.classList.add("form-open");
         form.style.display = "block";
-        // Always enable time inputs on form open
         document.getElementById("startTime").disabled = false;
         document.getElementById("endTime").disabled = false;
         setTimeout(() => {
@@ -41,7 +39,6 @@ export const Todo = (() => {
         if (addTaskButton) addTaskButton.style.display = "block";
       }
 
-      // Toggle time inputs based on All Day checkbox
       allDayCheckbox.addEventListener("change", () => {
         const isAllDay = allDayCheckbox.checked;
         document.getElementById("startTime").disabled = isAllDay;
@@ -52,12 +49,9 @@ export const Todo = (() => {
         }
       });
 
-      // Calendar initialization
       const calendarEl = document.getElementById("calendar");
 
-      // Hide header immediately before calendar is rendered
       function preHideHeader() {
-        // Hide header and calendar container before render to avoid layout flash
         const fcHeader = document.querySelector(".fc-header-toolbar");
         if (fcHeader) fcHeader.style.display = "none";
         if (calendarEl) calendarEl.style.visibility = "hidden";
@@ -71,13 +65,11 @@ export const Todo = (() => {
         selectMirror: true,
         dayMaxEvents: true,
         events: [],
-        eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false }, // 24-hour format for event times
-        slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: false }, // 24-hour format for time axis in timeGrid views
-        // Show custom message when no events
+        eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
+        slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
         noEventsContent: function () {
           return "No tasks to display";
         },
-        // Prevent dragging all-day events in week (listWeek) and today (timeGridDay) views
         eventAllow: function (dropInfo, draggedEvent) {
           const viewType = calendar.view ? calendar.view.type : "";
           if (
@@ -102,8 +94,6 @@ export const Todo = (() => {
             info.el.style.textDecoration = "line-through";
             info.el.style.opacity = "0.7";
           }
-
-          // Apply category color to the whole event body
           const category = info.event.extendedProps.category;
           if (category && category !== "None") {
             const cat = Category.getCategories().find(
@@ -112,7 +102,6 @@ export const Todo = (() => {
             if (cat) {
               info.el.style.backgroundColor = cat.color;
               info.el.style.borderLeft = `4px solid ${cat.color}`;
-              // For list views, also set color for .fc-list-event-dot if present
               const dot = info.el.querySelector(".fc-list-event-dot");
               if (dot) dot.style.backgroundColor = cat.color;
             }
@@ -125,11 +114,8 @@ export const Todo = (() => {
             const event = info.event;
             let start = event.start;
             let end = event.end;
-
-            // Format start and end as 'YYYY-MM-DDTHH:mm'
             function formatDateTime(dt) {
               if (!dt) return "";
-              // Pad month, day, hour, minute
               const yyyy = dt.getFullYear();
               const mm = String(dt.getMonth() + 1).padStart(2, "0");
               const dd = String(dt.getDate()).padStart(2, "0");
@@ -137,11 +123,8 @@ export const Todo = (() => {
               const min = String(dt.getMinutes()).padStart(2, "0");
               return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
             }
-
             let formattedStart, formattedEnd;
-
             if (event.allDay) {
-              // For allDay, use date only
               formattedStart = event.startStr.slice(0, 10);
               if (event.end) {
                 const endDate = new Date(event.end);
@@ -151,11 +134,9 @@ export const Todo = (() => {
                 formattedEnd = formattedStart;
               }
             } else {
-              // For timed events, use 'YYYY-MM-DDTHH:mm'
               formattedStart = formatDateTime(start);
               formattedEnd = end ? formatDateTime(end) : formattedStart;
             }
-
             const updatedData = {
               id: event.id,
               title: event.title,
@@ -179,12 +160,10 @@ export const Todo = (() => {
               updatedData,
               { showLoader: false }
             );
-            // Ensure allTasks has only one event per ID (replace old with new)
             allTasks = [
               ...allTasks.filter((t) => t.id !== updatedTask.id),
               updatedTask,
             ];
-            // Remove and re-add the event to force update in all views
             const current = calendar.getEventById(event.id);
             if (current) current.remove();
             calendar.addEvent(updatedTask);
@@ -198,7 +177,6 @@ export const Todo = (() => {
             const event = info.event;
             let start = event.start;
             let end = event.end;
-
             function formatDateTime(dt) {
               if (!dt) return "";
               const yyyy = dt.getFullYear();
@@ -208,7 +186,6 @@ export const Todo = (() => {
               const min = String(dt.getMinutes()).padStart(2, "0");
               return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
             }
-
             let formattedStart, formattedEnd;
             if (event.allDay) {
               formattedStart = event.startStr.slice(0, 10);
@@ -223,7 +200,6 @@ export const Todo = (() => {
               formattedStart = formatDateTime(start);
               formattedEnd = end ? formatDateTime(end) : formattedStart;
             }
-
             const updatedData = {
               id: event.id,
               title: event.title,
@@ -261,23 +237,19 @@ export const Todo = (() => {
         },
         viewDidMount: function (arg) {
           updateCalendarHeaderButtons(arg.view.type);
-          // Always force a resize after any view change
           setTimeout(() => {
             calendar.updateSize();
-            // Show calendar after resize to avoid flash
             if (calendarEl) calendarEl.style.visibility = "visible";
           }, 0);
         },
       });
 
-      // Fetch tasks from API and render calendar
       async function initializeCalendar() {
         try {
           const tasks = await ApiService.fetchTasks();
           allTasks = tasks;
           tasks.forEach((task) => calendar.addEvent(task));
           calendar.render();
-          // Force correct size and show after initial render
           setTimeout(() => {
             calendar.updateSize();
             if (calendarEl) calendarEl.style.visibility = "visible";
@@ -289,7 +261,6 @@ export const Todo = (() => {
 
       initializeCalendar();
 
-      // Sidebar button event listeners
       function setActiveSidebarButton(activeBtn) {
         document
           .querySelectorAll(".sidebar-btn, .category-item")
@@ -299,7 +270,6 @@ export const Todo = (() => {
         if (activeBtn) activeBtn.classList.add("active");
       }
 
-      // Highlight Calendar button on load
       setActiveSidebarButton(btnCalendar);
 
       if (btnCalendar) {
@@ -345,13 +315,11 @@ export const Todo = (() => {
         });
       }
 
-      // Listen for category filter event
       window.addEventListener("categoryFilter", (e) => {
         const category = e.detail.category;
         calendar.removeAllEvents();
         if (category) {
           calendar.changeView("listYear");
-          // Only add unique events by ID
           const filtered = [];
           const seen = new Set();
           for (const task of allTasks) {
@@ -376,7 +344,6 @@ export const Todo = (() => {
           }, 0);
         } else {
           calendar.changeView("dayGridMonth");
-          // Only add unique events by ID
           const unique = [];
           const seen = new Set();
           for (const task of allTasks) {
@@ -394,7 +361,6 @@ export const Todo = (() => {
         }
       });
 
-      // Event Listeners
       if (addTaskButton) {
         addTaskButton.addEventListener("click", () => {
           isEditing = false;
@@ -430,7 +396,7 @@ export const Todo = (() => {
       deleteButton.addEventListener("click", async () => {
         if (currentEditingTask) {
           try {
-            await deleteTask(currentEditingTask.id); // <-- Calls deleteTask, which updates allTasks
+            await deleteTask(currentEditingTask.id);
             currentEditingTask.remove();
             form.reset();
             isEditing = false;
@@ -453,7 +419,6 @@ export const Todo = (() => {
         hideForm();
       });
 
-      // Add close (cross) button handler
       if (closeTaskFormBtn) {
         closeTaskFormBtn.addEventListener("click", () => {
           form.reset();
@@ -466,7 +431,6 @@ export const Todo = (() => {
         });
       }
 
-      // Hide form on click outside
       document.addEventListener("mousedown", (e) => {
         if (
           form.classList.contains("visible") &&
@@ -483,10 +447,8 @@ export const Todo = (() => {
         }
       });
 
-      // Hide form initially
       hideForm();
 
-      // Helper functions
       function updateFormUI() {
         if (isEditing) {
           formHeading.textContent = "Edit Task";
@@ -530,9 +492,6 @@ export const Todo = (() => {
 
         document.getElementById("description").value =
           event.extendedProps.description || "";
-        // Remove priority
-        // document.getElementById("priority").value =
-        //   event.extendedProps.priority || "low";
         document.getElementById("category").value =
           event.extendedProps.category || "None";
         document.getElementById("completed").checked =
@@ -562,11 +521,8 @@ export const Todo = (() => {
           end: end,
           allDay: allDay,
           description: document.getElementById("description").value,
-          // Remove priority
-          // priority: document.getElementById("priority").value,
           category: categoryValue === "None" ? null : categoryValue,
           completed: document.getElementById("completed").checked,
-          // Remove priority from className
           className: `${
             document.getElementById("completed").checked ? "completed-task" : ""
           }`,
@@ -582,7 +538,6 @@ export const Todo = (() => {
           calendar.addEvent(newTask);
           return newTask;
         } finally {
-          // Loader.toggle(false); // Remove loader
         }
       }
 
@@ -599,7 +554,6 @@ export const Todo = (() => {
           calendar.addEvent(updatedTask);
           return updatedTask;
         } finally {
-          // Loader.toggle(false); // Remove loader
         }
       }
 
@@ -609,7 +563,6 @@ export const Todo = (() => {
           allTasks.map((t) => t.id)
         );
         await ApiService.deleteTask(id);
-        // Ensure id comparison is always string-based and update array in place
         const idStr = String(id);
         for (let i = allTasks.length - 1; i >= 0; i--) {
           if (String(allTasks[i].id) === idStr) {
@@ -623,11 +576,9 @@ export const Todo = (() => {
         );
       }
 
-      // After calendar initialization
       function updateCalendarHeaderButtons(viewType) {
         const fcHeader = document.querySelector(".fc-header-toolbar");
         if (!fcHeader) return;
-        // Hide header for listWeek (Upcoming), timeGridDay (Today), and listYear (Year)
         if (
           viewType === "listWeek" ||
           viewType === "timeGridDay" ||
@@ -640,7 +591,6 @@ export const Todo = (() => {
         const prevBtn = fcHeader.querySelector(".fc-prev-button");
         const nextBtn = fcHeader.querySelector(".fc-next-button");
         const todayBtn = fcHeader.querySelector(".fc-today-button");
-        // Hide right-side view switchers if present
         const rightBtns = fcHeader.querySelectorAll(
           ".fc-toolbar-chunk:last-child .fc-button"
         );
@@ -659,8 +609,6 @@ export const Todo = (() => {
           if (todayBtn) todayBtn.style.display = "";
           rightBtns.forEach((btn) => (btn.style.display = ""));
         }
-
-        // Remove .fc-scrollgrid-section-header on "today" view (timeGridDay)
         const sectionHeader = document.querySelector(
           ".fc-scrollgrid-section-header"
         );
@@ -675,10 +623,8 @@ export const Todo = (() => {
         updateCalendarHeaderButtons(arg.view.type);
       });
 
-      // Render calendar after DOM is ready and header is hidden
       calendar.render();
 
-      // Hide header on initial load if in listWeek (Upcoming)
       setTimeout(() => {
         const fcHeader = document.querySelector(".fc-header-toolbar");
         if (fcHeader) fcHeader.style.display = "";

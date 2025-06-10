@@ -45,7 +45,6 @@ body {
   flex-direction: column;
 }
 
-/* Prevent selection on most elements */
 body,
 .main,
 .content,
@@ -61,7 +60,6 @@ body,
   -ms-user-select: none;
 }
 
-/* Allow text selection for form fields, buttons, and floating messages */
 input,
 textarea,
 select,

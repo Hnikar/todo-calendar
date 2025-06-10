@@ -27,6 +27,9 @@ export const Todo = (() => {
         form.classList.add("visible");
         content.classList.add("form-open");
         form.style.display = "block";
+        // Always enable time inputs on form open
+        document.getElementById("startTime").disabled = false;
+        document.getElementById("endTime").disabled = false;
         setTimeout(() => {
           form.focus && form.focus();
         }, 0);

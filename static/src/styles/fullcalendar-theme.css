@@ -189,7 +189,7 @@
 }
 
 .fc .fc-daygrid-event-dot {
-  background: var(--accent);
+  display: none !important;
 }
 
 .fc .fc-daygrid-event {

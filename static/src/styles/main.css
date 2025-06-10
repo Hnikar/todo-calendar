@@ -12,8 +12,8 @@
   --secondary-accent-hover: #4b087a;
   --text-light: #f2f2f3;
   --text-dark: #0c0c0d;
-  --error-color: #ff6b6b;
-  --success-color: #4caf50;
+  --error-color: #b45371;
+  --success-color: #75cb57;
   --input-bg: #2a2140;
   --border-color: #4a3f6b;
 }
@@ -600,6 +600,32 @@ input[type="color"] {
 .delete-category-btn:focus {
   background: rgba(255, 107, 107, 0.08);
   color: #fff;
+}
+
+/* FLOATING MESSAGE */
+.floating-message {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: var(--error-color);
+  color: #fff;
+  padding: 1.1em 2.2em;
+  border-radius: 10px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.18);
+  opacity: 1;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  text-align: center;
+}
+.floating-message.success {
+  background: var(--success-color);
+}
+.floating-message.fade-out {
+  opacity: 0;
 }
 
 /* RESPONSIVE */

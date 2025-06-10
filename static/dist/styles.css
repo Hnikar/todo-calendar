@@ -360,6 +360,33 @@ body {
   display: flex;
   flex-direction: column;
 }
+/* Prevent selection on most elements */
+body,
+.main,
+.content,
+.sidebar,
+.sidebar-btn,
+.category-item,
+#calendar,
+.fc,
+.fc * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+/* Allow text selection for form fields, buttons, and floating messages */
+input,
+textarea,
+select,
+button,
+[contenteditable],
+.floating-message {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
 /* MAIN STRUCTURE */
 #calendar {
   height: 70vh;

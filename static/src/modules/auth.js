@@ -28,8 +28,13 @@ export const Auth = (() => {
     const tabs = document.querySelectorAll(".tab");
 
     if (nameField) {
-      nameField.style.display = mode === "register" ? "block" : "none";
-      document.getElementById("name").required = mode === "register";
+      if (mode === "register") {
+        nameField.classList.remove("hidden");
+        document.getElementById("name").required = true;
+      } else {
+        nameField.classList.add("hidden");
+        document.getElementById("name").required = false;
+      }
     }
     tabs.forEach((tab) =>
       tab.classList.toggle("active", tab.dataset.mode === mode)

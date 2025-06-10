@@ -19,7 +19,7 @@ export const Category = (() => {
       }
       li.innerHTML = `
           <div class="category-content">
-            <span class="category-color" style="background-color: ${category.color};"></span> 
+            <span class="category-dot" style="background-color:${category.color};"></span>
             <span class="category-name">${category.name}</span>
           </div>
           <button class="delete-category-btn" data-id="${category.id}">

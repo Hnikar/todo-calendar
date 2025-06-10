@@ -595,6 +595,18 @@ button,
   height: 40px;
   justify-content: space-between;
 }
+.category-content {
+  display: flex;
+  align-items: center;
+}
+.category-dot {
+  display: inline-block !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  margin-right: 1rem !important;
+  margin-left: 2px !important;
+}
 .categories-scroll-wrapper {
   max-height: 280px;
   overflow-y: auto;

@@ -70,6 +70,10 @@ export const Todo = (() => {
         events: [],
         eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false }, // 24-hour format for event times
         slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: false }, // 24-hour format for time axis in timeGrid views
+        // Show custom message when no events
+        noEventsContent: function () {
+          return "No tasks to display";
+        },
         // Prevent dragging all-day events in week (listWeek) and today (timeGridDay) views
         eventAllow: function (dropInfo, draggedEvent) {
           const viewType = calendar.view ? calendar.view.type : "";
@@ -518,7 +522,10 @@ export const Todo = (() => {
       }
 
       async function deleteTask(id) {
-        console.log("allTasks before delete:", allTasks.map((t) => t.id));
+        console.log(
+          "allTasks before delete:",
+          allTasks.map((t) => t.id)
+        );
         await ApiService.deleteTask(id);
         // Ensure id comparison is always string-based and update array in place
         const idStr = String(id);
@@ -528,7 +535,10 @@ export const Todo = (() => {
           }
         }
         console.log("Deleted task id:", id);
-        console.log("allTasks after delete:", allTasks.map((t) => t.id));
+        console.log(
+          "allTasks after delete:",
+          allTasks.map((t) => t.id)
+        );
       }
 
       // After calendar initialization

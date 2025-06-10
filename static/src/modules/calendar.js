@@ -1,6 +1,6 @@
 import { Category } from "./category.js";
 import { ApiService } from "./apiService.js";
-
+import { Loader } from "./loader.js";
 export const Todo = (() => {
   let currentEditingTask = null;
   let isEditing = false;
@@ -121,7 +121,6 @@ export const Todo = (() => {
           }
         },
         eventDrop: async function (info) {
-          Loader.toggle(true);
           try {
             const event = info.event;
             let start = event.start;
@@ -177,7 +176,8 @@ export const Todo = (() => {
             };
             const updatedTask = await ApiService.updateTask(
               event.id,
-              updatedData
+              updatedData,
+              { showLoader: false }
             );
             // Ensure allTasks has only one event per ID (replace old with new)
             allTasks = [
@@ -191,8 +191,72 @@ export const Todo = (() => {
           } catch (error) {
             info.revert();
             console.error("Failed to update event after drag:", error);
-          } finally {
-            Loader.toggle(false);
+          }
+        },
+        eventResize: async function (info) {
+          try {
+            const event = info.event;
+            let start = event.start;
+            let end = event.end;
+
+            function formatDateTime(dt) {
+              if (!dt) return "";
+              const yyyy = dt.getFullYear();
+              const mm = String(dt.getMonth() + 1).padStart(2, "0");
+              const dd = String(dt.getDate()).padStart(2, "0");
+              const hh = String(dt.getHours()).padStart(2, "0");
+              const min = String(dt.getMinutes()).padStart(2, "0");
+              return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+            }
+
+            let formattedStart, formattedEnd;
+            if (event.allDay) {
+              formattedStart = event.startStr.slice(0, 10);
+              if (event.end) {
+                const endDate = new Date(event.end);
+                endDate.setDate(endDate.getDate() - 1);
+                formattedEnd = endDate.toISOString().slice(0, 10);
+              } else {
+                formattedEnd = formattedStart;
+              }
+            } else {
+              formattedStart = formatDateTime(start);
+              formattedEnd = end ? formatDateTime(end) : formattedStart;
+            }
+
+            const updatedData = {
+              id: event.id,
+              title: event.title,
+              start: formattedStart,
+              end: formattedEnd,
+              allDay: event.allDay,
+              description: event.extendedProps.description,
+              category: event.extendedProps.category,
+              completed: event.extendedProps.completed,
+              className: event.classNames
+                .filter(
+                  (c) =>
+                    c !== undefined &&
+                    c !== null &&
+                    c.startsWith("priority-") === false
+                )
+                .join(" "),
+            };
+            const updatedTask = await ApiService.updateTask(
+              event.id,
+              updatedData,
+              { showLoader: false }
+            );
+            allTasks = [
+              ...allTasks.filter((t) => t.id !== updatedTask.id),
+              updatedTask,
+            ];
+            const current = calendar.getEventById(event.id);
+            if (current) current.remove();
+            calendar.addEvent(updatedTask);
+          } catch (error) {
+            info.revert();
+            console.error("Failed to update event after resize:", error);
           }
         },
         viewDidMount: function (arg) {
@@ -510,22 +574,23 @@ export const Todo = (() => {
       }
 
       async function createTask(data) {
-        Loader.toggle(true);
         try {
-          const newTask = await ApiService.createTask(data);
+          const newTask = await ApiService.createTask(data, {
+            showLoader: false,
+          });
           allTasks.push(newTask);
           calendar.addEvent(newTask);
           return newTask;
         } finally {
-          Loader.toggle(false);
+          // Loader.toggle(false); // Remove loader
         }
       }
 
       async function updateTask(data) {
-        Loader.toggle(true);
         try {
-          const updatedTask = await ApiService.updateTask(data.id, data);
-          // Ensure allTasks has only one event per ID (replace old with new)
+          const updatedTask = await ApiService.updateTask(data.id, data, {
+            showLoader: false,
+          });
           allTasks = [
             ...allTasks.filter((t) => t.id !== updatedTask.id),
             updatedTask,
@@ -534,7 +599,7 @@ export const Todo = (() => {
           calendar.addEvent(updatedTask);
           return updatedTask;
         } finally {
-          Loader.toggle(false);
+          // Loader.toggle(false); // Remove loader
         }
       }
 

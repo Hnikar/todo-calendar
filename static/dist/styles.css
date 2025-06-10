@@ -97,7 +97,11 @@ h6 {
   border-radius: 6px;
   overflow: hidden;
 }
-.fc .fc-daygrid-day,
+.fc .fc-daygrid-day {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--secondary);
+  color: var(--text-light);
+}
 .fc .fc-timegrid-slot,
 .fc .fc-list-table tr {
   background: var(--secondary);
@@ -123,12 +127,6 @@ h6 {
 .fc .fc-button.fc-button-active {
   background: var(--secondary-accent);
   color: #fff;
-}
-.fc .fc-daygrid-day,
-.fc .fc-timegrid-slot,
-.fc .fc-list-table tr {
-  background: var(--secondary);
-  color: var(--text-light);
 }
 .fc .fc-daygrid-day.fc-day-today,
 .fc .fc-timegrid-col.fc-day-today {
@@ -320,6 +318,12 @@ h6 {
 }
 .fc .fc-timegrid-divider.fc-cell-shaded {
   display: none !important;
+}
+.fc .fc-timegrid-col {
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+.fc .fc-timegrid-col:last-child {
+  border-right: none;
 }
 :root {
   --primary-dark: #e3eff2;
